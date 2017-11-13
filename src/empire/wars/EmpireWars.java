@@ -27,7 +27,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
 	
-	public final static float PLAYER_SPEED = 0.20f;
+	public final static float PLAYER_SPEED = 0.50f;
 	
 	TiledMap map;
 	Player player;
