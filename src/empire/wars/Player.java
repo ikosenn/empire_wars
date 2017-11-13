@@ -1,5 +1,7 @@
 package empire.wars;
 
+import java.util.List;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
@@ -11,12 +13,14 @@ import jig.ResourceManager;
 
 public class Player extends Entity{
 	private Vector velocity;
-	
+	public Bullet bullet;
+	public List<PowerUp> powerups;
 	
 	public Player(final float x, final float y, final float vx, final float vy){
 		super(x,y);
 		this.velocity = new Vector(vx, vy);
 		
+		//TODO: initialize bullet and powerups
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
 	}
 	
