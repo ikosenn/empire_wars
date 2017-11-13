@@ -2,10 +2,14 @@ package empire.wars;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.tiled.TiledMap;
 
 import jig.Entity;
+import jig.ResourceManager;
 
 
 /**
@@ -20,10 +24,20 @@ public class EmpireWars extends StateBasedGame {
 	
 	public final static int PLAY_STATE_ID = 0;
 	public final static  int GAMEOVERSTATE_ID = 1;
-	public final static int SCREEN_WIDTH = 1200;
-	public final static int SCREEN_HEIGHT = 900;
+	public final static int SCREEN_WIDTH = 1024;
+	public final static int SCREEN_HEIGHT = 768;
 	
+	public final static float PLAYER_SPEED = 0.50f;
 	
+	TiledMap map;
+	Player player;
+	Camera camera;
+	int mapHeight, mapWidth;
+	int tileHeight, tileWidth;
+	
+	public static final String PLAYER_IMG_RSC = "images/hero.png";
+	
+
 	public EmpireWars(String title) {
 		super(title);
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
@@ -35,7 +49,20 @@ public class EmpireWars extends StateBasedGame {
 		// add game states
 		addState(new PlayState());
 		addState(new GameOverState());
+		
+		ResourceManager.loadImage(PLAYER_IMG_RSC);
+		
+		
+		map = new TiledMap("src/tilemaps/maze.tmx");
+		mapWidth = map.getWidth() * map.getTileWidth();
+		mapHeight = map.getHeight() * map.getTileHeight();
+		
+		tileHeight = map.getTileHeight();
+        tileWidth = map.getTileWidth();
+        player = new Player(tileWidth*4, tileHeight*4, 0, 0);
+        camera = new Camera(map, mapWidth, mapHeight);
 	}
+	
 	
 	public  static void main(String[] args) {
 		AppGameContainer app;

@@ -21,12 +21,16 @@ public class PlayState extends BasicGameState {
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-		
+		EmpireWars ew = (EmpireWars) game;
+		ew.camera.translate(g, ew.player);
+		ew.map.render(0, 0);
+		ew.player.render(g);
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-		
+		EmpireWars ew = (EmpireWars) game;
+		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 	}
 
 	@Override
