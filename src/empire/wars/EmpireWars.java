@@ -2,8 +2,6 @@ package empire.wars;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
@@ -22,10 +20,13 @@ import jig.ResourceManager;
  */
 public class EmpireWars extends StateBasedGame {
 	
-	public final static int PLAY_STATE_ID = 0;
-	public final static  int GAMEOVERSTATE_ID = 1;
+	public final static int PLAY_STATE_ID = 1;
+	public final static  int GAMEOVERSTATE_ID = 2;
+	public final static int SPLASH_SCREEN_STATE_ID = 0;
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
+	public final static int SCREEN_SMALL_WIDTH = 900;
+	public final static int SCREEN_SMALL_HEIGHT = 600;
 	
 	public final static float PLAYER_SPEED = 0.50f;
 	
@@ -36,6 +37,8 @@ public class EmpireWars extends StateBasedGame {
 	int tileHeight, tileWidth;
 	
 	public static final String PLAYER_IMG_RSC = "images/hero.png";
+	public static final String SPLASH_SCREEN_IMG_RSC = "images/splash.png";
+	public static final String LOGO_IMG_RSC = "images/logo.png";
 	
 
 	public EmpireWars(String title) {
@@ -47,10 +50,13 @@ public class EmpireWars extends StateBasedGame {
 	@Override
 	public void initStatesList(GameContainer container) throws SlickException {
 		// add game states
+		addState(new SplashScreenState());
 		addState(new PlayState());
 		addState(new GameOverState());
 		
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
+		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
+		ResourceManager.loadImage(LOGO_IMG_RSC);
 		
 		
 		map = new TiledMap("src/tilemaps/maze.tmx");
@@ -68,7 +74,7 @@ public class EmpireWars extends StateBasedGame {
 		AppGameContainer app;
 		try {
 			app = new AppGameContainer(new EmpireWars("Empire Wars"));
-			app.setDisplayMode(EmpireWars.SCREEN_WIDTH, EmpireWars.SCREEN_HEIGHT, false);
+			app.setDisplayMode(EmpireWars.SCREEN_SMALL_WIDTH, EmpireWars.SCREEN_SMALL_HEIGHT, false);
 			app.setShowFPS(false);
 			app.setVSync(true);
 			app.start();
