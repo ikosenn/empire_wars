@@ -1,45 +1,45 @@
 package empire.wars;
 
-import org.newdawn.slick.AppGameContainer;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.state.transition.EmptyTransition;
+import org.newdawn.slick.state.transition.FadeInTransition;
+
+import jig.ResourceManager;
 
 
-public class PlayState extends BasicGameState {
-	
+public class SplashScreenState extends BasicGameState {
+	private int timer;
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
-		// TODO: Move to the menu state.
 		
 	}
 	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		AppGameContainer gc = (AppGameContainer) container;
-		gc.setDisplayMode(EmpireWars.SCREEN_WIDTH ,EmpireWars.SCREEN_HEIGHT, false);
+		timer = 2000;
 	}
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-		EmpireWars ew = (EmpireWars) game;
-		ew.camera.translate(g, ew.player);
-		ew.map.render(0, 0);
-		ew.player.render(g);
+		g.drawImage(ResourceManager.getImage(EmpireWars.SPLASH_SCREEN_IMG_RSC), 0, 0);
+		g.drawImage(ResourceManager.getImage(EmpireWars.LOGO_IMG_RSC), 130, 450);
 	}
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-		
-		EmpireWars ew = (EmpireWars) game;
-		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		timer -= delta;
+		if (timer <= 0)
+			game.enterState(EmpireWars.PLAY_STATE_ID, new EmptyTransition(), new FadeInTransition());
 	}
 
 	@Override
 	public int getID() {
-		return EmpireWars.PLAY_STATE_ID;
+		return EmpireWars.SPLASH_SCREEN_STATE_ID;
 	}
 
 }
