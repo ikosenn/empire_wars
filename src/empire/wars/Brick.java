@@ -1,15 +1,11 @@
 package empire.wars;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
 import jig.Vector;
-import jig.ResourceManager;
 
-public class Brick extends Entity{
+public class Brick extends NetworkEntity {
 	private Vector velocity;
 	private BRICK_TYPE brick_type;
 	
