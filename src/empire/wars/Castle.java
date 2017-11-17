@@ -1,15 +1,10 @@
 package empire.wars;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
-import jig.Vector;
-import jig.ResourceManager;
 
-public class Castle extends Entity{
+public class Castle extends NetworkEntity {
 	
 	public enum TEAM
 	{

@@ -1,15 +1,11 @@
 package empire.wars;
 
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
 import jig.Vector;
-import jig.ResourceManager;
 
-public class Crepe extends Entity{
+public class Crepe extends NetworkEntity {
 	private Vector velocity;
 	
 	public Crepe(final float x, final float y, final float vx, final float vy){

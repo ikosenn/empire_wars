@@ -10,7 +10,7 @@ import jig.Entity;
  * @author peculiaryak
  *
  */
-public class HealthBar extends Entity {
+public class HealthBar extends NetworkEntity {
 	private int maxHealth = 20;
 	private int currentHealth;
 	

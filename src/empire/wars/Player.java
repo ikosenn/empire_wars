@@ -7,11 +7,10 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
 import jig.ResourceManager;
 import jig.Vector;
 
-public class Player extends Entity{
+public class Player extends NetworkEntity {
 	private Vector velocity;
 	public Bullet bullet;
 	public List<PowerUp> powerups;
