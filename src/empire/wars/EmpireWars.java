@@ -1,6 +1,7 @@
 package empire.wars;
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -9,6 +10,8 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
 import empire.wars.net.Message;
+import empire.wars.net.GameClient;
+import empire.wars.net.GameServer;
 import jig.Entity;
 import jig.ResourceManager;
 
@@ -21,7 +24,7 @@ import jig.ResourceManager;
  * @author priya, peculiaryak, jun, shubham
  *
  */
-public class EmpireWars extends StateBasedGame {
+public class EmpireWars extends StateBasedGame implements Runnable {
 	
 	public final static int PLAY_STATE_ID = 1;
 	public final static  int GAMEOVERSTATE_ID = 2;
@@ -30,6 +33,9 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SCREEN_HEIGHT = 768;
 	public final static int SCREEN_SMALL_WIDTH = 900;
 	public final static int SCREEN_SMALL_HEIGHT = 600;
+	
+	private GameClient socketClient;
+	private GameServer socketServer;
 	
 	public final static float PLAYER_SPEED = 0.50f;
 	public final static float PLAYER_BULLETSPEED = 0.30f;
@@ -65,6 +71,21 @@ public class EmpireWars extends StateBasedGame {
 	
 	@Override
 	public void initStatesList(GameContainer container) throws SlickException {
+		
+		new Thread(this).start();
+		
+		String input = JOptionPane.showInputDialog(
+                "Run as server?", null);
+		System.out.println(input);
+		if(input.equals("yes")) {
+			socketServer = new GameServer();
+			socketServer.start();
+		}
+		
+		socketClient = new GameClient("localhost");
+		socketClient.start();
+		
+		socketClient.sendData("ping".getBytes());
 		// add game states
 		addState(new SplashScreenState());
 		addState(new PlayState());
@@ -125,6 +146,12 @@ public class EmpireWars extends StateBasedGame {
 			e.printStackTrace();
 		}
 
+	}
+
+
+	@Override
+	public void run() {
+		
 	}
 
 }
