@@ -1,12 +1,9 @@
 package empire.wars.net;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.UUID;
+
+import empire.wars.EmpireWars;
 
 /*
  * We try restrict our game to sending packets using this class.
@@ -84,4 +81,17 @@ public class Message implements Serializable {
 		return this.className;
 	}
 	
+	/**
+	 * Determines which handler will process the message
+	 * @param msgPacket. The packet sent across the network.
+	 * @param ew. The current game state.
+	 */
+	public static void determineHandler(Message msgPacket, EmpireWars ew) {
+		String msgType = msgPacket.getMsgType();
+		String className = msgPacket.getClassName();
+		
+		if (className == "PLAYER") {
+			new PlayerMessageHandler(msgPacket, ew);
+		}
+	}
 }

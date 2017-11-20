@@ -55,8 +55,16 @@ public class Player extends NetworkEntity {
 		translate(velocity.scale(delta));
 
 		// update health bar pos
-		this.health.setPosition(this.getX() - hbXOffset,  this.getY() - hbYOffset);
+		this.setHealthBarPos();
 
+	}
+	
+	/**
+	 * Update the health bar based on the players movement.
+	 *
+	 */
+	public void setHealthBarPos() {
+		this.health.setPosition(this.getX() - hbXOffset,  this.getY() - hbYOffset);
 	}
 	
 	public void setVelocity(final Vector v) {

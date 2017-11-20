@@ -1,11 +1,16 @@
 package empire.wars;
 
+import java.util.Iterator;
+import java.util.UUID;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+
+import empire.wars.net.Message;
 
 
 public class PlayState extends BasicGameState {
@@ -19,7 +24,7 @@ public class PlayState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		AppGameContainer gc = (AppGameContainer) container;
-		gc.setDisplayMode(EmpireWars.SCREEN_WIDTH ,EmpireWars.SCREEN_HEIGHT, false);
+		gc.setDisplayMode(EmpireWars.SCREEN_WIDTH ,EmpireWars.SCREEN_HEIGHT, false);		
 	}
 
 	@Override
@@ -28,6 +33,11 @@ public class PlayState extends BasicGameState {
 		ew.camera.translate(g, ew.player);
 		ew.map.render(0, 0);
 		ew.player.render(g);
+		
+		// render other client stuff
+		for (Iterator<Player> i = ew.getClientPlayer().iterator(); i.hasNext(); ) {
+			i.next().render(g);
+		}
 	}
 
 	@Override
@@ -35,6 +45,12 @@ public class PlayState extends BasicGameState {
 		
 		EmpireWars ew = (EmpireWars) game;
 		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		
+		// process network message
+		for (Iterator<Message> i = ew.receivedPackets.iterator(); i.hasNext(); ) {
+			Message.determineHandler(i.next(), ew);
+			i.remove();
+		}
 	}
 
 	@Override

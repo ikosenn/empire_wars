@@ -33,4 +33,18 @@ public class NetworkEntity extends Entity {
 		super(x, y);
 		objectUUID = UUID.randomUUID();
 	}
+	
+	/*
+	 * ObjectUUID getter.
+	 */
+	public UUID getObjectUUID() {
+		return this.objectUUID;
+	}
+	
+	/*
+	 * ObjectUUID setter.
+	 */
+	public void setObjectUUID(UUID uuid) {
+		this.objectUUID = uuid;
+	}
 }

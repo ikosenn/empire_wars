@@ -29,6 +29,7 @@ public class Brick extends NetworkEntity {
 		translate(velocity.scale(delta));
 	}
 	
+	
 	public void setVelocity(final Vector v) {
 		velocity = v;
 	}
@@ -36,4 +37,5 @@ public class Brick extends NetworkEntity {
 	public Vector getVelocity() {
 		return velocity;
 	}
+	
 }
