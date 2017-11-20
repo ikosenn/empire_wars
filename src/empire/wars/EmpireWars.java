@@ -1,11 +1,14 @@
 package empire.wars;
 
+import java.util.ArrayList;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
+import empire.wars.net.Message;
 import jig.Entity;
 import jig.ResourceManager;
 
@@ -40,7 +43,14 @@ public class EmpireWars extends StateBasedGame {
 	public static final String SPLASH_SCREEN_IMG_RSC = "images/splash.png";
 	public static final String LOGO_IMG_RSC = "images/logo.png";
 	
-
+	// network related values
+	ArrayList<Message> receivedPackets = new ArrayList<Message>();
+	ArrayList<Message> sentPackets  = new ArrayList<Message>();
+	
+	// stupid way to track other client entities
+	// stupid way works best sometimes
+	ArrayList<Player> clientPlayer = new ArrayList<>();
+	
 	public EmpireWars(String title) {
 		super(title);
 		Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
@@ -69,6 +79,30 @@ public class EmpireWars extends StateBasedGame {
         camera = new Camera(map, mapWidth, mapHeight);
 	}
 	
+	
+	/**
+	 * ClientPlayer getter
+	 * @return Player. Returns and array-list of other client player.
+	 */
+	public ArrayList<Player> getClientPlayer() {
+		return clientPlayer;
+	}
+	
+	/**
+	 * Tile Height getter
+	 * @return float. The height of a single tile in the map
+	 */
+	public float getTileHeight() {
+		return this.tileHeight;
+	}
+	
+	/**
+	 * Tile Width getter
+	 * @return float. The width of a single tile in the map
+	 */
+	public float getTileWidth() {
+		return this.tileWidth;
+	}
 	
 	public  static void main(String[] args) {
 		AppGameContainer app;
