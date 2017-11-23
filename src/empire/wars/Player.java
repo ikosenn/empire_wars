@@ -19,6 +19,7 @@ public class Player extends NetworkEntity {
 	public HealthBar health;
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
+	private String username;
 	
 	// direction info of a player
 	private int direction;
@@ -65,6 +66,17 @@ public class Player extends NetworkEntity {
 		
 	}
 	
+	public Player(float x, float y, String username) {
+		super(x,y);
+		System.out.println("added Player");
+		this.username = username;
+		this.velocity = new Vector(0.1F, 0.1F);
+		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset);
+		
+		//TODO: initialize bullet and powerups
+		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
+	}
+
 	public void update(GameContainer container, StateBasedGame game, int delta,
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
 		EmpireWars ew = (EmpireWars) game;
@@ -159,7 +171,10 @@ public class Player extends NetworkEntity {
 	public void setHealthBarPos() {
 		this.health.setPosition(this.getX() - hbXOffset,  this.getY() - hbYOffset);
 	}
-		
+
+	public String getUserName() {
+		return this.username;
+	}
 
 	/**
 	 * Draws all boundaries and images associated with the entity at their

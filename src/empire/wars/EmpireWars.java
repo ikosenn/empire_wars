@@ -10,6 +10,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
 import empire.wars.net.Message;
+import empire.wars.net.packets.LoginPacket;
 import empire.wars.net.GameClient;
 import empire.wars.net.GameServer;
 import jig.Entity;
@@ -74,18 +75,24 @@ public class EmpireWars extends StateBasedGame implements Runnable {
 		
 		new Thread(this).start();
 		
-		String input = JOptionPane.showInputDialog(
-                "Run as server?", null);
+		String input = JOptionPane.showInputDialog("Run as server?", null);
 		System.out.println(input);
 		if(input.equals("yes")) {
-			socketServer = new GameServer();
+			socketServer = new GameServer(this);
 			socketServer.start();
-		}
-		
-		socketClient = new GameClient("localhost");
+		} 
+		socketClient = new GameClient(this,"localhost");
 		socketClient.start();
 		
-		socketClient.sendData("ping".getBytes());
+		player = new ConnectedPlayers(200,200,JOptionPane.showInputDialog(this, "Please Enter your username"), null , -1);
+		
+		LoginPacket loginPacket = new LoginPacket(player.getUserName());
+		if(socketServer != null) {
+			socketServer.addConnection((ConnectedPlayers) player, loginPacket);
+		}
+		loginPacket.writeData(socketClient);
+		//socketClient.sendData("ping".getBytes());
+		
 		// add game states
 		addState(new SplashScreenState());
 		addState(new PlayState());
@@ -105,7 +112,7 @@ public class EmpireWars extends StateBasedGame implements Runnable {
 		
 		tileHeight = map.getTileHeight();
         tileWidth = map.getTileWidth();
-        player = new Player(tileWidth*4, tileHeight*4, 0, 0);
+        //player = new Player(tileWidth*4, tileHeight*4, 0, 0);
         camera = new Camera(map, mapWidth, mapHeight);
 	}
 	
