@@ -9,6 +9,12 @@ import empire.wars.EmpireWars;
  * We try restrict our game to sending packets using this class.
  * This makes it easier to handle the messaging system since all
  * we expect is data constructed in a certain fashion.
+ * 
+ * MESSAGE CATEGORY TYPES
+ * 
+ * SETVEL: Contains velocity updates.
+ * SETPOS: Contains position updates.
+ * 
  */
 public class Message implements Serializable {
 	

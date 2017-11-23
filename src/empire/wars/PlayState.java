@@ -1,7 +1,6 @@
 package empire.wars;
 
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;

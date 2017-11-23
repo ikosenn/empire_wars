@@ -45,7 +45,7 @@ public class EmpireWars extends StateBasedGame {
 	
 	// network related values
 	ArrayList<Message> receivedPackets = new ArrayList<Message>();
-	ArrayList<Message> sentPackets  = new ArrayList<Message>();
+	ArrayList<Message> sendPackets  = new ArrayList<Message>();
 	
 	// stupid way to track other client entities
 	// stupid way works best sometimes
