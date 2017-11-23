@@ -31,6 +31,7 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 		
 		playerTemp = new Player(ew.getTileWidth() * 4, ew.getTileHeight() * 4, 0, 0);
 		playerTemp.setObjectUUID(objectUUID);
+		playerTemp.setObjectType("NETWORK");
 		ew.getClientPlayer().add(playerTemp);
 		return (NetworkEntity)playerTemp;
 	}

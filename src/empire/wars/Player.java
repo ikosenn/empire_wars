@@ -11,7 +11,6 @@ import jig.ResourceManager;
 import jig.Vector;
 
 public class Player extends NetworkEntity {
-	private Vector velocity;
 	public Bullet bullet;
 	public List<PowerUp> powerups;
 	public HealthBar health;
@@ -30,6 +29,7 @@ public class Player extends NetworkEntity {
 	public void update(GameContainer container, StateBasedGame game, int delta,
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
 		EmpireWars ew = (EmpireWars) game;
+		this.networkUpdate(ew);  // network updates
 		// get user input
 		Input input = container.getInput();
 	
@@ -66,15 +66,7 @@ public class Player extends NetworkEntity {
 	public void setHealthBarPos() {
 		this.health.setPosition(this.getX() - hbXOffset,  this.getY() - hbYOffset);
 	}
-	
-	public void setVelocity(final Vector v) {
-		velocity = v;
-	}
-
-	public Vector getVelocity() {
-		return velocity;
-	}
-	
+		
 
 	/**
 	 * Draws all boundaries and images associated with the entity at their
