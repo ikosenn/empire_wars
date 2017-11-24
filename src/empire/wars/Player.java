@@ -14,7 +14,7 @@ public class Player extends NetworkEntity {
 	public Bullet bullet;
 	public List<PowerUp> powerups;
 	public HealthBar health;
-	public float hbXOffset = 30; // health bar offset so its on top of the players head
+	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
 	
 	public Player(final float x, final float y, final float vx, final float vy){
@@ -31,24 +31,27 @@ public class Player extends NetworkEntity {
 		EmpireWars ew = (EmpireWars) game;
 		this.networkUpdate(ew);  // network updates
 		// get user input
+		
 		Input input = container.getInput();
 	
-		if(input.isKeyDown(Input.KEY_W)){
+		Vector previousPoition = this.getPosition();
+
+		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
 			setVelocity(new Vector(0.f, -ew.PLAYER_SPEED));
 		}
-		if(input.isKeyDown(Input.KEY_S)){
+		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
 			setVelocity(new Vector(0.f, ew.PLAYER_SPEED));
 		}
-		if(input.isKeyDown(Input.KEY_A)){
+		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
 			setVelocity(new Vector(-ew.PLAYER_SPEED, 0.f));
 		}
-		if(input.isKeyDown(Input.KEY_D)){
+		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
 			setVelocity(new Vector(ew.PLAYER_SPEED, 0.f));
 		}
-		if(!input.isKeyDown(Input.KEY_W)
-				&& !input.isKeyDown(Input.KEY_S)
-				&& !input.isKeyDown(Input.KEY_A)
-				&& !input.isKeyDown(Input.KEY_D)){
+		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_UP) 
+				&& !input.isKeyDown(Input.KEY_S) && !input.isKeyDown(Input.KEY_DOWN)
+				&& !input.isKeyDown(Input.KEY_A) && !input.isKeyDown(Input.KEY_LEFT)
+				&& !input.isKeyDown(Input.KEY_D) && !input.isKeyDown(Input.KEY_RIGHT)){
 			setVelocity(new Vector(0.f, 0.f));
 		}
 		
@@ -56,7 +59,23 @@ public class Player extends NetworkEntity {
 
 		// update health bar pos
 		this.setHealthBarPos();
-
+		
+		int wallIndex = ew.map.getLayerIndex("walls");
+		int minX = (int)(this.getCoarseGrainedMinX()/32);
+		int minY = (int)(this.getCoarseGrainedMinY()/32);
+		int maxX = (int)(this.getCoarseGrainedMaxX()/32);
+		int maxY = (int)(this.getCoarseGrainedMaxY()/32);
+		
+		System.out.println(Integer.toString(minX) + Integer.toString(minY) + Integer.toString(maxX) + Integer.toString(maxY));
+		
+		if (ew.map.getTileId(minX, minY, wallIndex) != 0 ||
+				ew.map.getTileId(minX, maxY, wallIndex) != 0 ||
+						ew.map.getTileId(maxX, minY, wallIndex) != 0 ||
+								ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+		{
+			this.setPosition(previousPoition);
+			this.setHealthBarPos();
+		}
 	}
 	
 	/**

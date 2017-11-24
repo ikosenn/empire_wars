@@ -11,7 +11,7 @@ import jig.Entity;
  *
  */
 public class HealthBar extends NetworkEntity {
-	private int maxHealth = 20;
+	private int maxHealth = 16;
 	private int currentHealth;
 	
 	public HealthBar(float x, float y) {
@@ -60,12 +60,12 @@ public class HealthBar extends NetworkEntity {
 		for (int i = 0; i <  this.maxHealth; i++) {
 			if (i < this.currentHealth) {
 				g.setColor(Color.red);
-				g.fillRect(drawXAt, drawYAt, 3, 3);
+				g.fillRect(drawXAt, drawYAt, 2, 3);
 			} else {
 				g.setColor(Color.black);
-				g.fillRect(drawXAt, drawYAt, 3, 3);
+				g.fillRect(drawXAt, drawYAt, 2, 3);
 			}
-			drawXAt += 3;
+			drawXAt += 2;
 		}
 	}
 	
