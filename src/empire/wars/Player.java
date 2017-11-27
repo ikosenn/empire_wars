@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -30,16 +31,26 @@ public class Player extends NetworkEntity {
 	public Direction direction;
 	Random rand = new Random();
 	
+	private Animation movement_up = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 0, 0, 0, 3, false, 150, true);
+	private Animation movement_down = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 2, 0, 2, 3, false, 150, true);
+	private Animation movement_left = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 3, 0, 3, 3, false, 150, true);
+	private Animation movement_right = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 1, 0, 1, 3, false, 150, true);
+	
 	public Player(final float x, final float y, final float vx, final float vy, final TEAM in_team){
 		super(x,y);
 		this.velocity = new Vector(vx, vy);
 		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
 		this.team = in_team;
-		
 
 		int randNumber = rand.nextInt(4);
 		direction = Direction.values()[randNumber];
-		addImageWithBoundingBox(ResourceManager.getImage(getImageName(direction)));
+//		addImageWithBoundingBox(ResourceManager.getImage(getImageName(direction)));
+		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
+		addAnimation(movement_right);
 
 		bullets = new ArrayList<Bullet>();
 	}
@@ -129,22 +140,35 @@ public class Player extends NetworkEntity {
 		Input input = container.getInput();
 	
 		Vector previousPoition = this.getPosition();
+		
+
+		while(getNumAnimations() > 2){
+			removeAnimation(movement_up);
+			removeAnimation(movement_down);
+			removeAnimation(movement_left);
+			removeAnimation(movement_right);
+		}
 
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
 			setVelocity(new Vector(0.f, -ew.PLAYER_SPEED));
-			changeDirection(Direction.UP);
+//			changeDirection(Direction.UP);
+			addAnimation(movement_up);
 		}
 		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
 			setVelocity(new Vector(0.f, ew.PLAYER_SPEED));
-			changeDirection(Direction.DOWN);
+//			changeDirection(Direction.DOWN);
+			addAnimation(movement_down);
+			
 		}
 		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
 			setVelocity(new Vector(-ew.PLAYER_SPEED, 0.f));
-			changeDirection(Direction.LEFT);
+//			changeDirection(Direction.LEFT);
+			addAnimation(movement_left);
 		}
 		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
 			setVelocity(new Vector(ew.PLAYER_SPEED, 0.f));
-			changeDirection(Direction.RIGHT);
+//			changeDirection(Direction.RIGHT);
+			addAnimation(movement_right);
 		}
 		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_UP) 
 				&& !input.isKeyDown(Input.KEY_S) && !input.isKeyDown(Input.KEY_DOWN)
@@ -154,6 +178,16 @@ public class Player extends NetworkEntity {
 		}
 		
 		translate(velocity.scale(delta));
+		
+		if(velocity.getY() < 0 ){
+			direction = Direction.UP;
+		}else if(velocity.getY()>0){
+			direction = Direction.DOWN;
+		}else if(velocity.getX()<0){
+			direction = Direction.LEFT;
+		}else if(velocity.getX()>0){
+			direction = Direction.RIGHT;
+		}
 		
 		// player shooting bullets
 		if(input.isKeyPressed(Input.KEY_J)){

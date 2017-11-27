@@ -67,7 +67,8 @@ public class EmpireWars extends StateBasedGame {
 	int tileHeight, tileWidth;
 	
 	//image resources
-	public static final String PLAYER_IMG_RSC = "images/hero.png";
+	public static final String PLAYER_IMG_RSC = "images/background.gif";
+	public static final String PLAYER_MOVINGIMG_RSC = "images/jun.png";
 	public static final String PLAYER_BULLETIMG_RSC = "images/player_bullet.gif";
 	public static final String SPLASH_SCREEN_IMG_RSC = "images/splash.png";
 	public static final String LOGO_IMG_RSC = "images/logo.png";
@@ -123,6 +124,7 @@ public class EmpireWars extends StateBasedGame {
 		addState(new MenuState());
 		
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
+		ResourceManager.loadImage(PLAYER_MOVINGIMG_RSC);
 		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
 		ResourceManager.loadImage(LOGO_IMG_RSC);
 
