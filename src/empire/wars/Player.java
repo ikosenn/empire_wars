@@ -31,14 +31,23 @@ public class Player extends NetworkEntity {
 	public Direction direction;
 	Random rand = new Random();
 	
-	private Animation movement_up = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 0, 0, 0, 3, false, 150, true);
-	private Animation movement_down = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 2, 0, 2, 3, false, 150, true);
-	private Animation movement_left = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 3, 0, 3, 3, false, 150, true);
-	private Animation movement_right = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.PLAYER_MOVINGIMG_RSC, 24, 24), 1, 0, 1, 3, false, 150, true);
+	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 3, 2, 3, true, 150, true);
+	private Animation blue_movement_down = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 0, 2, 0, true, 150, true);
+	private Animation blue_movement_left = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 1, 2, 1, true, 150, true);
+	private Animation blue_movement_right = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 2, 2, 2, true, 150, true);
+	
+	private Animation red_movement_up = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.RED_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 3, 2, 3, true, 150, true);
+	private Animation red_movement_down = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.RED_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 0, 2, 0, true, 150, true);
+	private Animation red_movement_left = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.RED_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 1, 2, 1, true, 150, true);
+	private Animation red_movement_right = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.RED_PLAYER_MOVING_IMG_RSC, 32, 32), 0, 2, 2, 2, true, 150, true);
 	
 	public Player(final float x, final float y, final float vx, final float vy, final TEAM in_team){
 		super(x,y);
@@ -48,10 +57,8 @@ public class Player extends NetworkEntity {
 
 		int randNumber = rand.nextInt(4);
 		direction = Direction.values()[randNumber];
-//		addImageWithBoundingBox(ResourceManager.getImage(getImageName(direction)));
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
-		addAnimation(movement_right);
-
+		addAnimation(getAnimation(direction));
 		bullets = new ArrayList<Bullet>();
 	}
 	
@@ -79,22 +86,22 @@ public class Player extends NetworkEntity {
 		}
 	}
 	
-	public String getImageName(Direction direction)
+	public Animation getAnimation(Direction direction)
 	{
 		if (team == TEAM.BLUE)
 		{
 			switch (direction)
 			{
 			case UP:
-				return EmpireWars.BLUE_PLAYER_UP_IMG_RSC;
+				return blue_movement_up;
 			case DOWN:
-				return EmpireWars.BLUE_PLAYER_DOWN_IMG_RSC;
+				return blue_movement_down;
 			case LEFT:
-				return EmpireWars.BLUE_PLAYER_LEFT_IMG_RSC;
+				return blue_movement_left;
 			case RIGHT:
-				return EmpireWars.BLUE_PLAYER_RIGHT_IMG_RSC;
+				return blue_movement_right;
 			default:
-				return "";
+				return blue_movement_down;
 			}
 		}
 		else
@@ -102,34 +109,39 @@ public class Player extends NetworkEntity {
 			switch (direction)
 			{
 			case UP:
-				return EmpireWars.RED_PLAYER_UP_IMG_RSC;
+				return red_movement_up;
 			case DOWN:
-				return EmpireWars.RED_PLAYER_DOWN_IMG_RSC;
+				return red_movement_down;
 			case LEFT:
-				return EmpireWars.RED_PLAYER_LEFT_IMG_RSC;
+				return red_movement_left;
 			case RIGHT:
-				return EmpireWars.RED_PLAYER_RIGHT_IMG_RSC;
+				return red_movement_right;
 			default:
-				return "";
+				return red_movement_down;
 			}
 		}
 	}
 	
 	public void changeDirection(Direction new_direction)
 	{
-		removeImage(ResourceManager.getImage(getImageName(direction)));
-		addImageWithBoundingBox(ResourceManager.getImage(getImageName(new_direction)));
+		while(getNumAnimations() > 2){
+			removeAnimation(getAnimation(direction));
+//			removeAnimation(movement_down);
+//			removeAnimation(movement_left);
+//			removeAnimation(movement_right);
+		}
+		addAnimation(getAnimation(new_direction));
 		direction = new_direction;
 	}
 	
-	public Player(float x, float y) {
-		super(x,y);
-		this.velocity = new Vector(0.1F, 0.1F);
-		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, team);
-		
-		//TODO: initialize bullet and powerups
-		addImageWithBoundingBox(ResourceManager.getImage(getImageName(Direction.DOWN)));
-	}
+//	public Player(float x, float y) {
+//		super(x,y);
+//		this.velocity = new Vector(0.1F, 0.1F);
+//		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, team);
+//		
+//		//TODO: initialize bullet and powerups
+//		addImageWithBoundingBox(ResourceManager.getImage(getImageName(Direction.DOWN)));
+//	}
 
 	public void update(GameContainer container, StateBasedGame game, int delta,
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
@@ -142,33 +154,21 @@ public class Player extends NetworkEntity {
 		Vector previousPoition = this.getPosition();
 		
 
-		while(getNumAnimations() > 2){
-			removeAnimation(movement_up);
-			removeAnimation(movement_down);
-			removeAnimation(movement_left);
-			removeAnimation(movement_right);
-		}
-
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
 			setVelocity(new Vector(0.f, -ew.PLAYER_SPEED));
-//			changeDirection(Direction.UP);
-			addAnimation(movement_up);
+			changeDirection(Direction.UP);
 		}
 		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
 			setVelocity(new Vector(0.f, ew.PLAYER_SPEED));
-//			changeDirection(Direction.DOWN);
-			addAnimation(movement_down);
-			
+			changeDirection(Direction.DOWN);
 		}
 		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
 			setVelocity(new Vector(-ew.PLAYER_SPEED, 0.f));
-//			changeDirection(Direction.LEFT);
-			addAnimation(movement_left);
+			changeDirection(Direction.LEFT);
 		}
 		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
 			setVelocity(new Vector(ew.PLAYER_SPEED, 0.f));
-//			changeDirection(Direction.RIGHT);
-			addAnimation(movement_right);
+			changeDirection(Direction.RIGHT);
 		}
 		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_UP) 
 				&& !input.isKeyDown(Input.KEY_S) && !input.isKeyDown(Input.KEY_DOWN)
