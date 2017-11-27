@@ -9,6 +9,7 @@ import jig.ResourceManager;
 public class Bullet extends NetworkEntity {
 	private Vector velocity;
 	private String bullet_image;
+	private boolean exploded;
 	
 	public enum BULLET_TYPE
 	{
@@ -21,6 +22,7 @@ public class Bullet extends NetworkEntity {
 	
 	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type){
 		super(x,y);
+		this.exploded = false;
 		this.velocity = new Vector(vx, vy);
 		this.bullet_image = in_bullet_image;
 		this.bullet_type = in_bullet_type;
@@ -39,5 +41,13 @@ public class Bullet extends NetworkEntity {
 
 	public Vector getVelocity() {
 		return velocity;
+	}
+	
+	public void explode() {
+		exploded = true;
+	}
+	
+	public boolean isExploded() {
+		return exploded;
 	}
 }
