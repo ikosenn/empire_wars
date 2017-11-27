@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import empire.wars.EmpireWars;
+import empire.wars.EmpireWars.Team;
 import empire.wars.NetworkEntity;
 import empire.wars.Player;
 
@@ -29,7 +30,7 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 			}
 		}
 		
-		playerTemp = new Player(ew.getTileWidth() * 4, ew.getTileHeight() * 4, 0, 0);
+		playerTemp = new Player(ew.getTileWidth() * 4, ew.getTileHeight() * 4, 0, 0, Team.BLUE);
 		playerTemp.setObjectUUID(objectUUID);
 		playerTemp.setObjectType("NETWORK");
 		ew.getClientPlayer().add(playerTemp);
