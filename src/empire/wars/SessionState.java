@@ -73,6 +73,7 @@ public class SessionState extends BasicGameState {
 						EmpireWars.SERVER_PORT, InetAddress.getByName("0.0.0.0"));
 					serverSock.setBroadcast(true);
 					ew.startUpServers(serverSock);
+					game.enterState(EmpireWars.PLAY_STATE_ID);
 				} catch (SocketException | UnknownHostException e) {
 					e.printStackTrace();
 				}
@@ -83,6 +84,7 @@ public class SessionState extends BasicGameState {
 					DatagramSocket clientSock = new DatagramSocket();
 					clientSock.setBroadcast(true);
 					ew.startUpServers(clientSock);
+					game.enterState(EmpireWars.PLAY_STATE_ID);
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}

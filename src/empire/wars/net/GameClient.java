@@ -1,83 +1,105 @@
 package empire.wars.net;
-import empire.wars.ConnectedPlayers;
-import empire.wars.EmpireWars;
-import empire.wars.net.packets.LoginPacket;
-import empire.wars.net.packets.Packet;
-import empire.wars.net.packets.Packet.PacketTypes;
-
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+
+import empire.wars.EmpireWars;
 
 
 
 public class GameClient extends Thread {
-	
-	private InetAddress ipAddress;
+
 	private DatagramSocket socket;
 	private EmpireWars game;
 	
-	public GameClient(EmpireWars game, String ipAddress) {
+	public GameClient(EmpireWars game, DatagramSocket s) {
 		this.game = game;
-		try {
-			this.socket = new DatagramSocket();
-			this.ipAddress = InetAddress.getByName(ipAddress);
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		this.socket = s;
 	}
 
 
 	public void run() {
 		while(true) {
-			byte[] data = new byte[1024];
-			DatagramPacket packet = new DatagramPacket(data,data.length); 
-			try {
-				socket.receive(packet);
-			} catch (IOException e) {
-				e.printStackTrace();
+			ArrayList<Message> sendMsg = this.game.getSendPackets(); 
+			while (sendMsg.size() > 0) {
+				Message tempMsg = sendMsg.get(0);
+				tempMsg.setIpAddress(this.socket.getLocalAddress());
+				tempMsg.setPort(this.socket.getLocalPort());
+				if (this.game.getSessionType() == "CLIENT") {
+					this.sendToServer(tempMsg);
+				} else if (this.game.getSessionType() == "SERVER") {
+					this.sendToOtherClients(tempMsg);
+				}
+				this.game.popSendPackets(tempMsg);
 			}
-			parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
-			/*String message = new String(packet.getData());
-			System.out.println("Server: "+ message);*/
-			
 		}
 	}
-
-	private void parsePacket(byte[] data, InetAddress address, int port) {
-		LoginPacket packet  = null;
-		String message = new String(data).trim();
-		PacketTypes type = Packet.lookupPackets(message.substring(0,2));
-		System.out.println(type);
-		switch(type) {
-		case LOGIN:
-			packet = new LoginPacket(data);
-			System.out.println(address.getHostAddress() + " " +((LoginPacket) packet).getUsername() + "has joined the game");
-			new ConnectedPlayers(100,100,((LoginPacket) packet).getUsername(), address, port);
-			//add the player.
-			break;
-		case DISCONNECT: 
-			break;
-		default:
-			break;
-		}
-		
+	
+	/**
+	 * Serializes the Message class to bytes
+	 * @param msg. The message object to send
+	 * @return byte array of the data to be sent
+	 * @throws IOException 
+	 */
+	private byte[] serializerMessage(Message msg) throws IOException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutputStream objectStream = new ObjectOutputStream(outputStream);
+		objectStream.writeObject(msg);
+		byte[] data = outputStream.toByteArray();
+		return data;
 	}
+	
+	/*
+	 * Sends the data to the server this is done by the clients
+	 */
+	private void sendToServer(Message msg) {
 
-
-	public void sendData(byte[] data) {
-		DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 1323);
 		try {
+			byte[] data = this.serializerMessage(msg);
+			ConnectedPlayers server = this.game.getBroadcastServer();
+			InetAddress serverIP = server.getIpAddress();
+			int serverPort = server.getPort();
+			DatagramPacket packet = new DatagramPacket(
+				data, data.length, serverIP, serverPort
+			);
+			System.out.println("Message length is: " + data.length);
 			this.socket.send(packet);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+			System.out.println(
+				"An error occurred while serializing/ sending Message to server." + e.toString());
+		}  
 	}
-
+	
+	/*
+	 * Sends a message to all the other clients. This is done 
+	 * by the server. The server also filters out messages so a 
+	 * message is not returned back to a client that sent it
+	 */
+	private void sendToOtherClients(Message msg) {
+		try {
+			byte[] data = this.serializerMessage(msg);
+			ArrayList<ConnectedPlayers> connectedPlayers = this.game.getConnectedPlayers();
+			for (int i = 0; i < connectedPlayers.size(); i++) {
+				ConnectedPlayers temp = connectedPlayers.get(i);
+				if (temp.getIpAddress() != msg.getIpAddress() &&
+						temp.getPort() != msg.getPort()) {
+					
+					DatagramPacket packet = new DatagramPacket(
+						data, data.length, temp.getIpAddress(), temp.getPort()
+					);
+					System.out.println("Message length is: " + data.length);
+					this.socket.send(packet);
+					
+				}
+					
+			}
+		} catch (IOException e) {
+			System.out.println(
+				"An error occurred while serializing/ sending Message to other clients" + e.toString());
+		}  
+	}
 }

@@ -1,6 +1,7 @@
 package empire.wars.net;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.UUID;
 
 import empire.wars.EmpireWars;
@@ -24,6 +25,8 @@ public class Message implements Serializable {
 	private String msgType; // e.g UPDATE, CONTROL
 	private String categoryType; // more specific e.g SETPOS.
 	private String className; // The class that is being updated
+	private InetAddress ipAddress; // sender
+	private int port = 0; // sender
 
 	// mostly used for control packets such as creating connections
 	public Message(String msg, String messageType) {
@@ -98,6 +101,43 @@ public class Message implements Serializable {
 		
 		if (className == "PLAYER") {
 			new PlayerMessageHandler(msgPacket, ew);
+		}
+		
+		if (msgType == "CONNECT") {
+			new SessionHandler(msgPacket, ew);
+		}
+	}
+
+	/*
+	 * port getter
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/**
+	 * Port setter
+	 */
+	public void setPort(int port) {
+		if (this.port == 0) {
+			this.port = port;
+		}
+	}
+
+	/**
+	 * ip-address getter 
+	 * 
+	 */
+	public InetAddress getIpAddress() {
+		return ipAddress;
+	}
+
+	/*
+	 * ip-address setter
+	 */
+	public void setIpAddress(InetAddress ipAddress) {
+		if (this.ipAddress == null) {
+			this.ipAddress = ipAddress;
 		}
 	}
 }

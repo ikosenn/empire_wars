@@ -2,7 +2,6 @@ package empire.wars;
 
 import java.util.Iterator;
 
-import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
@@ -19,12 +18,7 @@ public class PlayState extends BasicGameState {
 		// TODO: Move to the menu state.
 		
 	}
-	
-	@Override
-	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		AppGameContainer gc = (AppGameContainer) container;
-		gc.setDisplayMode(EmpireWars.SCREEN_WIDTH ,EmpireWars.SCREEN_HEIGHT, false);		
-	}
+
 
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {

@@ -21,7 +21,7 @@ public class SplashScreenState extends BasicGameState {
 	
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		timer = 2000;
+		timer = 100;
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class SplashScreenState extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		timer -= delta;
 		if (timer <= 0)
-			game.enterState(EmpireWars.PLAY_STATE_ID, new EmptyTransition(), new FadeInTransition());
+			game.enterState(EmpireWars.MENU_STATE_ID, new EmptyTransition(), new FadeInTransition());
 	}
 
 	@Override
