@@ -125,10 +125,10 @@ public class Player extends NetworkEntity {
 	public void changeDirection(Direction new_direction)
 	{
 		while(getNumAnimations() > 2){
-			removeAnimation(getAnimation(direction));
-//			removeAnimation(movement_down);
-//			removeAnimation(movement_left);
-//			removeAnimation(movement_right);
+			removeAnimation(getAnimation(Direction.UP));
+			removeAnimation(getAnimation(Direction.DOWN));
+			removeAnimation(getAnimation(Direction.LEFT));
+			removeAnimation(getAnimation(Direction.RIGHT));
 		}
 		addAnimation(getAnimation(new_direction));
 		direction = new_direction;
