@@ -3,6 +3,7 @@ package empire.wars;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
+import empire.wars.Castle.TEAM;
 import jig.Entity;
 
 /**
@@ -13,10 +14,12 @@ import jig.Entity;
 public class HealthBar extends NetworkEntity {
 	private int maxHealth = 16;
 	private int currentHealth;
+	TEAM team;
 	
-	public HealthBar(float x, float y) {
+	public HealthBar(float x, float y, TEAM team) {
 		super(x, y);
 		this.currentHealth = this.maxHealth;
+		this.team = team;
 	}
 	/**
 	 * Determine if the player is dead.
@@ -59,7 +62,10 @@ public class HealthBar extends NetworkEntity {
 		float drawYAt = this.getY();
 		for (int i = 0; i <  this.maxHealth; i++) {
 			if (i < this.currentHealth) {
-				g.setColor(Color.red);
+				if (this.team == TEAM.RED)
+					g.setColor(Color.red);
+				else
+					g.setColor(Color.blue);
 				g.fillRect(drawXAt, drawYAt, 2, 3);
 			} else {
 				g.setColor(Color.black);

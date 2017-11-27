@@ -2,6 +2,7 @@ package empire.wars;
 
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -9,9 +10,12 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
+
 import empire.wars.net.ConnectedPlayers;
 import empire.wars.net.GameClient;
 import empire.wars.net.GameServer;
+import empire.wars.Castle.TEAM;
+
 import empire.wars.net.Message;
 import jig.Entity;
 import jig.ResourceManager;
@@ -26,6 +30,16 @@ import jig.ResourceManager;
  *
  */
 public class EmpireWars extends StateBasedGame {
+
+	
+	public enum Direction
+	{
+	  UP, 
+	  RIGHT, 
+	  DOWN, 
+	  LEFT
+	}
+	
 	public final static int SPLASH_SCREEN_STATE_ID = 0;
 	public final static int MENU_STATE_ID = 1;
 	public final static int SESSION_STATE_ID = 2;
@@ -43,8 +57,8 @@ public class EmpireWars extends StateBasedGame {
 	
 	private String username;
 	
-	public final static float PLAYER_SPEED = 0.50f;
-	public final static float PLAYER_BULLETSPEED = 0.30f;
+	public final static float PLAYER_SPEED = 0.40f;
+	public final static float PLAYER_BULLETSPEED = 0.50f;
 	
 	TiledMap map;
 	Player player;
@@ -62,6 +76,21 @@ public class EmpireWars extends StateBasedGame {
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
 	
+	public static final String CREEP_UP_IMG_RSC = "images/creep_up.png";
+	public static final String CREEP_DOWN_IMG_RSC = "images/creep_down.png";
+	public static final String CREEP_LEFT_IMG_RSC = "images/creep_left.png";
+	public static final String CREEP_RIGHT_IMG_RSC = "images/creep_right.png";
+	
+	public static final String BLUE_PLAYER_UP_IMG_RSC = "images/blue_up.png";
+	public static final String BLUE_PLAYER_DOWN_IMG_RSC = "images/blue_down.png";
+	public static final String BLUE_PLAYER_LEFT_IMG_RSC = "images/blue_left.png";
+	public static final String BLUE_PLAYER_RIGHT_IMG_RSC = "images/blue_right.png";
+	
+	public static final String RED_PLAYER_UP_IMG_RSC = "images/red_up.png";
+	public static final String RED_PLAYER_DOWN_IMG_RSC = "images/red_down.png";
+	public static final String RED_PLAYER_LEFT_IMG_RSC = "images/red_left.png";
+	public static final String RED_PLAYER_RIGHT_IMG_RSC = "images/red_right.png";
+	
 	// network related values
 	String sessionType;  // whether I am just a client or a client with a "server".
 	ArrayList<Message> receivedPackets = new ArrayList<Message>();
@@ -74,6 +103,8 @@ public class EmpireWars extends StateBasedGame {
 	// stupid way to track other client entities
 	// stupid way works best sometimes
 	ArrayList<Player> clientPlayer = new ArrayList<>();
+	
+	ArrayList<Creep> creeps;
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -94,18 +125,67 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
 		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
 		ResourceManager.loadImage(LOGO_IMG_RSC);
+
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
 		ResourceManager.loadImage(MENU_BUTTONS_RSC);
-	
+
+		ResourceManager.loadImage(CREEP_UP_IMG_RSC);
+		ResourceManager.loadImage(CREEP_DOWN_IMG_RSC);
+		ResourceManager.loadImage(CREEP_LEFT_IMG_RSC);
+		ResourceManager.loadImage(CREEP_RIGHT_IMG_RSC);
+		
+		ResourceManager.loadImage(BLUE_PLAYER_UP_IMG_RSC);
+		ResourceManager.loadImage(BLUE_PLAYER_DOWN_IMG_RSC);
+		ResourceManager.loadImage(BLUE_PLAYER_LEFT_IMG_RSC);
+		ResourceManager.loadImage(BLUE_PLAYER_RIGHT_IMG_RSC);
+		
+		ResourceManager.loadImage(RED_PLAYER_UP_IMG_RSC);
+		ResourceManager.loadImage(RED_PLAYER_DOWN_IMG_RSC);
+		ResourceManager.loadImage(RED_PLAYER_LEFT_IMG_RSC);
+		ResourceManager.loadImage(RED_PLAYER_RIGHT_IMG_RSC);
+
 		map = new TiledMap("src/tilemaps/maze.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
 		mapHeight = map.getHeight() * map.getTileHeight();
 		
 		tileHeight = map.getTileHeight();
         tileWidth = map.getTileWidth();
-        player = new Player(tileWidth*4, tileHeight*4, 0, 0);
+        player = new Player(tileWidth*4, tileHeight*4, 0, 0, TEAM.BLUE);
         camera = new Camera(map, mapWidth, mapHeight);
+        
+        creeps = new ArrayList<Creep>();
+        
+        Random rand = new Random();
+        int roadIndex = map.getLayerIndex("road");
+        int wallIndex = map.getLayerIndex("walls");
+        
+        for (int i = 0; i< 30; i++)
+        {
+        	int xTilePos, yTilePos;
+        	while(true)
+        	{
+        		xTilePos = rand.nextInt(this.mapWidth/tileWidth);
+            	yTilePos = rand.nextInt(this.mapHeight/tileHeight);
+            	if (map.getTileId(xTilePos, yTilePos, roadIndex) != 0 && map.getTileId(xTilePos, yTilePos, wallIndex) == 0)
+            	{
+            		if (xTilePos - 1 <= 0 || map.getTileId(xTilePos-1, yTilePos, wallIndex) != 0)
+            			continue;
+            		
+            		if (yTilePos - 1 <= 0 || map.getTileId(xTilePos, yTilePos-1, wallIndex) != 0)
+            			continue;
+            		
+            		if (xTilePos + 1 >= (int)mapWidth/tileWidth || map.getTileId(xTilePos+1, yTilePos, wallIndex) != 0)
+            			continue;
+            		
+            		if (yTilePos + 1 >= (int)mapHeight/tileHeight || map.getTileId(xTilePos, yTilePos+1, wallIndex) != 0)
+            			continue;
+            		
+            		break;
+            	}
+        	}
+        	creeps.add(new Creep(tileWidth*xTilePos, tileHeight*yTilePos));	
+        }
 	}
 	
 	
