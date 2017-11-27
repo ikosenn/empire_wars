@@ -32,6 +32,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SCREEN_SMALL_HEIGHT = 600;
 	
 	public final static float PLAYER_SPEED = 0.50f;
+	public final static float PLAYER_BULLETSPEED = 0.30f;
 	
 	TiledMap map;
 	Player player;
@@ -39,9 +40,14 @@ public class EmpireWars extends StateBasedGame {
 	int mapHeight, mapWidth;
 	int tileHeight, tileWidth;
 	
+	//image resources
 	public static final String PLAYER_IMG_RSC = "images/hero.png";
+	public static final String PLAYER_BULLETIMG_RSC = "images/player_bullet.gif";
 	public static final String SPLASH_SCREEN_IMG_RSC = "images/splash.png";
 	public static final String LOGO_IMG_RSC = "images/logo.png";
+	
+	//sound resources
+	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
 	
 	// network related values
 	ArrayList<Message> receivedPackets = new ArrayList<Message>();
@@ -67,6 +73,9 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
 		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
 		ResourceManager.loadImage(LOGO_IMG_RSC);
+		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
+		
+		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
 		
 		
 		map = new TiledMap("src/tilemaps/maze.tmx");

@@ -1,5 +1,7 @@
 package empire.wars;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.newdawn.slick.GameContainer;
@@ -7,15 +9,24 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 
+import empire.wars.Bullet.BULLET_TYPE;
 import jig.ResourceManager;
 import jig.Vector;
 
 public class Player extends NetworkEntity {
-	public Bullet bullet;
+	public ArrayList<Bullet> bullets;
 	public List<PowerUp> powerups;
 	public HealthBar health;
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
+	
+	// direction info of a player
+	private int direction;
+	private final int UP = 1;
+	private final int DOWN = 2;
+	private final int LEFT = 3;
+	private final int RIGHT = 4;
+	
 	
 	public Player(final float x, final float y, final float vx, final float vy){
 		super(x,y);
@@ -24,6 +35,34 @@ public class Player extends NetworkEntity {
 		
 		//TODO: initialize bullet and powerups
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
+		
+		direction = 1;
+		bullets = new ArrayList<Bullet>();
+	}
+	
+	public void shoot(){
+		ResourceManager.getSound(EmpireWars.PLAYER_SHOOTSND_RSC).play();
+		switch(direction){
+		case UP:
+			bullets.add(new Bullet(getX(), getY(), 0.f, -EmpireWars.PLAYER_BULLETSPEED, 
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+			break;
+		case DOWN:
+			bullets.add(new Bullet(getX(), getY(), 0.f, EmpireWars.PLAYER_BULLETSPEED, 
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+			break;
+		case LEFT:
+			bullets.add(new Bullet(getX(), getY(), -EmpireWars.PLAYER_BULLETSPEED, 0.f, 
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+			break;
+		case RIGHT:
+			bullets.add(new Bullet(getX(), getY(), EmpireWars.PLAYER_BULLETSPEED, 0.f, 
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+			break;
+		default:
+			break;
+		}
+		
 	}
 	
 	public void update(GameContainer container, StateBasedGame game, int delta,
@@ -56,6 +95,24 @@ public class Player extends NetworkEntity {
 		}
 		
 		translate(velocity.scale(delta));
+		
+		if(velocity.getY() < 0 ){
+			direction = UP;
+		}else if(velocity.getY()>0){
+			direction = DOWN;
+		}else if(velocity.getX()<0){
+			direction = LEFT;
+		}else if(velocity.getX()>0){
+			direction = RIGHT;
+
+		}
+		
+		// player shooting bullets
+		if(input.isKeyPressed(Input.KEY_J)){
+			shoot();
+		}
+		
+
 
 		// update health bar pos
 		this.setHealthBarPos();
@@ -75,6 +132,23 @@ public class Player extends NetworkEntity {
 		{
 			this.setPosition(previousPoition);
 			this.setHealthBarPos();
+		}
+		
+		// update and collision detection for bullets
+		for(Bullet b:bullets){
+			b.update(container, game, delta, mapWidth, mapHeight, tileWidth, tileHeight);
+			int bx = (int) b.getX()/32;
+			int by = (int) b.getY()/32;
+			
+			if(ew.map.getTileId(bx, by, wallIndex)!=0){
+				b.explode();
+			}
+		}
+		
+		for(Iterator<Bullet> i = bullets.iterator(); i.hasNext();){
+			if(i.next().isExploded() == true){
+				i.remove();
+			}
 		}
 	}
 	
@@ -96,6 +170,10 @@ public class Player extends NetworkEntity {
 	public void render(final Graphics g) {
 		super.render(g);
 		this.health.render(g);
+		
+		for(Bullet b:bullets){
+			b.render(g);
+		}
 	}
 
 }
