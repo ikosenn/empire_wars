@@ -1,5 +1,6 @@
 package empire.wars;
 
+import java.net.DatagramSocket;
 import java.util.ArrayList;
 
 import org.newdawn.slick.AppGameContainer;
@@ -8,6 +9,9 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
+import empire.wars.net.ConnectedPlayers;
+import empire.wars.net.GameClient;
+import empire.wars.net.GameServer;
 import empire.wars.net.Message;
 import jig.Entity;
 import jig.ResourceManager;
@@ -22,14 +26,22 @@ import jig.ResourceManager;
  *
  */
 public class EmpireWars extends StateBasedGame {
-	
-	public final static int PLAY_STATE_ID = 1;
-	public final static  int GAMEOVERSTATE_ID = 2;
 	public final static int SPLASH_SCREEN_STATE_ID = 0;
+	public final static int MENU_STATE_ID = 1;
+	public final static int SESSION_STATE_ID = 2;
+	public final static int PLAY_STATE_ID = 3;
+	public final static  int GAMEOVERSTATE_ID = 4;
+	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
 	public final static int SCREEN_SMALL_WIDTH = 900;
 	public final static int SCREEN_SMALL_HEIGHT = 600;
+	public final static int SERVER_PORT = 1323;
+	
+	private GameClient socketClient;
+	private GameServer socketServer;
+	
+	private String username;
 	
 	public final static float PLAYER_SPEED = 0.50f;
 	public final static float PLAYER_BULLETSPEED = 0.30f;
@@ -45,13 +57,19 @@ public class EmpireWars extends StateBasedGame {
 	public static final String PLAYER_BULLETIMG_RSC = "images/player_bullet.gif";
 	public static final String SPLASH_SCREEN_IMG_RSC = "images/splash.png";
 	public static final String LOGO_IMG_RSC = "images/logo.png";
+	public static final String MENU_BUTTONS_RSC = "images/menu_buttons.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
 	
 	// network related values
+	String sessionType;  // whether I am just a client or a client with a "server".
 	ArrayList<Message> receivedPackets = new ArrayList<Message>();
+	// server sends this to all clients
+	// A client sends to the server only
 	ArrayList<Message> sendPackets  = new ArrayList<Message>();
+	ArrayList<ConnectedPlayers> connectedPlayers = new ArrayList<>();
+	ConnectedPlayers broadcastServer;
 	
 	// stupid way to track other client entities
 	// stupid way works best sometimes
@@ -65,19 +83,21 @@ public class EmpireWars extends StateBasedGame {
 	
 	@Override
 	public void initStatesList(GameContainer container) throws SlickException {
+
 		// add game states
 		addState(new SplashScreenState());
 		addState(new PlayState());
 		addState(new GameOverState());
+		addState(new SessionState());
+		addState(new MenuState());
 		
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
 		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
 		ResourceManager.loadImage(LOGO_IMG_RSC);
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
-		
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
-		
-		
+		ResourceManager.loadImage(MENU_BUTTONS_RSC);
+	
 		map = new TiledMap("src/tilemaps/maze.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
 		mapHeight = map.getHeight() * map.getTileHeight();
@@ -113,6 +133,104 @@ public class EmpireWars extends StateBasedGame {
 		return this.tileWidth;
 	}
 	
+	/*
+	 * username getter
+	 */
+	public String getUsername() {
+		return username;
+	}
+
+	/*
+	 * username setter
+	 */
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	/*
+	 * clientType getter
+	 */
+	public String getSessionType() {
+		return sessionType;
+	}
+
+	/**
+	 * clientType getter
+	 * @param clientType. The clientType
+	 */
+	public void setSessionType(String sessionType) {
+		this.sessionType = sessionType;
+	}
+	
+	/*
+	 * connected-players getter
+	 */
+	public ArrayList<ConnectedPlayers> getConnectedPlayers() {
+		return this.connectedPlayers;
+	}
+	
+	/*
+	 * Adds a new client to the connected player arraylist.
+	 */
+	public void appendConnectedPlayers(ConnectedPlayers player) {
+		this.connectedPlayers.add(player);
+	}
+	
+	/*
+	 * send packets getter
+	 */
+	public ArrayList<Message> getSendPackets() {
+		return this.sendPackets;
+	}
+	
+	/*
+	 * Adds a new messages in the send queue.
+	 */
+	public void appendSendPackets(Message msg) {
+		this.sendPackets.add(msg);
+	}
+	
+	/*
+	 * Removes sent from send queue.
+	 */
+	public void popSendPackets(Message msg) {
+		this.sendPackets.remove(msg);
+	}
+	
+	/*
+	 * Adds a new messages in the received queue.
+	 */
+	public void appendReceivedPackets(Message msg) {
+		this.receivedPackets.add(msg);
+	}
+	
+	/**
+	 * broadCastServer getter.
+	 * 
+	 */
+	public ConnectedPlayers getBroadcastServer() {
+		return broadcastServer;
+	}
+
+	/**
+	 * Creates a connectPlayer object that points to where the server is located
+	 */
+	public void setBroadcastServer(ConnectedPlayers broadcastServer) {
+		this.broadcastServer = broadcastServer;
+	}
+	
+	/*
+	 * Creates the client and server instances.
+	 * This will be on separate threads
+	 */
+	public void startUpServers(DatagramSocket s) {
+		this.socketClient = new GameClient(this, s);
+		this.socketServer = new GameServer(this, s);
+		socketClient.start();
+		socketServer.start();
+	};
+
+	
 	public  static void main(String[] args) {
 		AppGameContainer app;
 		try {
@@ -124,7 +242,5 @@ public class EmpireWars extends StateBasedGame {
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }
