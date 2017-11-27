@@ -31,7 +31,7 @@ public abstract class EntityMessageHandler {
 	 * position, velocity or destroying the object
 	 */
 	public void update(NetworkEntity entity, String categoryType, String msg) {
-		if (categoryType == "SETPOS") {
+		if (categoryType.equals("SETPOS")) {
 			String[] pos = msg.split("\\:");
 			entity.setPosition(
 				Float.parseFloat(pos[0]), Float.parseFloat(pos[1]));

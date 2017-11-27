@@ -99,11 +99,11 @@ public class Message implements Serializable {
 		String msgType = msgPacket.getMsgType();
 		String className = msgPacket.getClassName();
 		
-		if (className == "PLAYER") {
+		if (className != null && className.equals("PLAYER")) {
 			new PlayerMessageHandler(msgPacket, ew);
 		}
 		
-		if (msgType == "CONNECT") {
+		if (msgType != null && msgType.equals("CONNECT")) {
 			new SessionHandler(msgPacket, ew);
 		}
 	}

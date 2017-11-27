@@ -28,6 +28,12 @@ public class GameServer extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
+			try {
+				Thread.sleep(EmpireWars.THREAD_SLEEP_TIME);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -44,8 +50,10 @@ public class GameServer extends Thread {
 		ObjectInputStream objInputStream = new ObjectInputStream(packetByteStream);
 		try {
 			Message msg = (Message)objInputStream.readObject();
+			msg.setIpAddress(packet.getAddress());
+			msg.setPort(packet.getPort());
 			this.game.appendReceivedPackets(msg);
-			if (this.game.getSessionType() == "SERVER") {
+			if (this.game.getSessionType().equals("SERVER") && msg.getMsgType().equals("CONNECT")) {
 				// server should send this to everyone else
 				this.game.appendSendPackets(msg);
 			}

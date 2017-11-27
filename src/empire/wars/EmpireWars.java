@@ -2,6 +2,7 @@ package empire.wars;
 
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.newdawn.slick.AppGameContainer;
@@ -43,14 +44,17 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SPLASH_SCREEN_STATE_ID = 0;
 	public final static int MENU_STATE_ID = 1;
 	public final static int SESSION_STATE_ID = 2;
-	public final static int PLAY_STATE_ID = 3;
-	public final static  int GAMEOVERSTATE_ID = 4;
+	public final static int SERVER_LOBBY_STATE_ID = 3;
+	public final static int CLIENT_LOBBY_STATE_ID = 4;
+	public final static int PLAY_STATE_ID = 5;
+	public final static  int GAMEOVERSTATE_ID = 6;
 	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
 	public final static int SCREEN_SMALL_WIDTH = 900;
 	public final static int SCREEN_SMALL_HEIGHT = 600;
 	public final static int SERVER_PORT = 1323;
+	public final static int THREAD_SLEEP_TIME = 500;
 	
 	private GameClient socketClient;
 	private GameServer socketServer;
@@ -124,6 +128,8 @@ public class EmpireWars extends StateBasedGame {
 		addState(new GameOverState());
 		addState(new SessionState());
 		addState(new MenuState());
+		addState(new ServerLobbyState());
+		addState(new ClientLobbyState());
 		
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
 		ResourceManager.loadImage(PLAYER_MOVINGIMG_RSC);
@@ -259,6 +265,13 @@ public class EmpireWars extends StateBasedGame {
 	 * Adds a new client to the connected player arraylist.
 	 */
 	public void appendConnectedPlayers(ConnectedPlayers player) {
+		// check if player exists first.
+		for (Iterator<ConnectedPlayers> i = this.getConnectedPlayers().iterator(); i.hasNext(); ) {
+			ConnectedPlayers tempPlayer = i.next();
+			if (player.getUsername().equals(tempPlayer.getUsername())) {
+				return;
+			}
+		}
 		this.connectedPlayers.add(player);
 	}
 	
@@ -281,6 +294,13 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public void popSendPackets(Message msg) {
 		this.sendPackets.remove(msg);
+	}
+	
+	/*
+	 * receivedpackets getter.
+	 */
+	public ArrayList<Message> getReceivedPackets() {
+		return this.receivedPackets;
 	}
 	
 	/*
@@ -316,6 +336,13 @@ public class EmpireWars extends StateBasedGame {
 		socketServer.start();
 	};
 
+	/**
+	 * Socket client getter
+	 * 
+	 */
+	public GameClient getSocketClient() {
+		return this.socketClient;
+	}
 	
 	public  static void main(String[] args) {
 		AppGameContainer app;
