@@ -25,7 +25,8 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 		Player playerTemp;
 		for (Iterator<Player> i = ew.getClientPlayer().iterator(); i.hasNext();) {
 			playerTemp = i.next();
-			if (playerTemp.getObjectUUID() == objectUUID) {
+			
+			if (playerTemp.getObjectUUID().equals(objectUUID)) {
 				return (NetworkEntity)playerTemp;
 			}
 		}
