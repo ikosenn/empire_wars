@@ -69,6 +69,14 @@ public class ClientLobbyState  extends BasicGameState {
 			}
 		}
 		
+		for (Iterator<Message> i = ew.getReceivedPackets().iterator(); i.hasNext(); ) {
+			Message tempMessage = i.next();
+			if (tempMessage.getMsgType().equals("START") && ew.getBroadcastServer() != null) {
+				Message.determineHandler(tempMessage, ew);
+				i.remove();
+			}
+		}
+		
 		if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON)) {
 			int mouseX = input.getMouseX();
 			int mouseY = input.getMouseY();

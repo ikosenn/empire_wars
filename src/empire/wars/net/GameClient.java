@@ -25,8 +25,7 @@ public class GameClient extends Thread {
 	public void run() {
 		while(true) {
 			ArrayList<Message> sendMsg = this.game.getSendPackets();
-//			if (this.game.getSessionType() == "SERVER")	
-//				System.out.println(sendMsg.size() > 0);
+
 			if (sendMsg.size() > 0) {
 				Message tempMsg = sendMsg.get(0);
 				if (this.game.getSessionType().equals("CLIENT")) {
@@ -71,7 +70,6 @@ public class GameClient extends Thread {
 			DatagramPacket packet = new DatagramPacket(
 				data, data.length, serverIP, serverPort
 			);
-			System.out.println("Message length is: " + data.length);
 			this.socket.send(packet);
 		} catch (IOException e) {
 			System.out.println(
@@ -95,14 +93,12 @@ public class GameClient extends Thread {
 					DatagramPacket packet = new DatagramPacket(
 						data, data.length, temp.getIpAddress(), temp.getPort()
 					);
-					System.out.println("Message length is: " + data.length);
 					this.socket.send(packet);
 					
 				}
 					
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			System.out.println(
 				"An error occurred while serializing/ sending Message to other clients" + e.toString());
 		}  

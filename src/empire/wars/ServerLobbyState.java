@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.state.BasicGameState;
@@ -50,6 +51,24 @@ public class ServerLobbyState extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		EmpireWars ew = (EmpireWars)game;
 
+		Input input = container.getInput();
+		
+		if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON)) {
+			int mouseX = input.getMouseX();
+			int mouseY = input.getMouseY();
+			
+			// start game button
+			if ((mouseX > 308 && mouseX < 424) && (mouseY > 381 && mouseY < 441)) {
+				Message msg = new Message("", "START"); 
+				ew.appendSendPackets(msg);
+				game.enterState(EmpireWars.PLAY_STATE_ID);
+			}
+			//  return to menu
+			if ((mouseX > 610 && mouseX < 724) && (mouseY > 381 && mouseY < 441)) {
+				game.enterState(EmpireWars.MENU_STATE_ID);
+			}
+		}
+		
 		for (Iterator<Message> i = ew.getReceivedPackets().iterator(); i.hasNext(); ) {
 			Message tempMessage = i.next();
 			if (tempMessage.getMsgType().equals("CONNECT")) {
