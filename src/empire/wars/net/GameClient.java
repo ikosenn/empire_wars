@@ -24,17 +24,21 @@ public class GameClient extends Thread {
 
 	public void run() {
 		while(true) {
-			ArrayList<Message> sendMsg = this.game.getSendPackets(); 
-			while (sendMsg.size() > 0) {
+			ArrayList<Message> sendMsg = this.game.getSendPackets();
+
+			if (sendMsg.size() > 0) {
 				Message tempMsg = sendMsg.get(0);
-				tempMsg.setIpAddress(this.socket.getLocalAddress());
-				tempMsg.setPort(this.socket.getLocalPort());
-				if (this.game.getSessionType() == "CLIENT") {
+				if (this.game.getSessionType().equals("CLIENT")) {
 					this.sendToServer(tempMsg);
-				} else if (this.game.getSessionType() == "SERVER") {
+				} else if (this.game.getSessionType().equals("SERVER")) {
 					this.sendToOtherClients(tempMsg);
 				}
 				this.game.popSendPackets(tempMsg);
+			}
+			try {
+				Thread.sleep(EmpireWars.THREAD_SLEEP_TIME);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -66,7 +70,6 @@ public class GameClient extends Thread {
 			DatagramPacket packet = new DatagramPacket(
 				data, data.length, serverIP, serverPort
 			);
-			System.out.println("Message length is: " + data.length);
 			this.socket.send(packet);
 		} catch (IOException e) {
 			System.out.println(
@@ -87,11 +90,9 @@ public class GameClient extends Thread {
 				ConnectedPlayers temp = connectedPlayers.get(i);
 				if (temp.getIpAddress() != msg.getIpAddress() &&
 						temp.getPort() != msg.getPort()) {
-					
 					DatagramPacket packet = new DatagramPacket(
 						data, data.length, temp.getIpAddress(), temp.getPort()
 					);
-					System.out.println("Message length is: " + data.length);
 					this.socket.send(packet);
 					
 				}
@@ -100,6 +101,23 @@ public class GameClient extends Thread {
 		} catch (IOException e) {
 			System.out.println(
 				"An error occurred while serializing/ sending Message to other clients" + e.toString());
+		}  
+	}
+	
+	public void broadCastMessage(Message msg) {
+		
+		Message tempMsg = msg;
+		
+		try {
+			byte[] data = this.serializerMessage(tempMsg);
+			
+			DatagramPacket packet = new DatagramPacket(
+				data, data.length, InetAddress.getByName("255.255.255.255"), EmpireWars.SERVER_PORT
+			);
+			this.socket.send(packet);
+		} catch (IOException e) {
+			System.out.println(
+				"An error occurred while broadcasting the message" + e.toString());
 		}  
 	}
 }

@@ -25,8 +25,6 @@ public class Player extends NetworkEntity {
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
 
-	private String username;
-
 	public TEAM team;
 	public Direction direction;
 	Random rand = new Random();

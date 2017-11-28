@@ -24,10 +24,9 @@ public class SessionState extends BasicGameState {
 	
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
-		
-		Font font = new Font("Verdana", Font.BOLD, 20);
+		Font font = new Font("Comic Sans MS", Font.PLAIN, 16);
 		ttf = new TrueTypeFont(font, false);
-		txtField = new TextField(container, ttf, 350, 170, 450, 40);
+		txtField = new TextField(container, ttf, 350, 230, 300, 30);
 		txtField.setBackgroundColor(Color.white);
 		txtField.setTextColor(Color.black);
 	}
@@ -44,18 +43,15 @@ public class SessionState extends BasicGameState {
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {	
 		txtField.render(container, g);
 		g.drawImage(ResourceManager.getImage(EmpireWars.LOGO_IMG_RSC), 190, 10);
-		
-		g.drawImage(
-				ResourceManager.getSpriteSheet(EmpireWars.MENU_BUTTONS_RSC, 1000, 707).getSubImage(
-						650, 400, 260, 300), 380, 200);
-			g.drawImage(
-					ResourceManager.getSpriteSheet(EmpireWars.MENU_BUTTONS_RSC, 1000, 707).getSubImage(
-							650, 400, 260, 300), 380, 400);
-			g.drawString("Host", 490, 325);
-			g.drawString("Join Session", 455, 525);
-			g.setFont(ttf);
-			g.drawString("Username:", 210, 180);
-			g.resetFont();
+		g.drawImage(ResourceManager.getImage(EmpireWars.MENU_BUTTONS_RSC), 240, 350);
+		g.drawImage(ResourceManager.getImage(EmpireWars.MENU_BUTTONS_RSC), 470, 350);
+		g.drawImage(ResourceManager.getImage(EmpireWars.MENU_BUTTONS_RSC), 690, 350);
+		g.setFont(ttf);
+		g.drawString("Username:", 260, 240);
+		g.drawString("Host", 290, 400);
+		g.drawString("Join", 520, 400);
+		g.drawString("Main Menu", 717, 400);
+        g.resetFont();
 	}
 
 	@Override
@@ -67,27 +63,35 @@ public class SessionState extends BasicGameState {
 			int mouseY = input.getMouseY();
 			
 			// host button
-			if ((mouseX > 424 && mouseX < 604) && (mouseY > 297 && mouseY < 383)) {
+			if ((mouseX > 244 && mouseX < 367) && (mouseY > 381 && mouseY < 441) && txtField.getText() != "") {
+				ew.setUsername(txtField.getText());
 				try {
 					DatagramSocket serverSock = new DatagramSocket(
 						EmpireWars.SERVER_PORT, InetAddress.getByName("0.0.0.0"));
 					serverSock.setBroadcast(true);
 					ew.startUpServers(serverSock);
-					game.enterState(EmpireWars.PLAY_STATE_ID);
+					ew.setSessionType("SERVER");
+					game.enterState(EmpireWars.SERVER_LOBBY_STATE_ID);
 				} catch (SocketException | UnknownHostException e) {
 					e.printStackTrace();
 				}
 			}
 			//  join session
-			if ((mouseX > 424 && mouseX < 604) && (mouseY > 495 && mouseY < 585)) {
+			if ((mouseX > 474 && mouseX < 597) && (mouseY > 381 && mouseY < 441) && txtField.getText() != "") {
+				ew.setUsername(txtField.getText());
 				try {
 					DatagramSocket clientSock = new DatagramSocket();
 					clientSock.setBroadcast(true);
 					ew.startUpServers(clientSock);
-					game.enterState(EmpireWars.PLAY_STATE_ID);
+					ew.setSessionType("CLIENT");
+					game.enterState(EmpireWars.CLIENT_LOBBY_STATE_ID);
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}
+			}
+			
+			if ((mouseX > 694 && mouseX < 819) && (mouseY > 381 && mouseY < 441)) {
+				game.enterState(EmpireWars.MENU_STATE_ID);
 			}
 		}
 		
