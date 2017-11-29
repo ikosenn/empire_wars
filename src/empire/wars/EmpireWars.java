@@ -3,7 +3,9 @@ package empire.wars;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -11,12 +13,10 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
-
+import empire.wars.Castle.TEAM;
 import empire.wars.net.ConnectedPlayers;
 import empire.wars.net.GameClient;
 import empire.wars.net.GameServer;
-import empire.wars.Castle.TEAM;
-
 import empire.wars.net.Message;
 import jig.Entity;
 import jig.ResourceManager;
@@ -54,7 +54,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SCREEN_SMALL_WIDTH = 900;
 	public final static int SCREEN_SMALL_HEIGHT = 600;
 	public final static int SERVER_PORT = 1323;
-	public final static int THREAD_SLEEP_TIME = 500;
+	public final static int THREAD_SLEEP_TIME = 0;
 	
 	private GameClient socketClient;
 	private GameServer socketServer;
@@ -100,10 +100,10 @@ public class EmpireWars extends StateBasedGame {
 	
 	// network related values
 	String sessionType;  // whether I am just a client or a client with a "server".
-	ArrayList<Message> receivedPackets = new ArrayList<Message>();
+	Queue<Message> receivedPackets = new ConcurrentLinkedQueue<Message>();
 	// server sends this to all clients
 	// A client sends to the server only
-	ArrayList<Message> sendPackets  = new ArrayList<Message>();
+	Queue<Message> sendPackets  = new ConcurrentLinkedQueue<Message>();
 	ArrayList<ConnectedPlayers> connectedPlayers = new ArrayList<>();
 	ConnectedPlayers broadcastServer;
 	
@@ -111,7 +111,7 @@ public class EmpireWars extends StateBasedGame {
 	// stupid way works best sometimes
 	ArrayList<Player> clientPlayer = new ArrayList<>();
 	
-	ArrayList<Creep> creeps;
+	ArrayList<Creep> creeps = new ArrayList<Creep>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -165,10 +165,11 @@ public class EmpireWars extends StateBasedGame {
         tileWidth = map.getTileWidth();
         player = new Player(tileWidth*4, tileHeight*4, 0, 0, TEAM.BLUE);
         camera = new Camera(map, mapWidth, mapHeight);
-        
-        creeps = new ArrayList<Creep>();
-        
-        Random rand = new Random();
+	}
+	
+	
+	public void createOnServer() {
+		Random rand = new Random();
         int roadIndex = map.getLayerIndex("road");
         int wallIndex = map.getLayerIndex("walls");
         
@@ -196,10 +197,9 @@ public class EmpireWars extends StateBasedGame {
             		break;
             	}
         	}
-        	creeps.add(new Creep(tileWidth*xTilePos, tileHeight*yTilePos));	
+        	creeps.add(new Creep(tileWidth * xTilePos, tileHeight * yTilePos));	
         }
 	}
-	
 	
 	/**
 	 * ClientPlayer getter
@@ -278,7 +278,7 @@ public class EmpireWars extends StateBasedGame {
 	/*
 	 * send packets getter
 	 */
-	public ArrayList<Message> getSendPackets() {
+	public Queue<Message> getSendPackets() {
 		return this.sendPackets;
 	}
 	
@@ -299,7 +299,7 @@ public class EmpireWars extends StateBasedGame {
 	/*
 	 * receivedpackets getter.
 	 */
-	public ArrayList<Message> getReceivedPackets() {
+	public Queue<Message> getReceivedPackets() {
 		return this.receivedPackets;
 	}
 	
@@ -335,6 +335,13 @@ public class EmpireWars extends StateBasedGame {
 		socketClient.start();
 		socketServer.start();
 	};
+	
+	/**
+	 * creep getter
+	 */
+	public ArrayList<Creep> getCreeps() {
+		return this.creeps;
+	}
 
 	/**
 	 * Socket client getter
@@ -351,6 +358,7 @@ public class EmpireWars extends StateBasedGame {
 			app.setDisplayMode(EmpireWars.SCREEN_SMALL_WIDTH, EmpireWars.SCREEN_SMALL_HEIGHT, false);
 			app.setShowFPS(false);
 			app.setVSync(true);
+			app.setAlwaysRender(true);
 			app.start();
 		} catch (SlickException e) {
 			e.printStackTrace();

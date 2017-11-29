@@ -9,6 +9,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
 
 import empire.wars.EmpireWars.Direction;
+import empire.wars.net.Message;
 import jig.ResourceManager;
 import jig.Vector;
 
@@ -52,12 +53,23 @@ public class Creep extends NetworkEntity {
 		}
 	}
 	
-	public void changeDirection(Direction new_direction)
+	public void changeDirection(Direction new_direction, EmpireWars game)
 	{
 		removeImage(ResourceManager.getImage(getImageName(direction)));
 		addImageWithBoundingBox(ResourceManager.getImage(getImageName(new_direction)));
 		direction = new_direction;
 		setVelocity(speedVectors.get(new_direction.ordinal()));
+		this.sendDirectionUpdates(game, "SETDIRECTION");
+	}
+	
+	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
+		if (this.objectType == "ORIGINAL" ) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.direction.toString();
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", categoryType, msg, className);
+			game.sendPackets.add(posUpdate);
+		}
 	}
 	
 	public void bounce(float surfaceTangent) {
@@ -66,8 +78,14 @@ public class Creep extends NetworkEntity {
 	
 	public void update(StateBasedGame game, int delta){
 		this.timer --;
-		
 		EmpireWars ew = (EmpireWars) game;
+		this.networkUpdate(ew);  // network updates
+		
+		// run this code on the server only 
+		if (!ew.getSessionType().equals("SERVER")) {
+			return;
+		}
+		
 		int wallIndex = ew.map.getLayerIndex("walls");
 		int minX = (int)(this.getCoarseGrainedMinX()/32);
 		int minY = (int)(this.getCoarseGrainedMinY()/32);
@@ -115,7 +133,7 @@ public class Creep extends NetworkEntity {
 						new_direction = Direction.values()[randNumber];
 					}*/
 
-					changeDirection(new_direction);
+					changeDirection(new_direction, ew);
 				}
 				else
 					translate(velocity.scale(delta));

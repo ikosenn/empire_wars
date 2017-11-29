@@ -18,6 +18,15 @@ public class PlayState extends BasicGameState {
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		
 	}
+	
+	@Override
+	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+		EmpireWars ew = (EmpireWars)game;
+		
+		if (ew.getSessionType() == "SERVER") {
+			ew.createOnServer();
+		}
+	}
 
 
 	@Override

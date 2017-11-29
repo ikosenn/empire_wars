@@ -103,6 +103,11 @@ public class Message implements Serializable {
 			new PlayerMessageHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("CREEP")) {
+			new CreepMessageHandler(msgPacket, ew);
+		}
+		
+		
 		if (msgType != null && msgType.equals("CONNECT")) {
 			new SessionHandler(msgPacket, ew);
 		}
@@ -110,6 +115,7 @@ public class Message implements Serializable {
 		if (msgType != null && msgType.equals("START")) {
 			new StartGameHandler(msgPacket, ew);
 		}
+		
 	}
 
 	/*
