@@ -1,5 +1,6 @@
 package empire.wars.net;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import empire.wars.EmpireWars;
@@ -23,7 +24,16 @@ public abstract class EntityMessageHandler {
 		this.handle();
 	}
 	
-	public abstract NetworkEntity getOrCreate(UUID objectUUID);
+	public abstract NetworkEntity createEntity(UUID objectUUID);
+	
+	public NetworkEntity getOrCreate(HashMap<UUID, ? extends NetworkEntity> entityMap, UUID objectUUID) {
+		if (entityMap.containsKey(objectUUID)) {
+			return (NetworkEntity)entityMap.get(objectUUID);
+		}
+		return this.createEntity(objectUUID);
+	};
+	
+	public abstract HashMap<UUID, ? extends NetworkEntity> getHashMap();
 	
 	
 	/*
@@ -46,7 +56,8 @@ public abstract class EntityMessageHandler {
 		UUID objectUUID = msgPacket.getObjectUUID();
 		String categoryType = msgPacket.getCategoryType();
 		String msg = msgPacket.getMsg();
-		NetworkEntity entity = this.getOrCreate(objectUUID);
+		HashMap<UUID, ? extends NetworkEntity> entityMap = this.getHashMap();
+		NetworkEntity entity = this.getOrCreate(entityMap, objectUUID);
 		this.update(entity, categoryType, msg);
 	}
 }

@@ -2,9 +2,11 @@ package empire.wars;
 
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.newdawn.slick.AppGameContainer;
@@ -109,9 +111,9 @@ public class EmpireWars extends StateBasedGame {
 	
 	// stupid way to track other client entities
 	// stupid way works best sometimes
-	ArrayList<Player> clientPlayer = new ArrayList<>();
+	HashMap<UUID, Player> clientPlayer = new HashMap<>();
 	
-	ArrayList<Creep> creeps = new ArrayList<Creep>();
+	HashMap<UUID,Creep> creeps = new HashMap<>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -197,7 +199,8 @@ public class EmpireWars extends StateBasedGame {
             		break;
             	}
         	}
-        	creeps.add(new Creep(tileWidth * xTilePos, tileHeight * yTilePos));	
+        Creep tempCreep = new Creep(tileWidth * xTilePos, tileHeight * yTilePos);
+        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
 	}
 	
@@ -205,7 +208,7 @@ public class EmpireWars extends StateBasedGame {
 	 * ClientPlayer getter
 	 * @return Player. Returns and array-list of other client player.
 	 */
-	public ArrayList<Player> getClientPlayer() {
+	public HashMap<UUID, Player> getClientPlayer() {
 		return clientPlayer;
 	}
 	
@@ -339,7 +342,7 @@ public class EmpireWars extends StateBasedGame {
 	/**
 	 * creep getter
 	 */
-	public ArrayList<Creep> getCreeps() {
+	public HashMap<UUID, Creep> getCreeps() {
 		return this.creeps;
 	}
 
