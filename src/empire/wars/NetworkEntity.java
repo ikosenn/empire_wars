@@ -31,7 +31,7 @@ public class NetworkEntity extends Entity {
 	// or another client.
 	// ORGINAL: Means its for this client
 	// NETWORK:: MEans its for another client
-	private String objectType = "ORIGINAL"; 
+	protected String objectType = "ORIGINAL"; 
 	private boolean _isDestroyed = false;
 	private float _currentX = 0;
 	private float _currentY = 0;

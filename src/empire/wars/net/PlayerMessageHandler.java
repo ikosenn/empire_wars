@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import empire.wars.Castle.TEAM;
 import empire.wars.EmpireWars;
+import empire.wars.EmpireWars.Direction;
 import empire.wars.NetworkEntity;
 import empire.wars.Player;
 
@@ -47,5 +48,20 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 		super.update(entity, categoryType, msg);
 		Player player = (Player)entity;
 		player.setHealthBarPos();
+		
+		if (categoryType.equals("SETDIRECTION")) {
+			Direction direction = Direction.UP;
+			if (msg.equals("UP")) {
+				direction = Direction.UP;
+			} else if (msg.equals("DOWN")) {
+				direction = Direction.DOWN;
+			} else if (msg.equals("LEFT")) {
+				direction = Direction.LEFT;
+			} else if (msg.equals("RIGHT")) {
+				direction = Direction.RIGHT;
+			}
+			player.changeDirection(direction, this.ew);
+		}
+		
 	}
 }

@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Queue;
 
 import empire.wars.EmpireWars;
 
@@ -24,10 +25,10 @@ public class GameClient extends Thread {
 
 	public void run() {
 		while(true) {
-			ArrayList<Message> sendMsg = this.game.getSendPackets();
+			Queue<Message> sendMsg = this.game.getSendPackets();
 
 			if (sendMsg.size() > 0) {
-				Message tempMsg = sendMsg.get(0);
+				Message tempMsg = sendMsg.poll();
 				if (this.game.getSessionType().equals("CLIENT")) {
 					this.sendToServer(tempMsg);
 				} else if (this.game.getSessionType().equals("SERVER")) {

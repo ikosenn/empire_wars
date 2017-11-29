@@ -14,7 +14,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import empire.wars.Bullet.BULLET_TYPE;
 import empire.wars.Castle.TEAM;
 import empire.wars.EmpireWars.Direction;
-
+import empire.wars.net.Message;
 import jig.ResourceManager;
 import jig.Vector;
 
@@ -27,6 +27,7 @@ public class Player extends NetworkEntity {
 
 	public TEAM team;
 	public Direction direction;
+	public Direction _direction;
 	Random rand = new Random();
 	
 	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
@@ -120,7 +121,7 @@ public class Player extends NetworkEntity {
 		}
 	}
 	
-	public void changeDirection(Direction new_direction)
+	public void changeDirection(Direction new_direction, EmpireWars game)
 	{
 		while(getNumAnimations() > 2){
 			removeAnimation(getAnimation(Direction.UP));
@@ -130,6 +131,18 @@ public class Player extends NetworkEntity {
 		}
 		addAnimation(getAnimation(new_direction));
 		direction = new_direction;
+		// update clients on player position
+		this.sendDirectionUpdates(game, "SETDIRECTION");
+	}
+	
+	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
+		if (this.objectType == "ORIGINAL" ) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.direction.toString();
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", categoryType, msg, className);
+			game.sendPackets.add(posUpdate);
+		}
 	}
 	
 //	public Player(float x, float y) {
@@ -154,19 +167,19 @@ public class Player extends NetworkEntity {
 
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
 			setVelocity(new Vector(0.f, -ew.PLAYER_SPEED));
-			changeDirection(Direction.UP);
+			changeDirection(Direction.UP, ew);
 		}
 		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
 			setVelocity(new Vector(0.f, ew.PLAYER_SPEED));
-			changeDirection(Direction.DOWN);
+			changeDirection(Direction.DOWN, ew);
 		}
 		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
 			setVelocity(new Vector(-ew.PLAYER_SPEED, 0.f));
-			changeDirection(Direction.LEFT);
+			changeDirection(Direction.LEFT, ew);
 		}
 		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
 			setVelocity(new Vector(ew.PLAYER_SPEED, 0.f));
-			changeDirection(Direction.RIGHT);
+			changeDirection(Direction.RIGHT, ew);
 		}
 		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_UP) 
 				&& !input.isKeyDown(Input.KEY_S) && !input.isKeyDown(Input.KEY_DOWN)
