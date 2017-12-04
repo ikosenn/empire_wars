@@ -1,14 +1,11 @@
 package empire.wars.net;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.UUID;
 
 import empire.wars.Creep;
 import empire.wars.EmpireWars;
 import empire.wars.NetworkEntity;
-import empire.wars.Player;
-import empire.wars.Castle.TEAM;
 import empire.wars.EmpireWars.Direction;
 
 public class CreepMessageHandler extends EntityMessageHandler {
@@ -16,7 +13,6 @@ public class CreepMessageHandler extends EntityMessageHandler {
 	public CreepMessageHandler(Message msg, EmpireWars ew) {
 		super(msg, ew);
 	}
-
 
 	/**
 	 * Makes network updates to the creep entity. 

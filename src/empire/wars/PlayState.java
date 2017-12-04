@@ -44,6 +44,11 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
+		
+		// bullets
+		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
 	}
 
 	@Override
@@ -61,6 +66,9 @@ public class PlayState extends BasicGameState {
 			Message.determineHandler(i.next(), ew);
 			i.remove();
 		}
+		// remove bullets
+		HashMap<UUID, Bullet> bulletMap = ew.getClientBullets();
+		bulletMap.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 	}
 
 	@Override

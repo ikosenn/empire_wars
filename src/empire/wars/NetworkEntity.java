@@ -22,7 +22,7 @@ import jig.Vector;
  *
  */
 public class NetworkEntity extends Entity {
-	protected boolean isDestroyed = false;
+	protected boolean exploded = false;
 	protected Vector velocity;
 	private UUID objectUUID;
 	// Don't set this they are used by the 
@@ -32,7 +32,7 @@ public class NetworkEntity extends Entity {
 	// ORGINAL: Means its for this client
 	// NETWORK:: MEans its for another client
 	protected String objectType = "ORIGINAL"; 
-	private boolean _isDestroyed = false;
+	private boolean _exploded = false;
 	private float _currentX = 0;
 	private float _currentY = 0;
 	
@@ -89,10 +89,44 @@ public class NetworkEntity extends Entity {
 		}
 	}
 	
+	public void sendCollisionUpdates(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" ) {
+			if (this._exploded != this.exploded) {
+				String className = this.getClass().getSimpleName().toUpperCase();
+				Message posUpdate = new Message(
+					this.getObjectUUID(), "UPDATE", "SETCOL", "", className);
+				game.sendPackets.add(posUpdate);
+				this._exploded = exploded;
+			}
+		}
+	}
+	
 	/*
 	 * Gets called with every frame.
 	 */
 	public void networkUpdate(EmpireWars game) {
 		this.sendPosUpdates(game);
+		this.sendCollisionUpdates(game);
+	}
+	
+	/**
+	 * called when the entity collides with another entity
+	 */
+	public void explode() {
+		exploded = true;
+	}
+	
+	/*
+	 * exploded getter
+	 */
+	public boolean isExploded() {
+		return _exploded;
+	}
+	
+	/*
+	 * _exploded setter
+	 */
+	public void setExploded() {
+		_exploded = true;
 	}
 }

@@ -112,7 +112,7 @@ public class EmpireWars extends StateBasedGame {
 	// stupid way to track other client entities
 	// stupid way works best sometimes
 	HashMap<UUID, Player> clientPlayer = new HashMap<>();
-	
+	HashMap<UUID,Bullet> clientBullets = new HashMap<>();
 	HashMap<UUID,Creep> creeps = new HashMap<>();
 	
 	public EmpireWars(String title) {
@@ -206,10 +206,19 @@ public class EmpireWars extends StateBasedGame {
 	
 	/**
 	 * ClientPlayer getter
-	 * @return Player. Returns and array-list of other client player.
+	 *
 	 */
 	public HashMap<UUID, Player> getClientPlayer() {
 		return clientPlayer;
+	}
+	
+	
+	/**
+	 * ClientBullet getter
+	 * 
+	 */
+	public HashMap<UUID, Bullet> getClientBullets() {
+		return clientBullets;
 	}
 	
 	/**
