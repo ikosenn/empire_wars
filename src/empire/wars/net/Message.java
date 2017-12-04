@@ -103,6 +103,10 @@ public class Message implements Serializable {
 			new PlayerMessageHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("BULLET")) {
+			new BulletMessageHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("CREEP")) {
 			new CreepMessageHandler(msgPacket, ew);
 		}

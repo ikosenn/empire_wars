@@ -1,6 +1,6 @@
 package empire.wars.net;
 
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.UUID;
 
 import empire.wars.Castle.TEAM;
@@ -13,30 +13,6 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 
 	public PlayerMessageHandler(Message msg, EmpireWars ew) {
 		super(msg, ew);
-	}
-
-	/**
-	 * Attempts to find a player Entity in the clientPlayer arrayList
-	 * One is created if it doesn't already exist.
-	 * 
-	 * @return The entity instance.
-	 */
-	@Override
-	public NetworkEntity getOrCreate(UUID objectUUID) {
-		Player playerTemp;
-		for (Iterator<Player> i = ew.getClientPlayer().iterator(); i.hasNext();) {
-			playerTemp = i.next();
-			
-			if (playerTemp.getObjectUUID().equals(objectUUID)) {
-				return (NetworkEntity)playerTemp;
-			}
-		}
-		
-		playerTemp = new Player(ew.getTileWidth() * 4, ew.getTileHeight() * 4, 0, 0, TEAM.BLUE);
-		playerTemp.setObjectUUID(objectUUID);
-		playerTemp.setObjectType("NETWORK");
-		ew.getClientPlayer().add(playerTemp);
-		return (NetworkEntity)playerTemp;
 	}
 	
 	/**
@@ -63,5 +39,20 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 			player.changeDirection(direction, this.ew);
 		}
 		
+	}
+
+
+	@Override
+	public NetworkEntity createEntity(UUID objectUUID) {
+		Player player = new Player(ew.getTileWidth() * 4, ew.getTileHeight() * 4, 0, 0, TEAM.BLUE);
+		player.setObjectUUID(objectUUID);
+		player.setObjectType("NETWORK");
+		ew.getClientPlayer().put(player.getObjectUUID(), player);
+		return (NetworkEntity)player;
+	}
+
+	@Override
+	public HashMap<UUID, ? extends NetworkEntity> getHashMap() {
+		return ew.getClientPlayer();
 	}
 }

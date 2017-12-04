@@ -1,12 +1,11 @@
 package empire.wars.net;
 
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.UUID;
 
 import empire.wars.Creep;
 import empire.wars.EmpireWars;
 import empire.wars.NetworkEntity;
-import empire.wars.Player;
 import empire.wars.EmpireWars.Direction;
 
 public class CreepMessageHandler extends EntityMessageHandler {
@@ -15,30 +14,6 @@ public class CreepMessageHandler extends EntityMessageHandler {
 		super(msg, ew);
 	}
 
-	/**
-	 * Attempts to find a creep Entity in the creep arrayList
-	 * One is created if it doesn't already exist.
-	 * 
-	 * @return The entity instance.
-	 */
-	@Override
-	public NetworkEntity getOrCreate(UUID objectUUID) {
-		Creep creepTemp;
-		for (Iterator<Creep> i = ew.getCreeps().iterator(); i.hasNext();) {
-			creepTemp = i.next();
-			
-			if (creepTemp.getObjectUUID().equals(objectUUID)) {
-				return (NetworkEntity)creepTemp;
-			}
-		}
-		
-		creepTemp = new Creep(ew.getTileWidth() * 4, ew.getTileHeight() * 4);
-		creepTemp.setObjectUUID(objectUUID);
-		creepTemp.setObjectType("NETWORK");
-		ew.getCreeps().add(creepTemp);
-		return (NetworkEntity)creepTemp;
-	}
-	
 	/**
 	 * Makes network updates to the creep entity. 
 	 */
@@ -60,5 +35,20 @@ public class CreepMessageHandler extends EntityMessageHandler {
 			}
 			creep.changeDirection(direction, this.ew);
 		}
+	}
+	
+	@Override
+	public NetworkEntity createEntity(UUID objectUUID) {
+		Creep creepTemp;
+		creepTemp = new Creep(ew.getTileWidth() * 4, ew.getTileHeight() * 4);
+		creepTemp.setObjectUUID(objectUUID);
+		creepTemp.setObjectType("NETWORK");
+		ew.getCreeps().put(creepTemp.getObjectUUID(),creepTemp);
+		return (NetworkEntity)creepTemp;
+	}
+
+	@Override
+	public HashMap<UUID, ? extends NetworkEntity> getHashMap() {
+		return ew.getCreeps();
 	}
 }
