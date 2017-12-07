@@ -27,6 +27,7 @@ public class PlayState extends BasicGameState {
 		if (ew.getSessionType() == "SERVER") {
 			ew.createOnServer();
 		}
+		ew.createOnClients();
 	}
 
 

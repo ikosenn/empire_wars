@@ -3,9 +3,9 @@ package empire.wars.net;
 import java.util.HashMap;
 import java.util.UUID;
 
-import empire.wars.Castle.TEAM;
 import empire.wars.EmpireWars;
 import empire.wars.EmpireWars.Direction;
+import empire.wars.EmpireWars.TEAM;
 import empire.wars.NetworkEntity;
 import empire.wars.Player;
 
@@ -13,6 +13,40 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 
 	public PlayerMessageHandler(Message msg, EmpireWars ew) {
 		super(msg, ew);
+	}
+	
+	/**
+	 * update the player's direction. This is used for direction updates.
+	 * @param player. The player entity.
+	 * @param msg. Message containing the direction to change to. 
+	 */
+	private void setDirection(Player player, String msg) {
+		Direction direction = Direction.UP;
+		if (msg.equals("UP")) {
+			direction = Direction.UP;
+		} else if (msg.equals("DOWN")) {
+			direction = Direction.DOWN;
+		} else if (msg.equals("LEFT")) {
+			direction = Direction.LEFT;
+		} else if (msg.equals("RIGHT")) {
+			direction = Direction.RIGHT;
+		}
+		player.changeDirection(direction, this.ew);
+	}
+	
+	/**
+	 * update the player's color.
+	 * @param player. The player entity.
+	 * @param msg. Message containing the color to set the player entity. 
+	 */
+	private void setColor(Player player, String msg) {
+		TEAM team;
+		if (msg.equals("BLUE")) {
+			team = TEAM.BLUE;
+		} else {
+			team = TEAM.RED;
+		}
+		player.changeColor(team);
 	}
 	
 	/**
@@ -26,17 +60,9 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 		player.setHealthBarPos();
 		
 		if (categoryType.equals("SETDIRECTION")) {
-			Direction direction = Direction.UP;
-			if (msg.equals("UP")) {
-				direction = Direction.UP;
-			} else if (msg.equals("DOWN")) {
-				direction = Direction.DOWN;
-			} else if (msg.equals("LEFT")) {
-				direction = Direction.LEFT;
-			} else if (msg.equals("RIGHT")) {
-				direction = Direction.RIGHT;
-			}
-			player.changeDirection(direction, this.ew);
+			this.setDirection(player, msg);
+		} else if (categoryType.equals("SETCOLOR")) {
+			this.setColor(player, msg);
 		}
 		
 	}

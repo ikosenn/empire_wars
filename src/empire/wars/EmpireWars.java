@@ -15,7 +15,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.tiled.TiledMap;
 
-import empire.wars.Castle.TEAM;
 import empire.wars.net.ConnectedPlayers;
 import empire.wars.net.GameClient;
 import empire.wars.net.GameServer;
@@ -33,7 +32,12 @@ import jig.ResourceManager;
  *
  */
 public class EmpireWars extends StateBasedGame {
-
+	public enum TEAM
+	{
+		RED,
+		BLUE
+	}
+	
 	
 	public enum Direction
 	{
@@ -100,6 +104,8 @@ public class EmpireWars extends StateBasedGame {
 	public static final String RED_PLAYER_LEFT_IMG_RSC = "images/red_left.png";
 	public static final String RED_PLAYER_RIGHT_IMG_RSC = "images/red_right.png";
 	
+	TEAM myTeam;
+	
 	// network related values
 	String sessionType;  // whether I am just a client or a client with a "server".
 	Queue<Message> receivedPackets = new ConcurrentLinkedQueue<Message>();
@@ -165,12 +171,17 @@ public class EmpireWars extends StateBasedGame {
 		
 		tileHeight = map.getTileHeight();
         tileWidth = map.getTileWidth();
-        player = new Player(tileWidth*4, tileHeight*4, 0, 0, TEAM.BLUE);
         camera = new Camera(map, mapWidth, mapHeight);
+	}
+	
+	public void createOnClients() {
+		player = new Player(tileWidth*4, tileHeight*4, 0, 0, this.myTeam);
 	}
 	
 	
 	public void createOnServer() {
+		// server is always the red team
+		this.myTeam = TEAM.RED;
 		Random rand = new Random();
         int roadIndex = map.getLayerIndex("road");
         int wallIndex = map.getLayerIndex("walls");
@@ -362,6 +373,13 @@ public class EmpireWars extends StateBasedGame {
 	public GameClient getSocketClient() {
 		return this.socketClient;
 	}
+	/**
+	 * Team setter
+	 * @param team. The team color to set to.
+	 */
+ 	public void setMyTeam(TEAM team) {
+ 		this.myTeam = team;
+ 	}
 	
 	public  static void main(String[] args) {
 		AppGameContainer app;

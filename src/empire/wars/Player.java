@@ -12,8 +12,8 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.state.StateBasedGame;
 
 import empire.wars.Bullet.BULLET_TYPE;
-import empire.wars.Castle.TEAM;
 import empire.wars.EmpireWars.Direction;
+import empire.wars.EmpireWars.TEAM;
 import empire.wars.net.Message;
 import jig.ResourceManager;
 import jig.Vector;
@@ -26,6 +26,7 @@ public class Player extends NetworkEntity {
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
 
 	public TEAM team;
+	private TEAM _team;
 	public Direction direction;
 	public Direction _direction;
 	Random rand = new Random();
@@ -135,6 +136,13 @@ public class Player extends NetworkEntity {
 		this.sendDirectionUpdates(game, "SETDIRECTION");
 	}
 	
+	/**
+	 * Update client on the direction i am facing.
+	 * This allows for the animations behave correctly
+	 * @param game. The current Game State.
+	 * @param categoryType. The message category type.
+	 * Allows the receiver to know what to do with it.
+	 */
 	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
 		if (this.objectType == "ORIGINAL" ) {
 			String className = this.getClass().getSimpleName().toUpperCase();
@@ -143,6 +151,34 @@ public class Player extends NetworkEntity {
 				this.getObjectUUID(), "UPDATE", categoryType, msg, className);
 			game.sendPackets.add(posUpdate);
 		}
+	}
+	
+	/*
+	 * Update clients on the team color I belong to
+	 */
+	private void sendColorUpdate(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this.team != this._team) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.team.toString();
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
+			game.sendPackets.add(posUpdate);
+			this._team = this.team; 
+		}
+	}
+	@Override
+	public void networkUpdate(EmpireWars game) {
+		super.networkUpdate(game);
+		this.sendColorUpdate(game);
+	}
+	
+	/**
+	 * Used by the network to set the players color to the right color.
+	 * @param team
+	 */
+	public void changeColor(TEAM team) {
+		this.team = team;
+		this.health.setTeam(team);
 	}
 	
 //	public Player(float x, float y) {

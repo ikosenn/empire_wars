@@ -3,8 +3,7 @@ package empire.wars;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
-import empire.wars.Castle.TEAM;
-import jig.Entity;
+import empire.wars.EmpireWars.TEAM;
 
 /**
  * Implements the player health.
@@ -14,11 +13,18 @@ import jig.Entity;
 public class HealthBar extends NetworkEntity {
 	private int maxHealth = 16;
 	private int currentHealth;
-	TEAM team;
+	private TEAM team;
 	
 	public HealthBar(float x, float y, TEAM team) {
 		super(x, y);
 		this.currentHealth = this.maxHealth;
+		this.team = team;
+	}
+	
+	/*
+	 * team setter.
+	 */
+	public void setTeam(TEAM team) {
 		this.team = team;
 	}
 	/**
