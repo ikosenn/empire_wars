@@ -3,14 +3,11 @@ package empire.wars;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.state.StateBasedGame;
 
+import empire.wars.EmpireWars.TEAM;
+
 
 public class Castle extends NetworkEntity {
 	
-	public enum TEAM
-	{
-		RED,
-		BLUE
-	}
 	
 	Bullet fireBullet;
 	TEAM team;

@@ -1,6 +1,9 @@
 package empire.wars.net;
 
+import java.util.Arrays;
+
 import empire.wars.EmpireWars;
+import empire.wars.EmpireWars.TEAM;
 
 /**
  * Handle connection message.
@@ -27,18 +30,41 @@ public class SessionHandler {
 	
 	
 	private void handle() {
-		ConnectedPlayers player = new ConnectedPlayers(
-			msg.getMsg(), msg.getIpAddress(), msg.getPort()
-		);
+		
 		// if you are a client and you don't yet have a server
 		if (game.getSessionType().equals("CLIENT") && game.getBroadcastServer() == null) {
 			// set broadcast server
+			TEAM tempTeam;
+			String[] msgTemp = msg.getMsg().split("\\:");
+			String color = msgTemp[msgTemp.length - 1];
+			if (color.equals("BLUE")) {
+				tempTeam = TEAM.BLUE;
+			} else {
+				tempTeam = TEAM.RED;
+			}
+			
+			msgTemp = Arrays.copyOf(msgTemp, msgTemp.length - 1);
+			String username = String.join(":", msgTemp);
+			ConnectedPlayers player = new ConnectedPlayers(
+				username, msg.getIpAddress(), msg.getPort(), TEAM.BLUE
+			);
+			game.setMyTeam(tempTeam);
 			game.setBroadcastServer(player);
 		} else if (game.getSessionType().equals("SERVER")) {
 			// append the client to connected clients
+			TEAM tempTeam;
+			if (game.getConnectedPlayers().size() % 2 == 0) {
+				tempTeam = TEAM.BLUE;
+			} else {
+				tempTeam = TEAM.RED;
+			}
+			ConnectedPlayers player = new ConnectedPlayers(
+				msg.getMsg(), msg.getIpAddress(), msg.getPort(), tempTeam
+			);
 			game.appendConnectedPlayers(player);
 			// construct message for client
-			Message connectRes = new Message(game.getUsername(), "CONNECT");
+			String msgTemp = game.getUsername() + ":" + tempTeam.toString(); 
+			Message connectRes = new Message(msgTemp, "CONNECT");
 			game.appendSendPackets(connectRes);
 		}
 	}
