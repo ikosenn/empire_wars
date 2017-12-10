@@ -7,6 +7,7 @@ import empire.wars.Creep;
 import empire.wars.EmpireWars;
 import empire.wars.NetworkEntity;
 import empire.wars.EmpireWars.Direction;
+import empire.wars.EmpireWars.TEAM;
 
 public class CreepMessageHandler extends EntityMessageHandler {
 
@@ -40,7 +41,7 @@ public class CreepMessageHandler extends EntityMessageHandler {
 	@Override
 	public NetworkEntity createEntity(UUID objectUUID) {
 		Creep creepTemp;
-		creepTemp = new Creep(ew.getTileWidth() * 4, ew.getTileHeight() * 4);
+		creepTemp = new Creep(ew.getTileWidth() * 4, ew.getTileHeight() * 4, TEAM.BLUE);
 		creepTemp.setObjectUUID(objectUUID);
 		creepTemp.setObjectType("NETWORK");
 		ew.getCreeps().put(creepTemp.getObjectUUID(),creepTemp);

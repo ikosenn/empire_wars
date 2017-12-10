@@ -1,9 +1,11 @@
 package empire.wars;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
@@ -67,19 +69,19 @@ public class Player extends NetworkEntity {
 		switch(direction){
 		case UP:
 			bullets.add(new Bullet(getX(), getY(), 0.f, -EmpireWars.PLAYER_BULLETSPEED, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
 			break;
 		case DOWN:
 			bullets.add(new Bullet(getX(), getY(), 0.f, EmpireWars.PLAYER_BULLETSPEED, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
 			break;
 		case LEFT:
 			bullets.add(new Bullet(getX(), getY(), -EmpireWars.PLAYER_BULLETSPEED, 0.f, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
 			break;
 		case RIGHT:
 			bullets.add(new Bullet(getX(), getY(), EmpireWars.PLAYER_BULLETSPEED, 0.f, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER));
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
 			break;
 		default:
 			break;

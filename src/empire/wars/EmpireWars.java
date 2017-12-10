@@ -186,7 +186,7 @@ public class EmpireWars extends StateBasedGame {
         int roadIndex = map.getLayerIndex("road");
         int wallIndex = map.getLayerIndex("walls");
         
-        for (int i = 0; i< 30; i++)
+        for (int i = 0; i< 400; i++)
         {
         	int xTilePos, yTilePos;
         	while(true)
@@ -210,7 +210,8 @@ public class EmpireWars extends StateBasedGame {
             		break;
             	}
         	}
-        Creep tempCreep = new Creep(tileWidth * xTilePos, tileHeight * yTilePos);
+        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
+        	Creep tempCreep = new Creep(tileWidth * xTilePos, tileHeight * yTilePos, team);
         	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
 	}
