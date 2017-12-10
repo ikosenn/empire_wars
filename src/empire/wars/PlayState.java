@@ -38,7 +38,9 @@ public class PlayState extends BasicGameState {
 		ew.map.render(0, 0);
 		ew.player.render(g);
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
-			i.next().getValue().render(g);
+			HashMap.Entry<UUID, Creep> itr = i.next();
+			itr.getValue().render(g);
+			itr.getValue().health.render(g);
 		}
 		
 		// render other client stuff
@@ -57,6 +59,13 @@ public class PlayState extends BasicGameState {
 		
 		EmpireWars ew = (EmpireWars) game;
 		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		
+		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
+			if (i.next().getValue().health.isDead())
+			{
+				i.remove();
+			}
+		}
 		
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update(game, delta);

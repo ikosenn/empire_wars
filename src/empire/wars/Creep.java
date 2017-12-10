@@ -1,7 +1,10 @@
 package empire.wars;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.UUID;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
@@ -9,6 +12,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
 
 import empire.wars.EmpireWars.Direction;
+import empire.wars.EmpireWars.TEAM;
 import empire.wars.net.Message;
 import jig.ResourceManager;
 import jig.Vector;
@@ -16,6 +20,10 @@ import jig.Vector;
 public class Creep extends NetworkEntity {
 	private Vector velocity;
 	private Direction direction;
+	public TEAM team;
+	public HealthBar health;
+	public float hbXOffset = 16; // health bar offset so its on top of the players head
+	public float hbYOffset = 25; // health bar offset so its on top of the players head
 	
 	Random rand = new Random();
 	int timer = 0;
@@ -28,10 +36,14 @@ public class Creep extends NetworkEntity {
 		add(new Vector(-0.1f,0f));
 	}};
 	
-	public Creep(final float x, final float y){
+	public Creep(final float x, final float y, final TEAM in_team){
 		super(x,y);
 		int randNumber = rand.nextInt(4);
 		direction = Direction.values()[randNumber];
+		this.team = in_team;
+		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
+		
+		
 		addImageWithBoundingBox(ResourceManager.getImage(getImageName(direction)));
 		setVelocity(speedVectors.get(randNumber));
 	}
@@ -84,6 +96,38 @@ public class Creep extends NetworkEntity {
 		// run this code on the server only 
 		if (!ew.getSessionType().equals("SERVER")) {
 			return;
+		}
+		
+		for(Iterator<Bullet> i = ew.player.bullets.iterator(); i.hasNext();){
+			Bullet bullet = i.next();
+			if (bullet.collides(this) != null)
+			{
+				if (bullet.team != this.team)
+				{
+					this.health.setHealth(-4);
+				}
+				bullet.explode();
+			}
+		}
+		
+		if (this.collides(ew.player) != null)
+		{
+			if (this.team != ew.player.team)
+			{
+				ew.player.health.setHealth(-0.02);
+				return;
+			}
+		}
+		
+		for(Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext();){
+			HashMap.Entry<UUID, Creep> itr = i.next();
+			if (this.collides(itr.getValue()) != null && this.team != itr.getValue().team)
+			{
+				this.health.setHealth(-0.1);
+				itr.getValue().health.setHealth(-0.08);
+				return;
+			}
+		
 		}
 		
 		int wallIndex = ew.map.getLayerIndex("walls");
@@ -150,6 +194,16 @@ public class Creep extends NetworkEntity {
 			System.out.println(maxY);
 			throw e;
 		}
+		
+		this.setHealthBarPos();
+	}
+	
+	/**
+	 * Update the health bar based on the creeps movement.
+	 *
+	 */
+	public void setHealthBarPos() {
+		this.health.setPosition(this.getX() - hbXOffset,  this.getY() - hbYOffset);
 	}
 	
 	public void setVelocity(final Vector v) {

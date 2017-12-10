@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import empire.wars.Bullet;
 import empire.wars.EmpireWars;
+import empire.wars.EmpireWars.TEAM;
 import empire.wars.NetworkEntity;
 import empire.wars.Bullet.BULLET_TYPE;
 
@@ -30,7 +31,7 @@ public class BulletMessageHandler extends EntityMessageHandler {
 	public NetworkEntity createEntity(UUID objectUUID) {
 		Bullet bulletTemp;
 		bulletTemp = new Bullet(
-			0f, 0f, 0f, 0f, EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER);
+			0f, 0f, 0f, 0f, EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, TEAM.BLUE);
 		bulletTemp.setObjectUUID(objectUUID);
 		bulletTemp.setObjectType("NETWORK");
 		ew.getClientBullets().put(bulletTemp.getObjectUUID(), bulletTemp);

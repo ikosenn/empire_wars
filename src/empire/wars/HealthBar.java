@@ -11,8 +11,8 @@ import empire.wars.EmpireWars.TEAM;
  *
  */
 public class HealthBar extends NetworkEntity {
-	private int maxHealth = 16;
-	private int currentHealth;
+	private double maxHealth = 16;
+	public double currentHealth;
 	private TEAM team;
 	
 	public HealthBar(float x, float y, TEAM team) {
@@ -47,15 +47,16 @@ public class HealthBar extends NetworkEntity {
 	 * 
 	 * @param x. The value to increment or decrement the health bar with
 	 */
-	public void setHealth(int x) {
+	public void setHealth(double x) {
 		this.currentHealth += x;
 		
 		if (this.currentHealth > this.maxHealth) {
 			// dont go beyond max
 			this.currentHealth = this.maxHealth;
-		} else if (this.currentHealth < 0) {
+		} else if (this.currentHealth <= 0.0) {
 			// dont go below min
-			this.currentHealth = 0;
+			this.currentHealth = 0.0;
+			this.explode();
 		}
 	}
 	

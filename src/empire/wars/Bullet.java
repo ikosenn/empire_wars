@@ -3,6 +3,7 @@ package empire.wars;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.state.StateBasedGame;
 
+import empire.wars.EmpireWars.TEAM;
 import jig.Vector;
 import jig.ResourceManager;
 
@@ -18,12 +19,14 @@ public class Bullet extends NetworkEntity {
 	}
 	
 	private BULLET_TYPE bullet_type;
+	public TEAM team;
 	
-	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type){
+	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type, final TEAM in_team){
 		super(x,y);
 		this.velocity = new Vector(vx, vy);
 		this.bullet_image = in_bullet_image;
 		this.bullet_type = in_bullet_type;
+		this.team = in_team;
 		
 		addImageWithBoundingBox(ResourceManager.getImage(this.bullet_image));
 	}
