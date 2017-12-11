@@ -104,6 +104,10 @@ public class Message implements Serializable {
 			new PlayerMessageHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("BANANAPOWERUP")) {
+			new BananaPowerUpHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("HEARTPOWERUP")) {
 			new HeartPowerUpHandler(msgPacket, ew);
 		}
