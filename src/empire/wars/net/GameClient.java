@@ -87,6 +87,14 @@ public class GameClient extends Thread {
 		try {
 			byte[] data = this.serializerMessage(msg);
 			ArrayList<ConnectedPlayers> connectedPlayers = this.game.getConnectedPlayers();
+			// messages for single client. i.e not broadcast to everyone
+			if (msg.getSingleClient()) {
+				DatagramPacket packet = new DatagramPacket(
+					data, data.length, msg.getIpAddress(), msg.getPort()
+				);
+				this.socket.send(packet);	
+				return;
+			}
 			for (int i = 0; i < connectedPlayers.size(); i++) {
 				ConnectedPlayers temp = connectedPlayers.get(i);
 				if (temp.getIpAddress() != msg.getIpAddress() &&
@@ -94,10 +102,8 @@ public class GameClient extends Thread {
 					DatagramPacket packet = new DatagramPacket(
 						data, data.length, temp.getIpAddress(), temp.getPort()
 					);
-					this.socket.send(packet);
-					
+					this.socket.send(packet);	
 				}
-					
 			}
 		} catch (IOException e) {
 			System.out.println(

@@ -116,6 +116,14 @@ public class NetworkEntity extends Entity {
 		exploded = true;
 	}
 	
+	/**
+	 *  True if the entity is going to be destroyed in the next loop
+	 */
+	public Boolean isDestroyed() {
+		return exploded;
+	}
+	
+	
 	/*
 	 * exploded getter
 	 */
