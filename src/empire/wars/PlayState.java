@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
@@ -14,6 +15,8 @@ import empire.wars.net.Message;
 
 
 public class PlayState extends BasicGameState {
+	
+	public int game_timer = 0;
 	
 	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
@@ -57,12 +60,21 @@ public class PlayState extends BasicGameState {
 		for(Flag f:ew.flags){
 			f.render(g);
 		}
+		
+		g.setColor(Color.black);
+		g.fillRect((-1 * ew.camera.getXIndicator()),(-1 * ew.camera.getYIndicator()),EmpireWars.SCREEN_WIDTH,35);
+		g.setColor(Color.white);
+		g.drawString("Time Left: "+ (150000 - game_timer)/ 60000 + ":" + ((150000 - game_timer) % 60000 / 1000) ,(-1 * ew.camera.getXIndicator() + 440),(-1 * ew.camera.getYIndicator())+10);
+		ew.player.render(g);
+		
 	}
+	
 
 	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		
 		EmpireWars ew = (EmpireWars) game;
+		game_timer += delta;
 		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
