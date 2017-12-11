@@ -34,10 +34,10 @@ import jig.ResourceManager;
 public class EmpireWars extends StateBasedGame {
 	public enum TEAM
 	{
+		GREY,
 		RED,
 		BLUE
 	}
-	
 	
 	public enum Direction
 	{
@@ -83,6 +83,10 @@ public class EmpireWars extends StateBasedGame {
 	public static final String SPLASH_SCREEN_IMG_RSC = "images/splash.png";
 	public static final String LOGO_IMG_RSC = "images/logo.png";
 	public static final String MENU_BUTTONS_RSC = "images/menu_buttons.png";
+	public static final String FLAG_GREYIMG_RSC = "images/grey_flag.png";
+	public static final String FLAG_BLUEIMG_RSC = "images/blue_flag.png";
+	public static final String FLAG_REDIMG_RSC = "images/red_flag.png";
+	
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -120,6 +124,9 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, Player> clientPlayer = new HashMap<>();
 	HashMap<UUID,Bullet> clientBullets = new HashMap<>();
 	HashMap<UUID,Creep> creeps = new HashMap<>();
+	
+	Flag flag_test;
+	ArrayList<Flag> flags = new ArrayList<Flag>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -164,6 +171,9 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(RED_PLAYER_DOWN_IMG_RSC);
 		ResourceManager.loadImage(RED_PLAYER_LEFT_IMG_RSC);
 		ResourceManager.loadImage(RED_PLAYER_RIGHT_IMG_RSC);
+		ResourceManager.loadImage(FLAG_GREYIMG_RSC);
+		ResourceManager.loadImage(FLAG_BLUEIMG_RSC);
+		ResourceManager.loadImage(FLAG_REDIMG_RSC);
 
 		map = new TiledMap("src/tilemaps/maze.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
@@ -213,6 +223,35 @@ public class EmpireWars extends StateBasedGame {
         	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
         	Creep tempCreep = new Creep(tileWidth * xTilePos, tileHeight * yTilePos, team);
         	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
+        }
+        
+        flag_test = new Flag(tileWidth * 5, tileHeight * 10);
+        for (int i = 0; i< 5; i++)
+        {
+        	int xTilePos, yTilePos;
+        	while(true)
+        	{
+        		xTilePos = rand.nextInt(this.mapWidth/tileWidth);
+            	yTilePos = rand.nextInt(this.mapHeight/tileHeight);
+            	if (map.getTileId(xTilePos, yTilePos, roadIndex) != 0 && map.getTileId(xTilePos, yTilePos, wallIndex) == 0)
+            	{
+            		if (xTilePos - 1 <= 0 || map.getTileId(xTilePos-1, yTilePos, wallIndex) != 0)
+            			continue;
+            		
+            		if (yTilePos - 1 <= 0 || map.getTileId(xTilePos, yTilePos-1, wallIndex) != 0)
+            			continue;
+            		
+            		if (xTilePos + 1 >= (int)mapWidth/tileWidth || map.getTileId(xTilePos+1, yTilePos, wallIndex) != 0)
+            			continue;
+            		
+            		if (yTilePos + 1 >= (int)mapHeight/tileHeight || map.getTileId(xTilePos, yTilePos+1, wallIndex) != 0)
+            			continue;
+            		
+            		break;
+            	}
+        	}
+        	Flag flag = new Flag(tileWidth * xTilePos, tileHeight * yTilePos);
+        	flags.add(flag);	
         }
 	}
 	
