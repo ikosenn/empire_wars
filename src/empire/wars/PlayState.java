@@ -44,16 +44,16 @@ public class PlayState extends BasicGameState {
 		ew.camera.translate(g, ew.player);
 		ew.map.render(0, 0);
 		ew.player.render(g);
-		for(Flag f:ew.flags){
-			f.render(g);
+		
+		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
 		}
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			HashMap.Entry<UUID, Creep> itr = i.next();
 			itr.getValue().render(g);
 			itr.getValue().health.render(g);
 		}
-		
-		// render other client stuff
+
 		for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
@@ -106,17 +106,17 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update();
 		}
+		
+		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update(container, game, delta);
+		}
 					
 		// process network message
 		for (Iterator<Message> i = ew.receivedPackets.iterator(); i.hasNext(); ) {
 			Message.determineHandler(i.next(), ew);
 			i.remove();
 		}
-		
-		for(Flag f:ew.flags){
-			f.update(container, game, delta);
-		}
-		
+				
 		// remove bullets
 		HashMap<UUID, Bullet> bulletMap = ew.getClientBullets();
 		bulletMap.entrySet().removeIf(entry->entry.getValue().isExploded() == true);

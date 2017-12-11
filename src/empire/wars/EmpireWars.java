@@ -129,8 +129,7 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, Creep> creeps = new HashMap<>();
 	HashMap<UUID, HeartPowerUp> heartPowerup = new HashMap<>();
 	HashMap<UUID, BananaPowerUp> bananaPowerup = new HashMap<>();
-	
-	ArrayList<Flag> flags = new ArrayList<Flag>();
+	HashMap<UUID, Flag> flags = new HashMap<>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -254,7 +253,7 @@ public class EmpireWars extends StateBasedGame {
         for (int i = 0; i < 5; i++) {
         		tilePos = this.randomizeEntityPos();
 	        	Flag flag = new Flag(tileWidth * tilePos[0], tileHeight * tilePos[1]);
-	        	flags.add(flag);	
+	        	flags.put(flag.getObjectUUID(), flag);	
         }
 	}
 	
@@ -289,6 +288,14 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public HashMap<UUID, BananaPowerUp> getBananaPowerup() {
 		return bananaPowerup;
+	}
+	
+	/**
+	 * BananaPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, Flag> getFlags() {
+		return this.flags;
 	}
 	
 	/**
