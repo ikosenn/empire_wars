@@ -99,7 +99,7 @@ public class Flag extends NetworkEntity {
 		float x = this.getX() - 0;  
 		float y = this.getY() - 25;
 		if(player_stay_timer < 3000){
-			g.setColor(Color.blue);
+			g.setColor(Color.magenta);
 			g.fillRect(x, y, 20.0f*player_stay_timer/3000, 5);
 		}
 		

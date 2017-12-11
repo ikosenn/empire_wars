@@ -37,13 +37,13 @@ public class Creep extends NetworkEntity {
 	}};
 	
 	private Animation creep_movement_up = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 3, 2, 3, true, 150, true);
+			EmpireWars.CREEP_MOVING_IMG_RSC, 48, 48), 0, 3, 2, 3, true, 150, true);
 	private Animation creep_movement_down = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 0, 2, 0, true, 150, true);
+			EmpireWars.CREEP_MOVING_IMG_RSC, 48, 48), 0, 0, 2, 0, true, 150, true);
 	private Animation creep_movement_left = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 1, 2, 1, true, 150, true);
+			EmpireWars.CREEP_MOVING_IMG_RSC, 48, 48), 0, 1, 2, 1, true, 150, true);
 	private Animation creep_movement_right = new Animation(ResourceManager.getSpriteSheet(
-			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 2, 2, 2, true, 150, true);
+			EmpireWars.CREEP_MOVING_IMG_RSC, 48, 48), 0, 2, 2, 2, true, 150, true);
 	
 	public Creep(final float x, final float y, final TEAM in_team){
 		super(x,y);
