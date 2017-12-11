@@ -1,11 +1,9 @@
 package empire.wars;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
@@ -22,16 +20,18 @@ import jig.Vector;
 
 public class Player extends NetworkEntity {
 	public ArrayList<Bullet> bullets;
-	public List<PowerUp> powerups;
 	public HealthBar health;
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
-
+	Random rand = new Random();
 	public TEAM team;
+	
+	// for networking 
 	private TEAM _team;
 	public Direction direction;
 	public Direction _direction;
-	Random rand = new Random();
+	private InetAddress ipAddress;
+	private int port;
 	
 	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
 			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 48, 48), 0, 3, 2, 3, true, 150, true);
@@ -124,6 +124,34 @@ public class Player extends NetworkEntity {
 		}
 	}
 	
+	/*
+	 * ipAddress getter
+	 */
+	public InetAddress getIpAddress() {
+		return ipAddress;
+	}
+
+	/*
+	 * ipAddress setter
+	 */
+	public void setIpAddress(InetAddress ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	/**
+	 * port getter
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/*
+	 * port setter
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
+	
 	public void changeDirection(Direction new_direction, EmpireWars game)
 	{
 		while(getNumAnimations() > 2){
@@ -196,27 +224,26 @@ public class Player extends NetworkEntity {
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
 		EmpireWars ew = (EmpireWars) game;
 		this.networkUpdate(ew);  // network updates
-		// get user input
-		
+		// get user input		
 		Input input = container.getInput();
 	
 		Vector previousPoition = this.getPosition();
 		
 
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
-			setVelocity(new Vector(0.f, -ew.PLAYER_SPEED));
+			setVelocity(new Vector(0.f, -EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.UP, ew);
 		}
 		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
-			setVelocity(new Vector(0.f, ew.PLAYER_SPEED));
+			setVelocity(new Vector(0.f, EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.DOWN, ew);
 		}
 		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
-			setVelocity(new Vector(-ew.PLAYER_SPEED, 0.f));
+			setVelocity(new Vector(-EmpireWars.PLAYER_SPEED, 0.f));
 			changeDirection(Direction.LEFT, ew);
 		}
 		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
-			setVelocity(new Vector(ew.PLAYER_SPEED, 0.f));
+			setVelocity(new Vector(EmpireWars.PLAYER_SPEED, 0.f));
 			changeDirection(Direction.RIGHT, ew);
 		}
 		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_UP) 

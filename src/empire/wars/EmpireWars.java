@@ -66,6 +66,7 @@ public class EmpireWars extends StateBasedGame {
 	private GameServer socketServer;
 	
 	private String username;
+	private int lives = 3;
 	
 	public final static float PLAYER_SPEED = 0.40f;
 	public final static float PLAYER_BULLETSPEED = 0.50f;
@@ -87,7 +88,7 @@ public class EmpireWars extends StateBasedGame {
 	public static final String FLAG_BLUEIMG_RSC = "images/blue_flag.png";
 	public static final String FLAG_REDIMG_RSC = "images/red_flag.png";
 	public static final String CREEP_MOVING_IMG_RSC = "images/creeps.png";
-	
+	public static final String HEART_POWERUP_RSC = "images/heartpowerup.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -125,8 +126,8 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, Player> clientPlayer = new HashMap<>();
 	HashMap<UUID,Bullet> clientBullets = new HashMap<>();
 	HashMap<UUID,Creep> creeps = new HashMap<>();
+	HashMap<UUID,HeartPowerUp> heartPowerup = new HashMap<>();
 	
-	Flag flag_test;
 	ArrayList<Flag> flags = new ArrayList<Flag>();
 	
 	public EmpireWars(String title) {
@@ -151,6 +152,7 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_MOVINGIMG_RSC);
 		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
 		ResourceManager.loadImage(LOGO_IMG_RSC);
+		ResourceManager.loadImage(HEART_POWERUP_RSC);
 
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
@@ -192,13 +194,17 @@ public class EmpireWars extends StateBasedGame {
 	
 	
 	public void createOnServer() {
+		HeartPowerUp heartPoweruptemp = new HeartPowerUp(4610, 1487, this);
+		this.heartPowerup.put(heartPoweruptemp.getObjectUUID(), heartPoweruptemp);
+		heartPoweruptemp = new HeartPowerUp(108, 1487, this);
+		this.heartPowerup.put(heartPoweruptemp.getObjectUUID(), heartPoweruptemp);
 		// server is always the red team
 		this.myTeam = TEAM.RED;
 		Random rand = new Random();
         int roadIndex = map.getLayerIndex("road");
         int wallIndex = map.getLayerIndex("walls");
         
-        for (int i = 0; i< 400; i++)
+        for (int i = 0; i < 20; i++)
         {
         	int xTilePos, yTilePos;
         	while(true)
@@ -227,7 +233,6 @@ public class EmpireWars extends StateBasedGame {
         	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
         
-        flag_test = new Flag(tileWidth * 5, tileHeight * 10);
         for (int i = 0; i< 5; i++)
         {
         	int xTilePos, yTilePos;
@@ -272,6 +277,14 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public HashMap<UUID, Bullet> getClientBullets() {
 		return clientBullets;
+	}
+	
+	/**
+	 * HeartPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, HeartPowerUp> getHeartPowerup() {
+		return heartPowerup;
 	}
 	
 	/**
@@ -423,6 +436,16 @@ public class EmpireWars extends StateBasedGame {
  		this.myTeam = team;
  	}
 	
+	public int getLives() {
+		return lives;
+	}
+
+
+	public void setLives(int lives) {
+		this.lives = lives;
+	}
+
+
 	public  static void main(String[] args) {
 		AppGameContainer app;
 		try {

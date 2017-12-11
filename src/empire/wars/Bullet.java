@@ -33,7 +33,6 @@ public class Bullet extends NetworkEntity {
 	
 	public void update(GameContainer container, StateBasedGame game, int delta,
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
-		
 		EmpireWars ew = (EmpireWars) game;
 		translate(velocity.scale(delta));
 		this.networkUpdate(ew);  // network updates
