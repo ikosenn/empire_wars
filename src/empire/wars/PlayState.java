@@ -62,6 +62,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().render(g);
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
+		
 		// bullets
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
@@ -98,6 +102,10 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, HeartPowerUp>> i = ew.getHeartPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update();
 		}
+		
+		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update();
+		}
 					
 		// process network message
 		for (Iterator<Message> i = ew.receivedPackets.iterator(); i.hasNext(); ) {
@@ -115,6 +123,10 @@ public class PlayState extends BasicGameState {
 		// remove heart power-up
 		HashMap<UUID, HeartPowerUp> heartPowerup = ew.getHeartPowerup();
 		heartPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
+		
+		// remove heart power-up
+		HashMap<UUID, BananaPowerUp> bananaPowerup = ew.getBananaPowerup();
+		bananaPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 
 	}
 
