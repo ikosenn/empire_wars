@@ -86,6 +86,7 @@ public class EmpireWars extends StateBasedGame {
 	public static final String FLAG_GREYIMG_RSC = "images/grey_flag.png";
 	public static final String FLAG_BLUEIMG_RSC = "images/blue_flag.png";
 	public static final String FLAG_REDIMG_RSC = "images/red_flag.png";
+	public static final String CREEP_MOVING_IMG_RSC = "images/creeps.png";
 	
 	
 	//sound resources
@@ -174,6 +175,7 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(FLAG_GREYIMG_RSC);
 		ResourceManager.loadImage(FLAG_BLUEIMG_RSC);
 		ResourceManager.loadImage(FLAG_REDIMG_RSC);
+		ResourceManager.loadImage(CREEP_MOVING_IMG_RSC);
 
 		map = new TiledMap("src/tilemaps/maze.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();

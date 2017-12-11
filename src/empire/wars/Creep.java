@@ -36,6 +36,15 @@ public class Creep extends NetworkEntity {
 		add(new Vector(-0.1f,0f));
 	}};
 	
+	private Animation creep_movement_up = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 3, 2, 3, true, 150, true);
+	private Animation creep_movement_down = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 0, 2, 0, true, 150, true);
+	private Animation creep_movement_left = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 1, 2, 1, true, 150, true);
+	private Animation creep_movement_right = new Animation(ResourceManager.getSpriteSheet(
+			EmpireWars.CREEP_MOVING_IMG_RSC, 32, 32), 0, 2, 2, 2, true, 150, true);
+	
 	public Creep(final float x, final float y, final TEAM in_team){
 		super(x,y);
 		int randNumber = rand.nextInt(4);
@@ -43,32 +52,38 @@ public class Creep extends NetworkEntity {
 		this.team = in_team;
 		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
 		
-		
-		addImageWithBoundingBox(ResourceManager.getImage(getImageName(direction)));
-		setVelocity(speedVectors.get(randNumber));
+		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
+		addAnimation(getAnimation(direction));
+		setVelocity(speedVectors.get(direction.ordinal()));
 	}
 	
-	public String getImageName(Direction direction)
+	public Animation getAnimation(Direction direction)
 	{
+
 		switch (direction)
 		{
 		case UP:
-			return EmpireWars.CREEP_UP_IMG_RSC;
+			return creep_movement_up;
 		case DOWN:
-			return EmpireWars.CREEP_DOWN_IMG_RSC;
+			return creep_movement_down;
 		case LEFT:
-			return EmpireWars.CREEP_LEFT_IMG_RSC;
+			return creep_movement_left;
 		case RIGHT:
-			return EmpireWars.CREEP_RIGHT_IMG_RSC;
+			return creep_movement_right;
 		default:
-			return "";
+			return creep_movement_down;
 		}
 	}
 	
 	public void changeDirection(Direction new_direction, EmpireWars game)
 	{
-		removeImage(ResourceManager.getImage(getImageName(direction)));
-		addImageWithBoundingBox(ResourceManager.getImage(getImageName(new_direction)));
+		while(getNumAnimations() > 2){
+			removeAnimation(getAnimation(Direction.UP));
+			removeAnimation(getAnimation(Direction.DOWN));
+			removeAnimation(getAnimation(Direction.LEFT));
+			removeAnimation(getAnimation(Direction.RIGHT));
+		}
+		addAnimation(getAnimation(new_direction));
 		direction = new_direction;
 		setVelocity(speedVectors.get(new_direction.ordinal()));
 		this.sendDirectionUpdates(game, "SETDIRECTION");
