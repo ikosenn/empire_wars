@@ -12,13 +12,41 @@ import empire.wars.EmpireWars.TEAM;
  */
 public class HealthBar extends NetworkEntity {
 	private double maxHealth = 16;
-	public double currentHealth;
+	private double currentHealth;
 	private TEAM team;
+	private double _currentHealth;
 	
 	public HealthBar(float x, float y, TEAM team) {
 		super(x, y);
 		this.currentHealth = this.maxHealth;
+		this._currentHealth = this.maxHealth;
 		this.team = team;
+	}
+	
+	/**
+	 * current health getter 
+	 * @return
+	 */
+	public double getCurrentHealth() {
+		return this.currentHealth;
+	}
+	/**
+	 * Tracks if the last value sent over the network
+	 * for the currentHealth matches what it is currently
+	 * @return. true if the values don't match false otherwise 
+	 */
+	public boolean hasChanged() {
+		if (this.currentHealth != this._currentHealth) {
+			this._currentHealth = this.currentHealth;
+			return true;
+		}
+		return false;
+	}
+	/*
+	 * current health setter
+	 */
+	public void setCurrentHealth(double x) {
+		this.currentHealth = x;
 	}
 	
 	/*

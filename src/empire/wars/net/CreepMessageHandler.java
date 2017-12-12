@@ -43,6 +43,9 @@ public class CreepMessageHandler extends EntityMessageHandler {
 		} else if (categoryType.equals("SETPLAYERLIFE")) {
 			double x = Double.parseDouble(msg);
 			ew.getPlayer().health.setHealth(x);
+		} else if (categoryType.equals("SETHEALTH")) {
+			double x = Double.parseDouble(msg);
+			creep.health.setCurrentHealth(x);
 		}
 	}
 	
