@@ -61,6 +61,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().render(g);
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, VanishingAct>> i = ew.getVanishPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
@@ -102,6 +106,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().update();
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, VanishingAct>> i = ew.getVanishPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update();
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update();
 		}
@@ -126,6 +134,10 @@ public class PlayState extends BasicGameState {
 		// remove heart power-up
 		HashMap<UUID, HeartPowerUp> heartPowerup = ew.getHeartPowerup();
 		heartPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
+		
+		// remove heart power-up
+		HashMap<UUID, VanishingAct> vanishPowerup = ew.getVanishPowerup();
+		vanishPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 		
 		// remove heart power-up
 		HashMap<UUID, BananaPowerUp> bananaPowerup = ew.getBananaPowerup();

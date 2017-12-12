@@ -50,8 +50,7 @@ public abstract class PowerUp extends NetworkEntity {
 	 * @param player. The server player
 	 */
 	public abstract void handleServer(Player player);
-	
-	
+		
 	private void checkCollision() {
 		// check collision with client players
 		for (Iterator<HashMap.Entry<UUID, Player>> i = this.game.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
@@ -70,7 +69,7 @@ public abstract class PowerUp extends NetworkEntity {
 			this.explode();
 		}
 	}
-	
+
 	public void update() {
 		if (this.game.getSessionType().equals("SERVER")) {
 			this.networkUpdate(this.game);  // network updates
