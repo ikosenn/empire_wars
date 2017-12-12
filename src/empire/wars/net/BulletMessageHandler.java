@@ -21,10 +21,30 @@ public class BulletMessageHandler extends EntityMessageHandler {
 	@Override
 	public void update(NetworkEntity entity, String categoryType, String msg) {
 		super.update(entity, categoryType, msg);
+		Bullet bullet = (Bullet)entity;
+		
 		if (categoryType.equals("SETCOL")) {
-			Bullet bullet = (Bullet)entity;
 			bullet.setExploded();
+		} else if (categoryType.equals("SETCOLOR")) {
+			this.setColor(bullet, msg);
+		} else if (categoryType.equals("SETSERVERCOL") && bullet.getObjectType().equals("ORIGINAL")) {
+			bullet.explode();
 		}
+	}
+	
+	/**
+	 * update the player's color.
+	 * @param bullet. The player entity.
+	 * @param msg. Message containing the color to set the player entity. 
+	 */
+	private void setColor(Bullet bullet, String msg) {
+		TEAM team;
+		if (msg.equals("BLUE")) {
+			team = TEAM.BLUE;
+		} else {
+			team = TEAM.RED;
+		}
+		bullet.changeColor(team);
 	}
 	
 	@Override

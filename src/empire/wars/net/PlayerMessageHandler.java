@@ -63,7 +63,7 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 			this.setDirection(player, msg);
 		} else if (categoryType.equals("SETCOLOR")) {
 			this.setColor(player, msg);
-		}
+		} 
 		
 	}
 

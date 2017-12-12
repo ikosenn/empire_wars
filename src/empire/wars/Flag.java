@@ -10,8 +10,6 @@ import jig.ResourceManager;
 import jig.Vector;
 
 public class Flag extends NetworkEntity {
-	public TEAM team;
-	private TEAM _team; // to be used by networking
 	public int player_stay_timer = 3000; // player has to stay for 3 sec to change the color
 	public Vector flagTileIdx;
 	
@@ -55,6 +53,20 @@ public class Flag extends NetworkEntity {
 		player_stay_timer = 3000;
 	}
 	
+	/*
+	 * Update clients on the team color I belong to
+	 */
+	public void sendColorUpdate(EmpireWars game) {
+		if (this.team != this._team) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.team.toString();
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
+			game.sendPackets.add(posUpdate);
+			this._team = this.team; 
+		}
+	}
+	
 	private Vector getTileIdx(Vector v){
 		return new Vector(v.getX()/32, v.getY()/32);
 	}
@@ -73,21 +85,7 @@ public class Flag extends NetworkEntity {
 		}
 		return false;
 	}
-	
-	/*
-	 * Update clients on the team color I belong to
-	 */
-	private void sendColorUpdate(EmpireWars game) {
-		if (this.team != this._team) {
-			String className = this.getClass().getSimpleName().toUpperCase();
-			String msg = this.team.toString();
-			Message posUpdate = new Message(
-				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
-			game.sendPackets.add(posUpdate);
-			this._team = this.team; 
-		}
-	}
-	
+
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
