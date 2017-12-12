@@ -135,6 +135,13 @@ public class Player extends NetworkEntity {
 		this.ipAddress = ipAddress;
 	}
 
+	/*
+	 * team getter
+	 */
+	public TEAM getTeam() {
+		return this.team;
+	}
+
 	/**
 	 * port getter
 	 */
