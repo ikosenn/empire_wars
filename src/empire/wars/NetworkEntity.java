@@ -124,7 +124,7 @@ public class NetworkEntity extends Entity {
 			}
 		}
 	}
-	
+		
 	/*
 	 * Gets called with every frame.
 	 */

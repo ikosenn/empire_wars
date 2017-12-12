@@ -77,10 +77,21 @@ public class Creep extends NetworkEntity {
 		}
 	}
 	
+	public void sendHealthBarUpdates(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this.health.hasChanged()) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = Double.toString(this.health.getCurrentHealth());
+			Message healthUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETHEALTH", msg, className);
+			game.sendPackets.add(healthUpdate);
+		}
+	}
+	
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
 		this.sendColorUpdate(game);
+		this.sendHealthBarUpdates(game);
 	}
 	
 	/**
