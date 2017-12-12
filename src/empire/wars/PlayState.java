@@ -75,6 +75,12 @@ public class PlayState extends BasicGameState {
 		g.setColor(Color.white);
 		g.drawString("Time Left: "+ (150000 - game_timer)/ 60000 + ":" + ((150000 - game_timer) % 60000 / 1000) ,(-1 * ew.camera.getXIndicator() + 440),(-1 * ew.camera.getYIndicator())+10);
 		g.drawString("Lives: "  + ew.getLives(), (-1 * ew.camera.getXIndicator() + 20),(-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.red);
+		g.drawString(
+			"Red: "  + ew.getScore().getRedTeam(), (-1 * ew.camera.getXIndicator() + 830),(-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.blue);
+		g.drawString(
+			"Blue: "  + ew.getScore().getBlueTeam(), (-1 * ew.camera.getXIndicator() + 930),(-1 * ew.camera.getYIndicator()) + 10);
 		ew.player.render(g);
 		
 	}
@@ -86,6 +92,7 @@ public class PlayState extends BasicGameState {
 		EmpireWars ew = (EmpireWars) game;
 		game_timer += delta;
 		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		ew.getScore().update(game);
 		
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update(game, delta);

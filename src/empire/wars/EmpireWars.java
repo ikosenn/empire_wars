@@ -55,6 +55,9 @@ public class EmpireWars extends StateBasedGame {
 	public final static int PLAY_STATE_ID = 5;
 	public final static  int GAMEOVERSTATE_ID = 6;
 	
+	public final static int KILL_POINTS = 2;
+	public final static int CHANGE_FLAG_POINTS = 30;
+	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
 	public final static int SCREEN_SMALL_WIDTH = 900;
@@ -67,6 +70,7 @@ public class EmpireWars extends StateBasedGame {
 	
 	private String username;
 	private int lives = 3;
+	private Score score = new Score();
 	
 	public final static float PLAYER_SPEED = 0.40f;
 	public final static float PLAYER_BULLETSPEED = 0.50f;
@@ -468,6 +472,13 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public Player getPlayer() {
 		return this.player;
+	}
+
+	/*
+	 * Score getter
+	 */
+	public Score getScore() {
+		return score;
 	}
 
 	public  static void main(String[] args) {
