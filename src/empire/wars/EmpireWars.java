@@ -55,6 +55,9 @@ public class EmpireWars extends StateBasedGame {
 	public final static int PLAY_STATE_ID = 5;
 	public final static  int GAMEOVERSTATE_ID = 6;
 	
+	public final static int KILL_POINTS = 2;
+	public final static int CHANGE_FLAG_POINTS = 30;
+	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
 	public final static int SCREEN_SMALL_WIDTH = 900;
@@ -66,6 +69,8 @@ public class EmpireWars extends StateBasedGame {
 	private GameServer socketServer;
 	
 	private String username;
+	private int lives = 3;
+	private Score score = new Score();
 	
 	public final static float PLAYER_SPEED = 0.40f;
 	public final static float PLAYER_BULLETSPEED = 0.50f;
@@ -87,7 +92,9 @@ public class EmpireWars extends StateBasedGame {
 	public static final String FLAG_BLUEIMG_RSC = "images/blue_flag.png";
 	public static final String FLAG_REDIMG_RSC = "images/red_flag.png";
 	public static final String CREEP_MOVING_IMG_RSC = "images/creeps.png";
-	
+	public static final String HEART_POWERUP_RSC = "images/heartpowerup.png";
+	public static final String BANANA_POWERUP_RSC = "images/bananapowerup.png";
+	public static final String CLOAK_POWERUP_RSC = "images/cloakpowerup.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -123,11 +130,12 @@ public class EmpireWars extends StateBasedGame {
 	// stupid way to track other client entities
 	// stupid way works best sometimes
 	HashMap<UUID, Player> clientPlayer = new HashMap<>();
-	HashMap<UUID,Bullet> clientBullets = new HashMap<>();
-	HashMap<UUID,Creep> creeps = new HashMap<>();
-	
-	Flag flag_test;
-	ArrayList<Flag> flags = new ArrayList<Flag>();
+	HashMap<UUID, Bullet> clientBullets = new HashMap<>();
+	HashMap<UUID, Creep> creeps = new HashMap<>();
+	HashMap<UUID, HeartPowerUp> heartPowerup = new HashMap<>();
+	HashMap<UUID, BananaPowerUp> bananaPowerup = new HashMap<>();
+	HashMap<UUID, VanishingAct> vanishPowerup = new HashMap<>();
+	HashMap<UUID, Flag> flags = new HashMap<>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -151,6 +159,9 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_MOVINGIMG_RSC);
 		ResourceManager.loadImage(SPLASH_SCREEN_IMG_RSC);
 		ResourceManager.loadImage(LOGO_IMG_RSC);
+		ResourceManager.loadImage(HEART_POWERUP_RSC);
+		ResourceManager.loadImage(BANANA_POWERUP_RSC);
+		ResourceManager.loadImage(CLOAK_POWERUP_RSC);
 
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
@@ -190,70 +201,72 @@ public class EmpireWars extends StateBasedGame {
 		player = new Player(tileWidth*4, tileHeight*4, 0, 0, this.myTeam);
 	}
 	
-	
-	public void createOnServer() {
-		// server is always the red team
-		this.myTeam = TEAM.RED;
+	private int[] randomizeEntityPos() {
+		int[] pos = new int[2];
 		Random rand = new Random();
         int roadIndex = map.getLayerIndex("road");
         int wallIndex = map.getLayerIndex("walls");
-        
-        for (int i = 0; i< 400; i++)
-        {
-        	int xTilePos, yTilePos;
-        	while(true)
-        	{
-        		xTilePos = rand.nextInt(this.mapWidth/tileWidth);
-            	yTilePos = rand.nextInt(this.mapHeight/tileHeight);
-            	if (map.getTileId(xTilePos, yTilePos, roadIndex) != 0 && map.getTileId(xTilePos, yTilePos, wallIndex) == 0)
-            	{
-            		if (xTilePos - 1 <= 0 || map.getTileId(xTilePos-1, yTilePos, wallIndex) != 0)
-            			continue;
-            		
-            		if (yTilePos - 1 <= 0 || map.getTileId(xTilePos, yTilePos-1, wallIndex) != 0)
-            			continue;
-            		
-            		if (xTilePos + 1 >= (int)mapWidth/tileWidth || map.getTileId(xTilePos+1, yTilePos, wallIndex) != 0)
-            			continue;
-            		
-            		if (yTilePos + 1 >= (int)mapHeight/tileHeight || map.getTileId(xTilePos, yTilePos+1, wallIndex) != 0)
-            			continue;
-            		
-            		break;
-            	}
-        	}
-        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
-        	Creep tempCreep = new Creep(tileWidth * xTilePos, tileHeight * yTilePos, team);
-        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
+		int xTilePos, yTilePos;
+	    	while(true)	{
+	    		xTilePos = rand.nextInt(this.mapWidth/tileWidth);
+	        	yTilePos = rand.nextInt(this.mapHeight/tileHeight);
+	        	if (map.getTileId(xTilePos, yTilePos, roadIndex) != 0 && map.getTileId(xTilePos, yTilePos, wallIndex) == 0) {
+	        		if (xTilePos - 1 <= 0 || map.getTileId(xTilePos-1, yTilePos, wallIndex) != 0)
+	        			continue;
+	        		
+	        		if (yTilePos - 1 <= 0 || map.getTileId(xTilePos, yTilePos-1, wallIndex) != 0)
+	        			continue;
+	        		
+	        		if (xTilePos + 1 >= (int)mapWidth/tileWidth || map.getTileId(xTilePos+1, yTilePos, wallIndex) != 0)
+	        			continue;
+	        		
+	        		if (yTilePos + 1 >= (int)mapHeight/tileHeight || map.getTileId(xTilePos, yTilePos+1, wallIndex) != 0)
+	        			continue;
+	        		
+	        		break;
+	        	}
+	    	}
+	    	pos[0] = xTilePos;
+	    	pos[1] = yTilePos;
+	    	return pos;
+	}
+	
+	
+	public void createOnServer() {
+		int[] tilePos = new int[2];
+		// server is always the red team
+		this.myTeam = TEAM.RED;
+		
+		// heart power-up
+		for (int i = 0; i < 5; i++) {
+	    		tilePos = this.randomizeEntityPos();
+	    		HeartPowerUp heartTemp = new HeartPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
+	    		this.heartPowerup.put(heartTemp.getObjectUUID(), heartTemp);
+		}
+		// vanish power-up
+		for (int i = 0; i < 2; i++) {
+	    		tilePos = this.randomizeEntityPos();
+	    		VanishingAct vanishemp = new VanishingAct(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
+	    		this.vanishPowerup.put(vanishemp.getObjectUUID(), vanishemp);
+		}
+		// banana power-up
+		for (int i = 0; i < 5; i++) {
+	    		tilePos = this.randomizeEntityPos();
+	    		BananaPowerUp bananaTemp = new BananaPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
+	    		this.bananaPowerup.put(bananaTemp.getObjectUUID(), bananaTemp);
+	    }
+        // creeps
+        for (int i = 0; i < 20; i++) {
+        		tilePos = this.randomizeEntityPos();
+	        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
+	        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team);
+	        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
-        
-        flag_test = new Flag(tileWidth * 5, tileHeight * 10);
-        for (int i = 0; i< 5; i++)
-        {
-        	int xTilePos, yTilePos;
-        	while(true)
-        	{
-        		xTilePos = rand.nextInt(this.mapWidth/tileWidth);
-            	yTilePos = rand.nextInt(this.mapHeight/tileHeight);
-            	if (map.getTileId(xTilePos, yTilePos, roadIndex) != 0 && map.getTileId(xTilePos, yTilePos, wallIndex) == 0)
-            	{
-            		if (xTilePos - 1 <= 0 || map.getTileId(xTilePos-1, yTilePos, wallIndex) != 0)
-            			continue;
-            		
-            		if (yTilePos - 1 <= 0 || map.getTileId(xTilePos, yTilePos-1, wallIndex) != 0)
-            			continue;
-            		
-            		if (xTilePos + 1 >= (int)mapWidth/tileWidth || map.getTileId(xTilePos+1, yTilePos, wallIndex) != 0)
-            			continue;
-            		
-            		if (yTilePos + 1 >= (int)mapHeight/tileHeight || map.getTileId(xTilePos, yTilePos+1, wallIndex) != 0)
-            			continue;
-            		
-            		break;
-            	}
-        	}
-        	Flag flag = new Flag(tileWidth * xTilePos, tileHeight * yTilePos);
-        	flags.add(flag);	
+        // flags
+        for (int i = 0; i < 5; i++) {
+        		tilePos = this.randomizeEntityPos();
+	        	Flag flag = new Flag(tileWidth * tilePos[0], tileHeight * tilePos[1]);
+	        	flags.put(flag.getObjectUUID(), flag);	
         }
 	}
 	
@@ -272,6 +285,38 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public HashMap<UUID, Bullet> getClientBullets() {
 		return clientBullets;
+	}
+	
+	/**
+	 * HeartPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, HeartPowerUp> getHeartPowerup() {
+		return heartPowerup;
+	}
+	
+	/**
+	 * BananaPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, BananaPowerUp> getBananaPowerup() {
+		return bananaPowerup;
+	}
+	
+	/**
+	 * vanishPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, VanishingAct> getVanishPowerup() {
+		return vanishPowerup;
+	}
+	
+	/**
+	 * BananaPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, Flag> getFlags() {
+		return this.flags;
 	}
 	
 	/**
@@ -422,7 +467,37 @@ public class EmpireWars extends StateBasedGame {
  	public void setMyTeam(TEAM team) {
  		this.myTeam = team;
  	}
-	
+	/**
+	 * lives getter
+	 *  
+	 */
+	public int getLives() {
+		return lives;
+	}
+
+	/**
+	 * lives setter
+	 * 
+	 */
+	public void setLives(int lives) {
+		this.lives = lives;
+	}
+
+	/**
+	 * player getter
+	 * 
+	 */
+	public Player getPlayer() {
+		return this.player;
+	}
+
+	/*
+	 * Score getter
+	 */
+	public Score getScore() {
+		return score;
+	}
+
 	public  static void main(String[] args) {
 		AppGameContainer app;
 		try {

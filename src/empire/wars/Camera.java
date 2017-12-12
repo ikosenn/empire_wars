@@ -8,6 +8,8 @@ public class Camera {
 	private int x, y;
 	private int mapWidth, mapHeight;
 	private Rectangle viewPort;
+	int xIndicator;
+	int yIndicator;
 	
     public Camera(TiledMap map, int mapWidth, int mapHeight) {
         x = 0;
@@ -34,9 +36,26 @@ public class Camera {
         } else {
             y = (int) - player.getY() + EmpireWars.SCREEN_HEIGHT / 2 - 16;
         }
+        setXIndicator(x);
+        setYIndicator(y);
         g.translate(x, y);
         viewPort.setX(-x);
         viewPort.setY(-y);
     }
+	public void setXIndicator(int x) {
+		this.xIndicator = x;
+	}
+	
+	public void setYIndicator(int y) {
+		this.yIndicator = y;
+	}
+	
+	public int getXIndicator() {
+		return xIndicator;
+	}
+	
+	public int getYIndicator() {
+		return yIndicator;
+	}
 	
 }

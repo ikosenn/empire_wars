@@ -2,6 +2,7 @@ package empire.wars;
 
 import java.util.UUID;
 
+import empire.wars.EmpireWars.TEAM;
 import empire.wars.net.Message;
 import jig.Entity;
 import jig.Vector;
@@ -24,6 +25,7 @@ import jig.Vector;
 public class NetworkEntity extends Entity {
 	protected boolean exploded = false;
 	protected Vector velocity;
+	protected TEAM team;
 	private UUID objectUUID;
 	// Don't set this they are used by the 
 	// networking system to track changes.
@@ -32,9 +34,10 @@ public class NetworkEntity extends Entity {
 	// ORGINAL: Means its for this client
 	// NETWORK:: MEans its for another client
 	protected String objectType = "ORIGINAL"; 
-	private boolean _exploded = false;
+	protected boolean _exploded = false;
 	private float _currentX = 0;
 	private float _currentY = 0;
+	protected TEAM _team;
 	
 	public NetworkEntity(final float x, final float y) {
 		super(x, y);
@@ -56,6 +59,13 @@ public class NetworkEntity extends Entity {
 	}
 	
 	/**
+	 * Object Type getter
+	 */
+	public String getObjectType() {
+		return this.objectType;
+	}
+	
+	/**
 	 * Object Type setter
 	 * @param type
 	 */
@@ -69,6 +79,20 @@ public class NetworkEntity extends Entity {
 
 	public Vector getVelocity() {
 		return velocity;
+	}
+	
+	/*
+	 * Update clients on the team color I belong to
+	 */
+	public void sendColorUpdate(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this.team != this._team) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.team.toString();
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
+			game.sendPackets.add(posUpdate);
+			this._team = this.team; 
+		}
 	}
 	
 	/*
@@ -100,7 +124,7 @@ public class NetworkEntity extends Entity {
 			}
 		}
 	}
-	
+		
 	/*
 	 * Gets called with every frame.
 	 */
@@ -115,6 +139,14 @@ public class NetworkEntity extends Entity {
 	public void explode() {
 		exploded = true;
 	}
+	
+	/**
+	 *  True if the entity is going to be destroyed in the next loop
+	 */
+	public Boolean isDestroyed() {
+		return exploded;
+	}
+	
 	
 	/*
 	 * exploded getter

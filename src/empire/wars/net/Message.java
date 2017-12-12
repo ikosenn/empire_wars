@@ -27,6 +27,7 @@ public class Message implements Serializable {
 	private String className; // The class that is being updated
 	private InetAddress ipAddress; // sender
 	private int port = 0; // sender
+	private Boolean singleClient = false;
 
 	// mostly used for control packets such as creating connections
 	public Message(String msg, String messageType) {
@@ -103,6 +104,22 @@ public class Message implements Serializable {
 			new PlayerMessageHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("BANANAPOWERUP")) {
+			new BananaPowerUpHandler(msgPacket, ew);
+		}
+		
+		if (className != null && className.equals("FLAG")) {
+			new FlagMessageHandler(msgPacket, ew);
+		}
+		
+		if (className != null && className.equals("HEARTPOWERUP")) {
+			new HeartPowerUpHandler(msgPacket, ew);
+		}
+		
+		if (className != null && className.equals("VANISHINGACT")) {
+			new VanishingActHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("BULLET")) {
 			new BulletMessageHandler(msgPacket, ew);
 		}
@@ -118,6 +135,10 @@ public class Message implements Serializable {
 		
 		if (msgType != null && msgType.equals("START")) {
 			new StartGameHandler(msgPacket, ew);
+		}
+		
+		if (msgType != null && (msgType.equals("REDSCORE") || msgType.equals("BLUESCORE"))) {
+			new ScoreMessageHandler(msgPacket, ew);
 		}
 		
 	}
@@ -153,5 +174,20 @@ public class Message implements Serializable {
 		if (this.ipAddress == null) {
 			this.ipAddress = ipAddress;
 		}
+	}
+	
+	/*
+	 * single client getter
+	 */
+	public Boolean getSingleClient() {
+		return singleClient;
+	}
+
+	/**
+	 * single client setter
+	 * @param singleClient
+	 */
+	public void setSingleClient(Boolean singleClient) {
+		this.singleClient = singleClient;
 	}
 }

@@ -63,6 +63,9 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 			this.setDirection(player, msg);
 		} else if (categoryType.equals("SETCOLOR")) {
 			this.setColor(player, msg);
+		} else if (categoryType.equals("SETHEALTH")) {
+			double x = Double.parseDouble(msg);
+			player.health.setCurrentHealth(x);
 		}
 		
 	}
@@ -72,6 +75,8 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 	public NetworkEntity createEntity(UUID objectUUID) {
 		Player player = new Player(ew.getTileWidth() * 4, ew.getTileHeight() * 4, 0, 0, TEAM.BLUE);
 		player.setObjectUUID(objectUUID);
+		player.setPort(this.msgPacket.getPort());
+		player.setIpAddress(this.msgPacket.getIpAddress());
 		player.setObjectType("NETWORK");
 		ew.getClientPlayer().put(player.getObjectUUID(), player);
 		return (NetworkEntity)player;

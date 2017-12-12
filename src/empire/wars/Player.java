@@ -1,11 +1,7 @@
 package empire.wars;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.net.InetAddress;
 import java.util.Random;
-import java.util.UUID;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
@@ -21,17 +17,14 @@ import jig.ResourceManager;
 import jig.Vector;
 
 public class Player extends NetworkEntity {
-	public ArrayList<Bullet> bullets;
-	public List<PowerUp> powerups;
 	public HealthBar health;
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
-
-	public TEAM team;
-	private TEAM _team;
-	public Direction direction;
-	public Direction _direction;
 	Random rand = new Random();
+	public Direction direction;
+	private Direction _direction;
+	private InetAddress ipAddress;
+	private int port;
 	
 	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
 			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 48, 48), 0, 3, 2, 3, true, 150, true);
@@ -61,27 +54,31 @@ public class Player extends NetworkEntity {
 		direction = Direction.values()[randNumber];
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
 		addAnimation(getAnimation(direction));
-		bullets = new ArrayList<Bullet>();
 	}
 	
-	public void shoot(){
+	public void shoot(EmpireWars game){
+		Bullet bullet;
 		ResourceManager.getSound(EmpireWars.PLAYER_SHOOTSND_RSC).play();
 		switch(direction){
 		case UP:
-			bullets.add(new Bullet(getX(), getY(), 0.f, -EmpireWars.PLAYER_BULLETSPEED, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
+			bullet = new Bullet(getX(), getY(), 0.f, -EmpireWars.PLAYER_BULLETSPEED, 
+				EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		case DOWN:
-			bullets.add(new Bullet(getX(), getY(), 0.f, EmpireWars.PLAYER_BULLETSPEED, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
+			bullet = new Bullet(getX(), getY(), 0.f, EmpireWars.PLAYER_BULLETSPEED, 
+				EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		case LEFT:
-			bullets.add(new Bullet(getX(), getY(), -EmpireWars.PLAYER_BULLETSPEED, 0.f, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
+			bullet = new Bullet(getX(), getY(), -EmpireWars.PLAYER_BULLETSPEED, 0.f, 
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		case RIGHT:
-			bullets.add(new Bullet(getX(), getY(), EmpireWars.PLAYER_BULLETSPEED, 0.f, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team));
+			bullet =  new Bullet(getX(), getY(), EmpireWars.PLAYER_BULLETSPEED, 0.f, 
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		default:
 			break;
@@ -124,14 +121,47 @@ public class Player extends NetworkEntity {
 		}
 	}
 	
+	/*
+	 * ipAddress getter
+	 */
+	public InetAddress getIpAddress() {
+		return ipAddress;
+	}
+
+	/*
+	 * ipAddress setter
+	 */
+	public void setIpAddress(InetAddress ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	/*
+	 * team getter
+	 */
+	public TEAM getTeam() {
+		return this.team;
+	}
+
+	/**
+	 * port getter
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/*
+	 * port setter
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
+	
 	public void changeDirection(Direction new_direction, EmpireWars game)
 	{
-		while(getNumAnimations() > 2){
-			removeAnimation(getAnimation(Direction.UP));
-			removeAnimation(getAnimation(Direction.DOWN));
-			removeAnimation(getAnimation(Direction.LEFT));
-			removeAnimation(getAnimation(Direction.RIGHT));
-		}
+		removeAnimation(getAnimation(Direction.UP));
+		removeAnimation(getAnimation(Direction.DOWN));
+		removeAnimation(getAnimation(Direction.LEFT));
+		removeAnimation(getAnimation(Direction.RIGHT));
 		addAnimation(getAnimation(new_direction));
 		direction = new_direction;
 		// update clients on player position
@@ -146,32 +176,34 @@ public class Player extends NetworkEntity {
 	 * Allows the receiver to know what to do with it.
 	 */
 	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
-		if (this.objectType == "ORIGINAL" ) {
+		if (this.objectType == "ORIGINAL" && this.direction != this._direction) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = this.direction.toString();
 			Message posUpdate = new Message(
 				this.getObjectUUID(), "UPDATE", categoryType, msg, className);
 			game.sendPackets.add(posUpdate);
+			this._direction = this.direction;
+		}
+	}
+	/**
+	 * Sends health bar updates
+	 * @param game. The current game state
+	 */
+	public void sendHealthBarUpdates(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this.health.hasChanged()) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = Double.toString(this.health.getCurrentHealth());
+			Message healthUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETHEALTH", msg, className);
+			game.sendPackets.add(healthUpdate);
 		}
 	}
 	
-	/*
-	 * Update clients on the team color I belong to
-	 */
-	private void sendColorUpdate(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" && this.team != this._team) {
-			String className = this.getClass().getSimpleName().toUpperCase();
-			String msg = this.team.toString();
-			Message posUpdate = new Message(
-				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
-			game.sendPackets.add(posUpdate);
-			this._team = this.team; 
-		}
-	}
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
 		this.sendColorUpdate(game);
+		this.sendHealthBarUpdates(game);
 	}
 	
 	/**
@@ -179,44 +211,39 @@ public class Player extends NetworkEntity {
 	 * @param team
 	 */
 	public void changeColor(TEAM team) {
+		removeAnimation(getAnimation(Direction.UP));
+		removeAnimation(getAnimation(Direction.DOWN));
+		removeAnimation(getAnimation(Direction.LEFT));
+		removeAnimation(getAnimation(Direction.RIGHT));
 		this.team = team;
 		this.health.setTeam(team);
+		addAnimation(getAnimation(this.direction));
 	}
 	
-//	public Player(float x, float y) {
-//		super(x,y);
-//		this.velocity = new Vector(0.1F, 0.1F);
-//		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, team);
-//		
-//		//TODO: initialize bullet and powerups
-//		addImageWithBoundingBox(ResourceManager.getImage(getImageName(Direction.DOWN)));
-//	}
-
 	public void update(GameContainer container, StateBasedGame game, int delta,
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
 		EmpireWars ew = (EmpireWars) game;
 		this.networkUpdate(ew);  // network updates
-		// get user input
-		
+		// get user input		
 		Input input = container.getInput();
 	
 		Vector previousPoition = this.getPosition();
 		
 
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
-			setVelocity(new Vector(0.f, -ew.PLAYER_SPEED));
+			setVelocity(new Vector(0.f, -EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.UP, ew);
 		}
 		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
-			setVelocity(new Vector(0.f, ew.PLAYER_SPEED));
+			setVelocity(new Vector(0.f, EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.DOWN, ew);
 		}
 		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
-			setVelocity(new Vector(-ew.PLAYER_SPEED, 0.f));
+			setVelocity(new Vector(-EmpireWars.PLAYER_SPEED, 0.f));
 			changeDirection(Direction.LEFT, ew);
 		}
 		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
-			setVelocity(new Vector(ew.PLAYER_SPEED, 0.f));
+			setVelocity(new Vector(EmpireWars.PLAYER_SPEED, 0.f));
 			changeDirection(Direction.RIGHT, ew);
 		}
 		if(!input.isKeyDown(Input.KEY_W) && !input.isKeyDown(Input.KEY_UP) 
@@ -240,7 +267,7 @@ public class Player extends NetworkEntity {
 		
 		// player shooting bullets
 		if(input.isKeyPressed(Input.KEY_J)){
-			shoot();
+			shoot(ew);
 		}
 
 		// update health bar pos
@@ -259,23 +286,6 @@ public class Player extends NetworkEntity {
 		{
 			this.setPosition(previousPoition);
 			this.setHealthBarPos();
-		}
-		
-		// update and collision detection for bullets
-		for(Bullet b:bullets){
-			b.update(container, game, delta, mapWidth, mapHeight, tileWidth, tileHeight);
-			int bx = (int) b.getX()/32;
-			int by = (int) b.getY()/32;
-			
-			if(ew.map.getTileId(bx, by, wallIndex)!=0){
-				b.explode();
-			}
-		}
-		
-		for(Iterator<Bullet> i = bullets.iterator(); i.hasNext();){
-			if(i.next().isExploded() == true){
-				i.remove();
-			}
 		}
 	}
 	
@@ -296,10 +306,6 @@ public class Player extends NetworkEntity {
 	public void render(final Graphics g) {
 		super.render(g);
 		this.health.render(g);
-		
-		for(Bullet b:bullets){
-			b.render(g);
-		}
 	}
 
 }
