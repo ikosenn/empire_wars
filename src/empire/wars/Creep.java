@@ -7,9 +7,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.newdawn.slick.Animation;
-import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
 
 import empire.wars.EmpireWars.Direction;
@@ -172,6 +170,7 @@ public class Creep extends NetworkEntity {
 			Bullet bullet = i.next().getValue();
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
 				if (bullet.team != this.team) {
+					ew.getScore().addScore(EmpireWars.KILL_POINTS, bullet.team);
 					this.health.setHealth(-4);
 				}
 				if (!bullet.getObjectType().equals("ORIGINAL")) {

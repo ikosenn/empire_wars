@@ -107,6 +107,7 @@ public class Flag extends NetworkEntity {
 		
 		//if the player has stayed for enough time, change the flag's color
 		if (player_stay_timer <= 0) {
+			ew.getScore().addScore(EmpireWars.CHANGE_FLAG_POINTS, ew.player.team);
 			this.changeTeam(ew.player.team);
 		}
 		
