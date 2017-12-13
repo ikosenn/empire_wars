@@ -10,6 +10,7 @@ import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.tiled.TiledMap;
 
 import empire.wars.EmpireWars.Direction;
 import empire.wars.EmpireWars.TEAM;
@@ -25,9 +26,12 @@ public class Creep extends NetworkEntity {
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
 	
+	PathFinder pathFinder;
+	
 	Random rand = new Random();
 	int timer = 0;
 	final int timer_max = 5;
+	final float CREEP_SPEED = 0.1f;
 	
 	public static ArrayList<Vector> speedVectors = new ArrayList<Vector>() {{
 		add(new Vector(0f,-0.1f));
@@ -44,13 +48,14 @@ public class Creep extends NetworkEntity {
 			EmpireWars.CREEP_MOVING_IMG_RSC, 48, 48), 0, 1, 2, 1, true, 150, true);
 	private Animation creep_movement_right = new Animation(ResourceManager.getSpriteSheet(
 			EmpireWars.CREEP_MOVING_IMG_RSC, 48, 48), 0, 2, 2, 2, true, 150, true);
-	
-	public Creep(final float x, final float y, final TEAM in_team){
+
+	public Creep(final float x, final float y, final TEAM in_team, final TiledMap in_map){
 		super(x,y);
 		int randNumber = rand.nextInt(4);
 		direction = Direction.values()[randNumber];
 		this.team = in_team;
 		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
+		this.pathFinder = new PathFinder(x,y,in_team,in_map);
 		
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
 		addAnimation(getAnimation(direction));
@@ -111,6 +116,66 @@ public class Creep extends NetworkEntity {
 		// run this code on the server only 
 		if (!ew.getSessionType().equals("SERVER")) {
 			return;
+		}
+		
+		
+		if(this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()){
+			this.pathFinder.findPath(getPosition(), ew.player.getPosition());
+		}
+		
+		float vx = 0, vy = 0;
+		
+		while (!this.pathFinder.pathStack.isEmpty())
+		{
+			Node node = (Node) this.pathFinder.pathStack.peek();
+			Vector pos = EmpireWars.tile2pos(new Vector(node.x, node.y));
+			
+			if(Math.abs(getX() - pos.getX()) >= 5)
+			{
+				if(pos.getX() - getX() > 0)
+				{
+					vx = CREEP_SPEED;
+				}
+				else if(pos.getX() - getX() < 0)
+				{
+					vx = -CREEP_SPEED;
+				}
+				else
+				{
+					vx = 0;
+				}
+				setVelocity(new Vector(vx, vy));
+				break;
+			}
+			else if(Math.abs(getY() - pos.getY()) >= 5)
+			{
+				if(pos.getY() - getY() > 0)
+				{
+					vy = CREEP_SPEED;
+				}
+				else if(pos.getY() - getY() < 0)
+				{
+					vy = -CREEP_SPEED;
+				}
+				else
+				{
+					vy = 0;
+				}
+				setVelocity(new Vector(vx, vy));
+				break;
+			}
+			else
+			{
+				this.pathFinder.pathStack.pop();
+				Vector playerTile = EmpireWars.getTileIdx(ew.player.getPosition());
+				// recompute path if player has moved
+				if(playerTile.getX() != ew.player.tilePosition.getX() || playerTile.getY() != ew.player.tilePosition.getY())
+				{
+					ew.player.setTilePosition(playerTile);
+					this.pathFinder.findPath(getPosition(), ew.player.getPosition());
+				}
+				break;
+			}
 		}
 		
 		for(Iterator<Bullet> i = ew.player.bullets.iterator(); i.hasNext();){
@@ -186,11 +251,6 @@ public class Creep extends NetworkEntity {
 				{
 					this.timer = this.timer_max;
 					Direction new_direction = Direction.values()[(this.direction.ordinal() + 2)%4]; //always reverse when hitting a wall
-					/*while(new_direction == this.direction)
-					{
-						int randNumber = rand.nextInt(4);
-						new_direction = Direction.values()[randNumber];
-					}*/
 
 					changeDirection(new_direction, ew);
 				}

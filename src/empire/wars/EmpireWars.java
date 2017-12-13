@@ -21,6 +21,7 @@ import empire.wars.net.GameServer;
 import empire.wars.net.Message;
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Vector;
 
 
 /**
@@ -71,7 +72,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static float PLAYER_SPEED = 0.40f;
 	public final static float PLAYER_BULLETSPEED = 0.50f;
 	
-	TiledMap map;
+	public TiledMap map;
 	Player player;
 	Camera camera;
 	int mapHeight, mapWidth;
@@ -191,7 +192,7 @@ public class EmpireWars extends StateBasedGame {
 	}
 	
 	public void createOnClients() {
-		player = new Player(tileWidth*4, tileHeight*4, 0, 0, this.myTeam);
+		player = new Player(tileWidth*5, tileHeight*6, 0, 0, this.myTeam);
 	}
 	
 	private int[] randomizeEntityPos() {
@@ -246,7 +247,7 @@ public class EmpireWars extends StateBasedGame {
         for (int i = 0; i < 20; i++) {
         		tilePos = this.randomizeEntityPos();
 	        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
-	        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team);
+	        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
 	        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
         // flags
@@ -468,6 +469,16 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public Player getPlayer() {
 		return this.player;
+	}
+	
+	// return the index of the tile that this coordinates belong to
+	public static Vector getTileIdx(Vector v){
+		return new Vector(v.getX()/32, v.getY()/32);
+	}
+	
+	//return the center of that tile in terms of coordinates
+	public static Vector tile2pos(Vector v){
+		return new Vector(v.getX()*32+16, v.getY()*32+16);
 	}
 
 	public  static void main(String[] args) {

@@ -41,7 +41,7 @@ public class CreepMessageHandler extends EntityMessageHandler {
 	@Override
 	public NetworkEntity createEntity(UUID objectUUID) {
 		Creep creepTemp;
-		creepTemp = new Creep(ew.getTileWidth() * 4, ew.getTileHeight() * 4, TEAM.BLUE);
+		creepTemp = new Creep(ew.getTileWidth() * 4, ew.getTileHeight() * 4, TEAM.BLUE, ew.map);
 		creepTemp.setObjectUUID(objectUUID);
 		creepTemp.setObjectType("NETWORK");
 		ew.getCreeps().put(creepTemp.getObjectUUID(),creepTemp);

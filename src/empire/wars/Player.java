@@ -32,6 +32,7 @@ public class Player extends NetworkEntity {
 	public Direction _direction;
 	private InetAddress ipAddress;
 	private int port;
+	public Vector tilePosition;
 	
 	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
 			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 48, 48), 0, 3, 2, 3, true, 150, true);
@@ -56,6 +57,7 @@ public class Player extends NetworkEntity {
 		this.velocity = new Vector(vx, vy);
 		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
 		this.team = in_team;
+		this.tilePosition = getTileIdx(new Vector(x, y));
 
 		int randNumber = rand.nextInt(4);
 		direction = Direction.values()[randNumber];
@@ -328,5 +330,12 @@ public class Player extends NetworkEntity {
 			b.render(g);
 		}
 	}
-
+	
+	public Vector getTileIdx(Vector v){
+		return new Vector(v.getX()/32, v.getY()/32);
+	}
+	
+	public void setTilePosition(Vector v) {
+		this.tilePosition = v;
+	}
 }
