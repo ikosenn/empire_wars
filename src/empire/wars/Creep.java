@@ -30,15 +30,7 @@ public class Creep extends NetworkEntity {
 	public static int redUnitNumber = 0;
 	public static int targetDistance = 16;
 	public Boolean currentlyCreeping = false;
-	public static Vector[] targetLocations = {new Vector(-targetDistance,0), 
-											new Vector(-targetDistance,targetDistance), 
-											new Vector(0,targetDistance), 
-											new Vector(targetDistance,targetDistance), 
-											new Vector(targetDistance,0), 
-											new Vector(targetDistance,-targetDistance), 
-											new Vector(0,-targetDistance), 
-											new Vector(-targetDistance,-targetDistance)};
-	
+	public static Vector[] targetLocations = {new Vector(-targetDistance,0), new Vector(-targetDistance,targetDistance), new Vector(0,targetDistance), new Vector(targetDistance,targetDistance), new Vector(targetDistance,0), new Vector(targetDistance,-targetDistance), new Vector(0,-targetDistance), new Vector(-targetDistance,-targetDistance)};	
 	PathFinder pathFinder;
 	
 	Random rand = new Random();
@@ -146,6 +138,17 @@ public class Creep extends NetworkEntity {
 		this.sendDirectionUpdates(game, "SETDIRECTION");
 	}
 	
+	public void changeDirectionUsingVelocity(Vector speedVec, EmpireWars ew)
+	{
+		for(int i=0; i<speedVectors.size(); i++)
+		{
+			if (speedVectors.get(i).getX() == speedVec.getX() && speedVectors.get(i).getY() == speedVec.getY())
+			{
+				changeDirection(Direction.values()[i], ew);
+			}
+		}
+	}
+	
 	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
 		if (this.objectType == "ORIGINAL" && this.direction != this._direction) {
 			String className = this.getClass().getSimpleName().toUpperCase();
@@ -219,7 +222,7 @@ public class Creep extends NetworkEntity {
 				{
 					vx = 0;
 				}
-				setVelocity(new Vector(vx, vy));
+				changeDirectionUsingVelocity(new Vector(vx, vy), ew);
 				break;
 			}
 			else if(Math.abs(getY() - pos.getY()) >= 5)
@@ -236,7 +239,7 @@ public class Creep extends NetworkEntity {
 				{
 					vy = 0;
 				}
-				setVelocity(new Vector(vx, vy));
+				changeDirectionUsingVelocity(new Vector(vx, vy), ew);
 				break;
 			}
 			else
@@ -340,31 +343,35 @@ public class Creep extends NetworkEntity {
 			setX(ew.tileWidth*2.7f);
 			minX = 2;
 			new_direction = Direction.RIGHT;
+			changeDirection(new_direction, ew);
 		}
 		else if (this.getCoarseGrainedMinY() < 64)
 		{
 			setY(ew.tileHeight*2.7f);
 			minY = 2;
 			new_direction = Direction.DOWN;
+			changeDirection(new_direction, ew);
 		}
 		else if (this.getCoarseGrainedMaxX() > ew.mapWidth-64)
 		{
 			setX(ew.mapWidth - ew.tileWidth*2.7f);
 			maxX = (int)(getX()/32.0f);
 			new_direction = Direction.LEFT;
+			changeDirection(new_direction, ew);
 		}
 		else if (this.getCoarseGrainedMaxY() > ew.mapHeight-64)
 		{
 			setY(ew.mapHeight - ew.tileHeight*2.7f);
 			maxY = (int)(getY()/32.0f);
 			new_direction = Direction.UP;
+			changeDirection(new_direction, ew);
 		}
-		else if (ew.map.getTileId(minX, minY, wallIndex) != 0 ||	ew.map.getTileId(minX, maxY, wallIndex) != 0 ||	ew.map.getTileId(maxX, minY, wallIndex) != 0 || ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+		
+		if (ew.map.getTileId(minX, minY, wallIndex) != 0 ||	ew.map.getTileId(minX, maxY, wallIndex) != 0 ||	ew.map.getTileId(maxX, minY, wallIndex) != 0 || ew.map.getTileId(maxX, maxY, wallIndex) != 0)
 		{
 			if (this.timer <= 0)
 			{
 				this.timer = this.timer_max;
-				
 				if (ew.map.getTileId(minX, minY, wallIndex) != 0 && ew.map.getTileId(maxX, minY, wallIndex) != 0)
 				{
 					new_direction = Direction.DOWN;
@@ -385,12 +392,14 @@ public class Creep extends NetworkEntity {
 				{
 					new_direction = Direction.values()[(this.direction.ordinal() + 2)%4]; //always reverse when hitting a wall
 				}
+				changeDirection(new_direction, ew);				
 			}
+			else
+				translate(velocity.scale(delta));
 		}
-		
-		changeDirection(new_direction, ew);
-		translate(velocity.scale(delta));
-		
+		else
+			translate(velocity.scale(delta));
+
 		this.setHealthBarPos();
 	}
 	
