@@ -25,12 +25,25 @@ public class Creep extends NetworkEntity {
 	public HealthBar health;
 	public float hbXOffset = 16; // health bar offset so its on top of the players head
 	public float hbYOffset = 25; // health bar offset so its on top of the players head
+	public int unitNumber = -1;
+	public static int blueUnitNumber = 0;
+	public static int redUnitNumber = 0;
+	public static int targetDistance = 16;
+	public Boolean currentlyCreeping = false;
+	public static Vector[] targetLocations = {new Vector(-targetDistance,0), 
+											new Vector(-targetDistance,targetDistance), 
+											new Vector(0,targetDistance), 
+											new Vector(targetDistance,targetDistance), 
+											new Vector(targetDistance,0), 
+											new Vector(targetDistance,-targetDistance), 
+											new Vector(0,-targetDistance), 
+											new Vector(-targetDistance,-targetDistance)};
 	
 	PathFinder pathFinder;
 	
 	Random rand = new Random();
 	int timer = 0;
-	final int timer_max = 5;
+	final int timer_max = 10;
 	final float CREEP_SPEED = 0.1f;
 	
 	public static ArrayList<Vector> speedVectors = new ArrayList<Vector>() {{
@@ -56,6 +69,16 @@ public class Creep extends NetworkEntity {
 		this.team = in_team;
 		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
 		this.pathFinder = new PathFinder(x,y,in_team,in_map);
+		if (in_team == TEAM.BLUE)
+		{
+			this.unitNumber = Creep.blueUnitNumber;
+			Creep.blueUnitNumber += 1;
+		}
+		else
+		{
+			this.unitNumber = Creep.redUnitNumber;
+			Creep.redUnitNumber += 1;
+		}
 		
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.PLAYER_IMG_RSC));
 		addAnimation(getAnimation(direction));
@@ -168,13 +191,15 @@ public class Creep extends NetworkEntity {
 		}		
 		
 		//if the creep belongs to opponent and if a path has not already been constructed, find a path to opponent player
-		if (this.team != ew.player.team && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
+		if (this.team != ew.player.team && !this.currentlyCreeping && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
 		{
-			this.pathFinder.findPath(getPosition(), ew.player.getPosition());
+			Vector playerPos = ew.player.getPosition();
+			Vector targetPos = new Vector(playerPos.getX() + Creep.targetLocations[this.unitNumber%8].getX(), playerPos.getY() + Creep.targetLocations[this.unitNumber%8].getY());
+			this.pathFinder.findPath(getPosition(), targetPos);
 		}
 		
 		float vx = 0, vy = 0;
-		
+
 		while (!this.pathFinder.pathStack.isEmpty())
 		{
 			Node node = (Node) this.pathFinder.pathStack.peek();
@@ -222,7 +247,10 @@ public class Creep extends NetworkEntity {
 				if(playerTile.getX() != ew.player.tilePosition.getX() || playerTile.getY() != ew.player.tilePosition.getY())
 				{
 					ew.player.setTilePosition(playerTile);
-					this.pathFinder.findPath(getPosition(), ew.player.getPosition());
+					
+					Vector playerPos = ew.player.getPosition();
+					Vector targetPos = new Vector(playerPos.getX() + Creep.targetLocations[this.unitNumber%8].getX(), playerPos.getY() + Creep.targetLocations[this.unitNumber%8].getY());
+					this.pathFinder.findPath(getPosition(), targetPos);
 				}
 				break;
 			}
@@ -246,12 +274,22 @@ public class Creep extends NetworkEntity {
 				bullet.explode();
 			}
 		}
+
 		// server player
 		if (this.collides(ew.player) != null) {
 			if (this.team != ew.player.team)
 			{
 				ew.player.health.setHealth(-0.02);
+				this.setVelocity(new Vector(0f,0f));
+				this.pathFinder.pathStack.clear();
+				this.currentlyCreeping = true;
 			}
+		}
+		else
+		{
+			this.currentlyCreeping = false;
+			if (this.getVelocity().getX() == 0f && this.getVelocity().getY() == 0f)
+				setVelocity(speedVectors.get(this.direction.ordinal()));
 		}
 		
 		for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
@@ -263,76 +301,95 @@ public class Creep extends NetworkEntity {
 		}
 		
 		// network players
-		
 		for(Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext();){
 			HashMap.Entry<UUID, Creep> itr = i.next();
-			if (this.collides(itr.getValue()) != null && this.team != itr.getValue().team)
+			if (this.getObjectUUID() == itr.getValue().getObjectUUID())
+				continue;
+				
+			if (this.collides(itr.getValue()) != null)
 			{
-				this.health.setHealth(-0.1);
-				itr.getValue().health.setHealth(-0.08);
-			}
-		
+				if (this.team != itr.getValue().team)
+				{
+					this.health.setHealth(-0.1);
+					itr.getValue().health.setHealth(-0.08);
+					this.setVelocity(new Vector(0,0)); //in case of creeps colliding with enemy creeps, they fight until one of them loses all its health
+				}
+				else
+				{
+					if (this.currentlyCreeping == true || itr.getValue().currentlyCreeping == true)
+					{
+						itr.getValue().setVelocity(new Vector(0,0));
+						this.setVelocity(new Vector(0,0));
+					}
+				}
+			}		
 		}
 		
 		int wallIndex = ew.map.getLayerIndex("walls");
-		int minX = (int)(this.getCoarseGrainedMinX()/32);
-		int minY = (int)(this.getCoarseGrainedMinY()/32);
-		int maxX = (int)(this.getCoarseGrainedMaxX()/32);
-		int maxY = (int)(this.getCoarseGrainedMaxY()/32);
+		int minX, minY, maxX, maxY;
 		
-		if (this.getCoarseGrainedMinX() < 32)
+		minX = (int)(this.getCoarseGrainedMinX()/32);
+		minY = (int)(this.getCoarseGrainedMinY()/32);
+		maxX = (int)(this.getCoarseGrainedMaxX()/32);
+		maxY = (int)(this.getCoarseGrainedMaxY()/32);
+		
+		Direction new_direction = this.direction;
+		
+		if (this.getCoarseGrainedMinX() < 64)
 		{
-			setX(ew.tileWidth*1.7f);
+			setX(ew.tileWidth*2.7f);
 			minX = 2;
+			new_direction = Direction.RIGHT;
 		}
-		
-		if (this.getCoarseGrainedMinY() < 32)
+		else if (this.getCoarseGrainedMinY() < 64)
 		{
-			setY(ew.tileHeight*1.7f);
+			setY(ew.tileHeight*2.7f);
 			minY = 2;
+			new_direction = Direction.DOWN;
 		}
-		
-		if (this.getCoarseGrainedMaxX() > ew.mapWidth-32)
+		else if (this.getCoarseGrainedMaxX() > ew.mapWidth-64)
 		{
-			setX(ew.mapWidth - ew.tileWidth*1.7f);
+			setX(ew.mapWidth - ew.tileWidth*2.7f);
 			maxX = (int)(getX()/32.0f);
+			new_direction = Direction.LEFT;
 		}
-		
-		if (this.getCoarseGrainedMaxY() > ew.mapHeight-32)
+		else if (this.getCoarseGrainedMaxY() > ew.mapHeight-64)
 		{
-			setX(ew.mapHeight - ew.tileHeight*1.7f);
+			setY(ew.mapHeight - ew.tileHeight*2.7f);
 			maxY = (int)(getY()/32.0f);
+			new_direction = Direction.UP;
 		}
-		
-		try
+		else if (ew.map.getTileId(minX, minY, wallIndex) != 0 ||	ew.map.getTileId(minX, maxY, wallIndex) != 0 ||	ew.map.getTileId(maxX, minY, wallIndex) != 0 || ew.map.getTileId(maxX, maxY, wallIndex) != 0)
 		{
-			if (ew.map.getTileId(minX, minY, wallIndex) != 0 ||
-					ew.map.getTileId(minX, maxY, wallIndex) != 0 ||
-							ew.map.getTileId(maxX, minY, wallIndex) != 0 ||
-									ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+			if (this.timer <= 0)
 			{
-				if (this.timer <= 0)
+				this.timer = this.timer_max;
+				
+				if (ew.map.getTileId(minX, minY, wallIndex) != 0 && ew.map.getTileId(maxX, minY, wallIndex) != 0)
 				{
-					this.timer = this.timer_max;
-					Direction new_direction = Direction.values()[(this.direction.ordinal() + 2)%4]; //always reverse when hitting a wall
-
-					changeDirection(new_direction, ew);
+					new_direction = Direction.DOWN;
+				}
+				else if (ew.map.getTileId(minX, maxY, wallIndex) != 0 && ew.map.getTileId(minX, minY, wallIndex) != 0)
+				{
+					new_direction = Direction.RIGHT;
+				}
+				else if (ew.map.getTileId(minX, maxY, wallIndex) != 0 && ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+				{
+					new_direction = Direction.UP;
+				}
+				else if (ew.map.getTileId(maxX, minY, wallIndex) != 0 && ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+				{
+					new_direction = Direction.LEFT;
 				}
 				else
-					translate(velocity.scale(delta));
+				{
+					new_direction = Direction.values()[(this.direction.ordinal() + 2)%4]; //always reverse when hitting a wall
+				}
 			}
-			else		
-				translate(velocity.scale(delta));
-
 		}
-		catch (Exception e)
-		{
-			System.out.println(minX);
-			System.out.println(minY);
-			System.out.println(maxX);
-			System.out.println(maxY);
-			throw e;
-		}
+		
+		changeDirection(new_direction, ew);
+		translate(velocity.scale(delta));
 		
 		this.setHealthBarPos();
 	}

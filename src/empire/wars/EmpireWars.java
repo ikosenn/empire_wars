@@ -244,25 +244,29 @@ public class EmpireWars extends StateBasedGame {
 	    		HeartPowerUp heartTemp = new HeartPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.heartPowerup.put(heartTemp.getObjectUUID(), heartTemp);
 		}
+		
 		// vanish power-up
 		for (int i = 0; i < 2; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		VanishingAct vanishemp = new VanishingAct(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.vanishPowerup.put(vanishemp.getObjectUUID(), vanishemp);
 		}
+		
 		// banana power-up
 		for (int i = 0; i < 5; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		BananaPowerUp bananaTemp = new BananaPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.bananaPowerup.put(bananaTemp.getObjectUUID(), bananaTemp);
 	    }
+		
         // creeps
-        for (int i = 0; i < 20; i++) {
-        		tilePos = this.randomizeEntityPos();
-	        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
-	        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
-	        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
+        for (int i = 0; i < 16; i++) {
+    		tilePos = this.randomizeEntityPos();
+        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
+        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
+        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
+        
         // flags
         for (int i = 0; i < 5; i++) {
         		tilePos = this.randomizeEntityPos();
