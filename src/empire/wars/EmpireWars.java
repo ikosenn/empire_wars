@@ -99,6 +99,9 @@ public class EmpireWars extends StateBasedGame {
 	public static final String BANANA_POWERUP_RSC = "images/bananapowerup.png";
 	public static final String CLOAK_POWERUP_RSC = "images/cloakpowerup.png";
 	public static final String GAMEOVER_IMG_RSC = "images/gameover.png";
+	public static final String SHIELD_RED_FLAG = "images/redShield.png";
+	public static final String SHIELD_BLUE_FLAG = "images/blueShield.png";
+	public static final String SHOWCASE_SHIELD = "images/showcaseShield.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -139,6 +142,7 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, HeartPowerUp> heartPowerup = new HashMap<>();
 	HashMap<UUID, BananaPowerUp> bananaPowerup = new HashMap<>();
 	HashMap<UUID, VanishingAct> vanishPowerup = new HashMap<>();
+	HashMap<UUID, ShieldFlags> shieldFlagPowerup = new HashMap<>();
 	HashMap<UUID, Flag> flags = new HashMap<>();
 	
 	public EmpireWars(String title) {
@@ -167,6 +171,9 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(BANANA_POWERUP_RSC);
 		ResourceManager.loadImage(CLOAK_POWERUP_RSC);
 		ResourceManager.loadImage(GAMEOVER_IMG_RSC);
+		ResourceManager.loadImage(SHIELD_RED_FLAG);
+		ResourceManager.loadImage(SHIELD_BLUE_FLAG);
+		ResourceManager.loadImage(SHOWCASE_SHIELD);
 
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
@@ -248,7 +255,12 @@ public class EmpireWars extends StateBasedGame {
 	    		HeartPowerUp heartTemp = new HeartPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.heartPowerup.put(heartTemp.getObjectUUID(), heartTemp);
 		}
-		
+		// shield power-up
+		for (int i = 0; i < 10; i++) {
+	    		tilePos = this.randomizeEntityPos();
+	    		ShieldFlags shieldemp = new ShieldFlags(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
+	    		this.shieldFlagPowerup.put(shieldemp.getObjectUUID(), shieldemp);
+		}
 		// vanish power-up
 		for (int i = 0; i < 2; i++) {
 	    		tilePos = this.randomizeEntityPos();
@@ -318,6 +330,14 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public HashMap<UUID, VanishingAct> getVanishPowerup() {
 		return vanishPowerup;
+	}
+	
+	/**
+	 * shieldPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, ShieldFlags> getShieldPowerup() {
+		return shieldFlagPowerup;
 	}
 	
 	/**
