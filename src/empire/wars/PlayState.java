@@ -18,7 +18,7 @@ import empire.wars.net.Message;
 
 public class PlayState extends BasicGameState {
 	
-	public int game_timer = 0;
+	public int game_timer;
 	private TrueTypeFont ttf;
 	
 	@Override
@@ -30,11 +30,14 @@ public class PlayState extends BasicGameState {
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		EmpireWars ew = (EmpireWars)game;
-		
+		game_timer = EmpireWars.GAME_DURATION;
 		if (ew.getSessionType() == "SERVER") {
 			ew.createOnServer();
 		}
 		ew.createOnClients();
+		ew.setLives(EmpireWars.MAX_LIVES);
+		ew.getScore().setBlueTeam(0);
+		ew.getScore().setRedTeam(0);
 	}
 
 
@@ -43,7 +46,9 @@ public class PlayState extends BasicGameState {
 		EmpireWars ew = (EmpireWars) game;
 		ew.camera.translate(g, ew.player);
 		ew.map.render(0, 0);
-		ew.player.render(g);
+		if (!ew.player.isDestroyed()) {
+			ew.player.render(g);
+		}
 		
 		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
@@ -77,7 +82,9 @@ public class PlayState extends BasicGameState {
 		g.setColor(Color.black);
 		g.fillRect((-1 * ew.camera.getXIndicator()),(-1 * ew.camera.getYIndicator()),EmpireWars.SCREEN_WIDTH,35);
 		g.setColor(Color.white);
-		g.drawString("Time Left: "+ (150000 - game_timer)/ 60000 + ":" + ((150000 - game_timer) % 60000 / 1000) ,(-1 * ew.camera.getXIndicator() + 440),(-1 * ew.camera.getYIndicator())+10);
+		g.drawString(
+				"Time Left: "+ (game_timer) / 60000 + ":" + ((game_timer) % 60000 / 1000) ,
+				(-1 * ew.camera.getXIndicator() + 440), (-1 * ew.camera.getYIndicator()) + 10);
 		g.drawString("Lives: "  + ew.getLives(), (-1 * ew.camera.getXIndicator() + 20),(-1 * ew.camera.getYIndicator()) + 10);
 		g.setColor(Color.red);
 		g.drawString(
@@ -85,8 +92,6 @@ public class PlayState extends BasicGameState {
 		g.setColor(Color.blue);
 		g.drawString(
 			"Blue: "  + ew.getScore().getBlueTeam(), (-1 * ew.camera.getXIndicator() + 930),(-1 * ew.camera.getYIndicator()) + 10);
-		ew.player.render(g);
-		
 	}
 	
 
@@ -94,8 +99,18 @@ public class PlayState extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		
 		EmpireWars ew = (EmpireWars) game;
-		game_timer += delta;
-		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		game_timer -= delta;
+		
+		if (game_timer <= 0 && ew.getSessionType().equals("SERVER")) {
+			Message msg = new Message("", "END"); 
+			ew.appendSendPackets(msg);
+			game.enterState(EmpireWars.GAMEOVERSTATE_ID);
+		}
+		
+		if (ew.player != null) {
+			ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		}
+
 		ew.getScore().update(game);
 		
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
@@ -146,7 +161,9 @@ public class PlayState extends BasicGameState {
 		// remove creep 
 		HashMap<UUID, Creep> creepMap = ew.getCreeps();
 		creepMap.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
-
+		// remove client player 
+		HashMap<UUID, Player> playerMap = ew.getClientPlayer();
+		playerMap.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 	}
 
 	@Override

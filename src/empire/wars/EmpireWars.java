@@ -54,10 +54,12 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SERVER_LOBBY_STATE_ID = 3;
 	public final static int CLIENT_LOBBY_STATE_ID = 4;
 	public final static int PLAY_STATE_ID = 5;
-	public final static  int GAMEOVERSTATE_ID = 6;
+	public final static int GAMEOVERSTATE_ID = 6;
 	
 	public final static int KILL_POINTS = 2;
 	public final static int CHANGE_FLAG_POINTS = 30;
+	public final static int GAME_DURATION = 150000;
+	public final static int MAX_LIVES = 3;
 	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
@@ -96,6 +98,7 @@ public class EmpireWars extends StateBasedGame {
 	public static final String HEART_POWERUP_RSC = "images/heartpowerup.png";
 	public static final String BANANA_POWERUP_RSC = "images/bananapowerup.png";
 	public static final String CLOAK_POWERUP_RSC = "images/cloakpowerup.png";
+	public static final String GAMEOVER_IMG_RSC = "images/gameover.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -150,11 +153,11 @@ public class EmpireWars extends StateBasedGame {
 		// add game states
 		addState(new SplashScreenState());
 		addState(new PlayState());
-		addState(new GameOverState());
 		addState(new SessionState());
 		addState(new MenuState());
 		addState(new ServerLobbyState());
 		addState(new ClientLobbyState());
+		addState(new GameOverState());
 		
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
 		ResourceManager.loadImage(PLAYER_MOVINGIMG_RSC);
@@ -163,6 +166,7 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(HEART_POWERUP_RSC);
 		ResourceManager.loadImage(BANANA_POWERUP_RSC);
 		ResourceManager.loadImage(CLOAK_POWERUP_RSC);
+		ResourceManager.loadImage(GAMEOVER_IMG_RSC);
 
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
@@ -199,7 +203,7 @@ public class EmpireWars extends StateBasedGame {
 	}
 	
 	public void createOnClients() {
-		player = new Player(tileWidth*5, tileHeight*6, 0, 0, this.myTeam);
+		player = new Player(tileWidth * 5, tileHeight * 6, 0, 0, this.myTeam);
 	}
 	
 	private int[] randomizeEntityPos() {
@@ -449,6 +453,32 @@ public class EmpireWars extends StateBasedGame {
 		this.socketServer = new GameServer(this, s);
 		socketClient.start();
 		socketServer.start();
+	};
+	
+	/*
+	 * Stops the servers and clean up
+	 */
+	public void killServers() {
+		if (this.socketClient != null) {
+			this.socketClient.killClient();
+			socketClient = null;
+		}
+		if (this.socketServer != null) {
+			this.socketServer.killServer();
+			socketServer = null;
+		}
+		sessionType = "";
+		clientPlayer = new HashMap<>();
+		clientBullets = new HashMap<>();
+		receivedPackets = new ConcurrentLinkedQueue<Message>();
+		sendPackets  = new ConcurrentLinkedQueue<Message>();
+		connectedPlayers = new ArrayList<>();
+		broadcastServer = null;
+		creeps = new HashMap<>();
+		heartPowerup = new HashMap<>();
+		bananaPowerup = new HashMap<>();
+		vanishPowerup = new HashMap<>();
+		flags = new HashMap<>();
 	};
 	
 	/**
