@@ -167,7 +167,9 @@ public class Creep extends NetworkEntity {
 			return;
 		}		
 		
-		if(this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()){
+		//if the creep belongs to opponent and if a path has not already been constructed, find a path to opponent player
+		if (this.team != ew.player.team && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
+		{
 			this.pathFinder.findPath(getPosition(), ew.player.getPosition());
 		}
 		
