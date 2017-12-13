@@ -16,6 +16,7 @@ public class GameClient extends Thread {
 
 	private DatagramSocket socket;
 	private EmpireWars game;
+	private boolean exit;
 	
 	public GameClient(EmpireWars game, DatagramSocket s) {
 		this.game = game;
@@ -24,7 +25,7 @@ public class GameClient extends Thread {
 
 
 	public void run() {
-		while(true) {
+		while(!exit) {
 			Queue<Message> sendMsg = this.game.getSendPackets();
 
 			if (sendMsg.size() > 0) {
@@ -42,6 +43,11 @@ public class GameClient extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void killClient() {
+		this.exit = true;
+		this.socket.close();
 	}
 	
 	/**

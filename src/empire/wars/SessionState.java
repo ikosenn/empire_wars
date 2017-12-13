@@ -37,6 +37,7 @@ public class SessionState extends BasicGameState {
 		if (ew.getUsername() != null) {
 			txtField.setText(ew.getUsername());
 		}
+		ew.killServers();
 	}
 	
 	@Override

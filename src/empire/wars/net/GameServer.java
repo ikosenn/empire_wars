@@ -12,6 +12,7 @@ public class GameServer extends Thread {
 	
 	private DatagramSocket socket;
 	private EmpireWars game;
+	private boolean exit = false;
 	 
 	public GameServer(EmpireWars game, DatagramSocket s) {
 		this.game = game;
@@ -19,7 +20,7 @@ public class GameServer extends Thread {
 	}
 
 	public void run() {
-		while(true) {
+		while(!exit) {
 			byte[] data = new byte[5120];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -35,6 +36,11 @@ public class GameServer extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void killServer() {
+		this.exit = true;
+		this.socket.close();
 	}
 	
 	/**
