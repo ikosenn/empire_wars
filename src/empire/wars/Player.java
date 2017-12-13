@@ -28,6 +28,11 @@ public class Player extends NetworkEntity {
 	public Vector tilePosition;
 	private Vector blueStart = new Vector(6085, 1490);
 	private Vector redStart = new Vector(120, 118);
+	private Vector redJail = new Vector(128, 1408);
+	private Vector blueJail = new Vector(6240, 160);
+	private boolean inJail = false;
+	private int FREEZETIME = 5000;
+	private int freezeTime = FREEZETIME;
 	
 	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
 			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 48, 48), 0, 3, 2, 3, true, 150, true);
@@ -69,19 +74,34 @@ public class Player extends NetworkEntity {
 		}
 	}
 	
+	private void sentToJail(){
+		if(this.team == TEAM.BLUE){
+			this.setPosition(blueJail);
+		}else if(this.team == TEAM.RED){
+			this.setPosition(redJail);
+		}
+	}
+	
 	/**
 	 * Kills the player and reduces a life.
 	 * It also takes the player to limbo where they await judgement.
 	 */
 	private void killPlayer(EmpireWars ew) {
 		if (this.health.getCurrentHealth() <= 0 && ew.getLives() <= 0) {
-			this.explode();
+//			this.explode();
+			this.sentToJail();
+			this.inJail = true;
+			this.health.setCurrentHealth(HealthBar.MAXIMUM_HEALTH);
+			ew.setLives(EmpireWars.MAX_LIVES);
+			
+//			this.exploded = false;
 		} else if (this.health.getCurrentHealth() <= 0) {
 			this.health.setCurrentHealth(HealthBar.MAXIMUM_HEALTH);
 			ew.setLives(ew.getLives() - 1);
 			this.setPlayerStartPosition();
 		}
 	}
+	
 	
 	public void shoot(EmpireWars game){
 		Bullet bullet;
@@ -262,6 +282,20 @@ public class Player extends NetworkEntity {
 	
 		Vector previousPoition = this.getPosition();
 		this.killPlayer(ew);
+		
+		if(inJail == true){
+			if(freezeTime > 0){
+				setVelocity(new Vector(0.f, 0.f));
+				freezeTime -= delta;
+				return;
+			}
+			if(freezeTime <= 0){
+				freezeTime = FREEZETIME;
+				inJail = false;
+				setPlayerStartPosition();
+			}
+		}
+		
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
 			setVelocity(new Vector(0.f, -EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.UP, ew);
