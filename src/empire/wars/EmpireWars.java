@@ -21,6 +21,7 @@ import empire.wars.net.GameServer;
 import empire.wars.net.Message;
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Vector;
 
 
 /**
@@ -75,7 +76,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static float PLAYER_SPEED = 0.40f;
 	public final static float PLAYER_BULLETSPEED = 0.50f;
 	
-	TiledMap map;
+	public TiledMap map;
 	Player player;
 	Camera camera;
 	int mapHeight, mapWidth;
@@ -198,7 +199,7 @@ public class EmpireWars extends StateBasedGame {
 	}
 	
 	public void createOnClients() {
-		player = new Player(tileWidth*4, tileHeight*4, 0, 0, this.myTeam);
+		player = new Player(tileWidth*5, tileHeight*6, 0, 0, this.myTeam);
 	}
 	
 	private int[] randomizeEntityPos() {
@@ -243,25 +244,29 @@ public class EmpireWars extends StateBasedGame {
 	    		HeartPowerUp heartTemp = new HeartPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.heartPowerup.put(heartTemp.getObjectUUID(), heartTemp);
 		}
+		
 		// vanish power-up
 		for (int i = 0; i < 2; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		VanishingAct vanishemp = new VanishingAct(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.vanishPowerup.put(vanishemp.getObjectUUID(), vanishemp);
 		}
+		
 		// banana power-up
 		for (int i = 0; i < 5; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		BananaPowerUp bananaTemp = new BananaPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.bananaPowerup.put(bananaTemp.getObjectUUID(), bananaTemp);
 	    }
+		
         // creeps
-        for (int i = 0; i < 20; i++) {
-        		tilePos = this.randomizeEntityPos();
-	        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
-	        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team);
-	        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
+        for (int i = 0; i < 16; i++) {
+    		tilePos = this.randomizeEntityPos();
+        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
+        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
+        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
         }
+        
         // flags
         for (int i = 0; i < 5; i++) {
         		tilePos = this.randomizeEntityPos();
@@ -489,6 +494,16 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public Player getPlayer() {
 		return this.player;
+	}
+	
+	// return the index of the tile that this coordinates belong to
+	public static Vector getTileIdx(Vector v){
+		return new Vector(v.getX()/32, v.getY()/32);
+	}
+	
+	//return the center of that tile in terms of coordinates
+	public static Vector tile2pos(Vector v){
+		return new Vector(v.getX()*32+16, v.getY()*32+16);
 	}
 
 	/*
