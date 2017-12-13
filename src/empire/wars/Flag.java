@@ -10,10 +10,10 @@ import jig.ResourceManager;
 import jig.Vector;
 
 public class Flag extends NetworkEntity {
-	public TEAM team;
-	private TEAM _team; // to be used by networking
 	public int player_stay_timer = 3000; // player has to stay for 3 sec to change the color
 	public Vector flagTileIdx;
+	
+	private int vanishTime = 0;
 	
 	public Flag(final float x, final float y){
 		super(x, y);
@@ -39,9 +39,23 @@ public class Flag extends NetworkEntity {
 	@Override
 	public void setPosition(float x, float y) {
 		super.setPosition(x, y);
-		this.flagTileIdx = new Vector(x/32, y/32);
+		this.flagTileIdx = new Vector(x / 32, y / 32);
 	}
 	
+	/*
+	 * Vanishtime getter
+	 */
+	public int getVanishTime() {
+		return vanishTime;
+	}
+	
+	/*
+	 * Vanishtime setter
+	 */
+	public void setVanishTime(int vanishTime) {
+		this.vanishTime = vanishTime;
+	}
+
 	public void changeTeam(TEAM team) {
 		this.team = team;
 		removeImage(ResourceManager.getImage(EmpireWars.FLAG_GREYIMG_RSC));
@@ -53,6 +67,20 @@ public class Flag extends NetworkEntity {
 			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.FLAG_BLUEIMG_RSC));
 		}
 		player_stay_timer = 3000;
+	}
+	
+	/*
+	 * Update clients on the team color I belong to
+	 */
+	public void sendColorUpdate(EmpireWars game) {
+		if (this.team != this._team) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.team.toString();
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
+			game.sendPackets.add(posUpdate);
+			this._team = this.team; 
+		}
 	}
 	
 	private Vector getTileIdx(Vector v){
@@ -73,21 +101,7 @@ public class Flag extends NetworkEntity {
 		}
 		return false;
 	}
-	
-	/*
-	 * Update clients on the team color I belong to
-	 */
-	private void sendColorUpdate(EmpireWars game) {
-		if (this.team != this._team) {
-			String className = this.getClass().getSimpleName().toUpperCase();
-			String msg = this.team.toString();
-			Message posUpdate = new Message(
-				this.getObjectUUID(), "UPDATE", "SETCOLOR", msg, className);
-			game.sendPackets.add(posUpdate);
-			this._team = this.team; 
-		}
-	}
-	
+
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
@@ -98,6 +112,10 @@ public class Flag extends NetworkEntity {
 	public void update(GameContainer container, StateBasedGame game, final int delta) {
 		EmpireWars ew = (EmpireWars) game;
 		this.networkUpdate(ew);  // network updates
+		if (this.vanishTime > 0) {
+			this.vanishTime -= delta;
+			return;
+		}
 		
 		//examine this flag's neighborhood to check if there is a player
 		Vector playerTileIdx = getTileIdx(ew.player.getPosition());
@@ -109,6 +127,7 @@ public class Flag extends NetworkEntity {
 		
 		//if the player has stayed for enough time, change the flag's color
 		if (player_stay_timer <= 0) {
+			ew.getScore().addScore(EmpireWars.CHANGE_FLAG_POINTS, ew.player.team);
 			this.changeTeam(ew.player.team);
 		}
 		
@@ -116,16 +135,23 @@ public class Flag extends NetworkEntity {
 	
 	@Override
 	public void render(final Graphics g) {
+		if (this.vanishTime > 0) {
+			return;
+		}
+		
 		super.render(g);
 		float x = this.getX() - 0;  
 		float y = this.getY() - 25;
 		if(player_stay_timer < 3000){
 			g.setColor(Color.magenta);
-			g.fillRect(x, y, 20.0f*player_stay_timer/3000, 5);
+			g.fillRect(x, y, 20.0f * player_stay_timer / 3000, 5);
 		}
-		
 	}
-	
-	
-	
+
+	/*
+	 * team getter
+	 */
+	public TEAM getTeam() {
+		return this.team;
+	}
 }

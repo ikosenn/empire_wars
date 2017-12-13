@@ -116,6 +116,10 @@ public class Message implements Serializable {
 			new HeartPowerUpHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("VANISHINGACT")) {
+			new VanishingActHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("BULLET")) {
 			new BulletMessageHandler(msgPacket, ew);
 		}
@@ -131,6 +135,10 @@ public class Message implements Serializable {
 		
 		if (msgType != null && msgType.equals("START")) {
 			new StartGameHandler(msgPacket, ew);
+		}
+		
+		if (msgType != null && (msgType.equals("REDSCORE") || msgType.equals("BLUESCORE"))) {
+			new ScoreMessageHandler(msgPacket, ew);
 		}
 		
 	}

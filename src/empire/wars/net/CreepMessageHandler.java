@@ -21,9 +21,10 @@ public class CreepMessageHandler extends EntityMessageHandler {
 	@Override
 	public void update(NetworkEntity entity, String categoryType, String msg) {
 		super.update(entity, categoryType, msg);
+		Creep creep = (Creep)entity;
+		creep.setHealthBarPos();
 		
 		if (categoryType.equals("SETDIRECTION")) {
-			Creep creep = (Creep)entity;
 			Direction direction = Direction.UP;
 			if (msg.equals("UP")) {
 				direction = Direction.UP;
@@ -35,7 +36,32 @@ public class CreepMessageHandler extends EntityMessageHandler {
 				direction = Direction.RIGHT;
 			}
 			creep.changeDirection(direction, this.ew);
+		} else if (categoryType.equals("SETCOLOR")) {
+			this.setColor(creep, msg);
+		} else if (categoryType.equals("SETCOL")) {
+			creep.setExploded();
+		} else if (categoryType.equals("SETPLAYERLIFE")) {
+			double x = Double.parseDouble(msg);
+			ew.getPlayer().health.setHealth(x);
+		} else if (categoryType.equals("SETHEALTH")) {
+			double x = Double.parseDouble(msg);
+			creep.health.setCurrentHealth(x);
 		}
+	}
+	
+	/**
+	 * update the player's color.
+	 * @param player. The player entity.
+	 * @param msg. Message containing the color to set the player entity. 
+	 */
+	private void setColor(Creep creep, String msg) {
+		TEAM team;
+		if (msg.equals("BLUE")) {
+			team = TEAM.BLUE;
+		} else {
+			team = TEAM.RED;
+		}
+		creep.changeColor(team);
 	}
 	
 	@Override

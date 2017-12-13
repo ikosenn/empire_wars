@@ -63,6 +63,9 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 			this.setDirection(player, msg);
 		} else if (categoryType.equals("SETCOLOR")) {
 			this.setColor(player, msg);
+		} else if (categoryType.equals("SETHEALTH")) {
+			double x = Double.parseDouble(msg);
+			player.health.setCurrentHealth(x);
 		}
 		
 	}

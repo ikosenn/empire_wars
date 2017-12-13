@@ -51,7 +51,6 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			HashMap.Entry<UUID, Creep> itr = i.next();
 			itr.getValue().render(g);
-			itr.getValue().health.render(g);
 		}
 
 		for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
@@ -59,6 +58,10 @@ public class PlayState extends BasicGameState {
 		}
 
 		for (Iterator<HashMap.Entry<UUID, HeartPowerUp>> i = ew.getHeartPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
+		
+		for (Iterator<HashMap.Entry<UUID, VanishingAct>> i = ew.getVanishPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
 		
@@ -76,6 +79,12 @@ public class PlayState extends BasicGameState {
 		g.setColor(Color.white);
 		g.drawString("Time Left: "+ (150000 - game_timer)/ 60000 + ":" + ((150000 - game_timer) % 60000 / 1000) ,(-1 * ew.camera.getXIndicator() + 440),(-1 * ew.camera.getYIndicator())+10);
 		g.drawString("Lives: "  + ew.getLives(), (-1 * ew.camera.getXIndicator() + 20),(-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.red);
+		g.drawString(
+			"Red: "  + ew.getScore().getRedTeam(), (-1 * ew.camera.getXIndicator() + 830),(-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.blue);
+		g.drawString(
+			"Blue: "  + ew.getScore().getBlueTeam(), (-1 * ew.camera.getXIndicator() + 930),(-1 * ew.camera.getYIndicator()) + 10);
 		ew.player.render(g);
 		
 	}
@@ -87,13 +96,7 @@ public class PlayState extends BasicGameState {
 		EmpireWars ew = (EmpireWars) game;
 		game_timer += delta;
 		ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
-		
-		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
-			if (i.next().getValue().health.isDead())
-			{
-				i.remove();
-			}
-		}
+		ew.getScore().update(game);
 		
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update(game, delta);
@@ -103,8 +106,16 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().update();
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, VanishingAct>> i = ew.getVanishPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update();
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update();
+		}
+		
+		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		}
 		
 		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
@@ -125,8 +136,16 @@ public class PlayState extends BasicGameState {
 		heartPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 		
 		// remove heart power-up
+		HashMap<UUID, VanishingAct> vanishPowerup = ew.getVanishPowerup();
+		vanishPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
+		
+		// remove heart power-up
 		HashMap<UUID, BananaPowerUp> bananaPowerup = ew.getBananaPowerup();
 		bananaPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
+		
+		// remove creep 
+		HashMap<UUID, Creep> creepMap = ew.getCreeps();
+		creepMap.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 
 	}
 
