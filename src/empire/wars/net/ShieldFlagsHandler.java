@@ -7,36 +7,36 @@ import java.util.UUID;
 import empire.wars.EmpireWars;
 import empire.wars.Flag;
 import empire.wars.NetworkEntity;
-import empire.wars.VanishingAct;
+import empire.wars.ShieldFlags;
 import empire.wars.EmpireWars.TEAM;
 
-public class VanishingActHandler extends EntityMessageHandler {
-	public VanishingActHandler(Message msg, EmpireWars ew) {
+public class ShieldFlagsHandler extends EntityMessageHandler {
+	public ShieldFlagsHandler(Message msg, EmpireWars ew) {
 		super(msg, ew);
 	}
 
 	@Override
 	public NetworkEntity createEntity(UUID objectUUID) {
-		VanishingAct vanishPowerup = new VanishingAct(
+		ShieldFlags shieldFlagPowerup = new ShieldFlags(
 			ew.getTileWidth() * 4, ew.getTileHeight() * 4, this.ew);
-		vanishPowerup.setObjectUUID(objectUUID);
-		vanishPowerup.setObjectType("NETWORK");
-		ew.getVanishPowerup().put(vanishPowerup.getObjectUUID(), vanishPowerup);
-		return (NetworkEntity)vanishPowerup;
+		shieldFlagPowerup.setObjectUUID(objectUUID);
+		shieldFlagPowerup.setObjectType("NETWORK");
+		ew.getShieldPowerup().put(shieldFlagPowerup.getObjectUUID(), shieldFlagPowerup);
+		return (NetworkEntity)shieldFlagPowerup;
 	}
 
 	@Override
 	public HashMap<UUID, ? extends NetworkEntity> getHashMap() {
-		return this.ew.getVanishPowerup();
+		return this.ew.getShieldPowerup();
 	}
 	
 	/**
-	 * Makes network updates to the vanishing act power-up entity. 
+	 * Makes network updates to the shield flags power-up entity. 
 	 */
 	@Override
 	public void update(NetworkEntity entity, String categoryType, String msg) {
 		super.update(entity, categoryType, msg);
-		VanishingAct vanishPowerUp = (VanishingAct)entity;
+		ShieldFlags shieldFlagPowerup = (ShieldFlags)entity;
 		
 		if (categoryType.equals("PROCESSPOWERUP")) {
 			TEAM team;
@@ -44,16 +44,16 @@ public class VanishingActHandler extends EntityMessageHandler {
 				team = TEAM.BLUE;
 			} else {
 				team = TEAM.RED;
-			}
+			} 
 			for (Iterator<HashMap.Entry<UUID, Flag>> i = this.ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
 				Flag flagTemp = i.next().getValue();
 				if (flagTemp.getTeam() == team && ew.getPlayer().getTeam() != team) {
-					flagTemp.setVanishTime(VanishingAct.VANISH_DURATION);
+						flagTemp.setShieldedTime(ShieldFlags.SHIELD_FLAG_DURATION);
 				}
-			}
-		} 	
+			} 	
+		}
 		if (categoryType.equals("SETCOL")) {
-			vanishPowerUp.setExploded();
+			shieldFlagPowerup.setExploded();
 		}
 	}
 }

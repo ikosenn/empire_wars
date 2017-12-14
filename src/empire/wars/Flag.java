@@ -1,5 +1,9 @@
 package empire.wars;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.UUID;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -11,9 +15,12 @@ import jig.Vector;
 
 public class Flag extends NetworkEntity {
 	public int player_stay_timer = 3000; // player has to stay for 3 sec to change the color
+	public int shield_stay_timer = 0; // sheilds flags for 10 seconds
 	public Vector flagTileIdx;
 	
 	private int vanishTime = 0;
+	
+	boolean isShielded = false;
 	
 	public Flag(final float x, final float y){
 		super(x, y);
@@ -55,6 +62,14 @@ public class Flag extends NetworkEntity {
 	public void setVanishTime(int vanishTime) {
 		this.vanishTime = vanishTime;
 	}
+	
+	/*
+	 * shieldedtime setter
+	 */
+	public void setShieldedTime(int shield_stay_timer) {
+		this.shield_stay_timer = shield_stay_timer;
+	}
+	
 
 	public void changeTeam(TEAM team) {
 		this.team = team;
@@ -67,6 +82,34 @@ public class Flag extends NetworkEntity {
 			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.FLAG_BLUEIMG_RSC));
 		}
 		player_stay_timer = 3000;
+	}
+	
+	public void shieldFlags() {
+		removeImage(ResourceManager.getImage(EmpireWars.SHIELD_RED_FLAG));
+		removeImage(ResourceManager.getImage(EmpireWars.SHIELD_BLUE_FLAG));
+		removeImage(ResourceManager.getImage(EmpireWars.FLAG_GREYIMG_RSC));
+		removeImage(ResourceManager.getImage(EmpireWars.FLAG_BLUEIMG_RSC));
+		removeImage(ResourceManager.getImage(EmpireWars.FLAG_REDIMG_RSC));
+		if (this.team == TEAM.RED) {
+			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.SHIELD_RED_FLAG));	
+		} else {
+			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.SHIELD_BLUE_FLAG));
+		}
+		this.isShielded = true;
+	}
+	
+	private void removeShields() {
+		removeImage(ResourceManager.getImage(EmpireWars.SHIELD_RED_FLAG));
+		removeImage(ResourceManager.getImage(EmpireWars.SHIELD_BLUE_FLAG));
+		removeImage(ResourceManager.getImage(EmpireWars.FLAG_GREYIMG_RSC));
+		removeImage(ResourceManager.getImage(EmpireWars.FLAG_BLUEIMG_RSC));
+		removeImage(ResourceManager.getImage(EmpireWars.FLAG_REDIMG_RSC));
+		if (this.team == TEAM.RED) {
+			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.FLAG_REDIMG_RSC));
+		} else if (this.team == TEAM.BLUE) {
+			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.FLAG_BLUEIMG_RSC));
+		}	
+		this.isShielded = false;
 	}
 	
 	/*
@@ -119,7 +162,7 @@ public class Flag extends NetworkEntity {
 		
 		//examine this flag's neighborhood to check if there is a player
 		Vector playerTileIdx = getTileIdx(ew.player.getPosition());
-		if (ew.player.team != team && playerIsNear(playerTileIdx)) {
+		if (ew.player.team != team && playerIsNear(playerTileIdx) && this.shield_stay_timer <= 0) {
 			player_stay_timer -= delta;
 		} else {
 			player_stay_timer = 3000;
@@ -130,19 +173,23 @@ public class Flag extends NetworkEntity {
 			ew.getScore().addScore(EmpireWars.CHANGE_FLAG_POINTS, ew.player.team);
 			this.changeTeam(ew.player.team);
 		}
-		
+		if(this.shield_stay_timer > 0) {
+			this.shield_stay_timer -= delta;
+			this.shieldFlags();
+		} else if (this.isShielded && this.shield_stay_timer <= 0) {
+			removeShields();			
+		}
 	}
-	
+
 	@Override
 	public void render(final Graphics g) {
 		if (this.vanishTime > 0) {
 			return;
 		}
-		
 		super.render(g);
 		float x = this.getX() - 0;  
 		float y = this.getY() - 25;
-		if(player_stay_timer < 3000){
+		if(player_stay_timer < 3000 && this.shield_stay_timer <= 0){
 			g.setColor(Color.magenta);
 			g.fillRect(x, y, 20.0f * player_stay_timer / 3000, 5);
 		}
@@ -154,4 +201,5 @@ public class Flag extends NetworkEntity {
 	public TEAM getTeam() {
 		return this.team;
 	}
+
 }

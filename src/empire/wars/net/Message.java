@@ -120,6 +120,10 @@ public class Message implements Serializable {
 			new VanishingActHandler(msgPacket, ew);
 		}
 		
+		if(className != null && className.equals("SHIELDFLAGS")) {
+			new ShieldFlagsHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("BULLET")) {
 			new BulletMessageHandler(msgPacket, ew);
 		}
@@ -127,7 +131,6 @@ public class Message implements Serializable {
 		if (className != null && className.equals("CREEP")) {
 			new CreepMessageHandler(msgPacket, ew);
 		}
-		
 		
 		if (msgType != null && msgType.equals("CONNECT")) {
 			new SessionHandler(msgPacket, ew);
