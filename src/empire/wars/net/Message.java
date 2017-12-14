@@ -120,6 +120,10 @@ public class Message implements Serializable {
 			new HeartPowerUpHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("KEYPOWERUP")) {
+			new KeyPowerUpHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("VANISHINGACT")) {
 			new VanishingActHandler(msgPacket, ew);
 		}
