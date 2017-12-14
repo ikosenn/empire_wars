@@ -30,12 +30,12 @@ public class Creep extends NetworkEntity {
 	public static int redUnitNumber = 0;
 	public static int targetDistance = 16;
 	public Boolean currentlyCreeping = false;
+	int wallLayer, roadLayer;
 	public static Vector[] targetLocations = {new Vector(-targetDistance,0), new Vector(-targetDistance,targetDistance), new Vector(0,targetDistance), new Vector(targetDistance,targetDistance), new Vector(targetDistance,0), new Vector(targetDistance,-targetDistance), new Vector(0,-targetDistance), new Vector(-targetDistance,-targetDistance)};	
 	PathFinder pathFinder;
 	
 	Random rand = new Random();
-	int timer = 0;
-	final int timer_max = 10;
+	int freeze_time = 0;
 	final float CREEP_SPEED = 0.1f;
 	
 	public static ArrayList<Vector> speedVectors = new ArrayList<Vector>() {{
@@ -60,7 +60,9 @@ public class Creep extends NetworkEntity {
 		direction = Direction.values()[randNumber];
 		this.team = in_team;
 		this.health = new HealthBar(this.getX() - hbXOffset,  this.getY() - hbYOffset, in_team);
-		this.pathFinder = new PathFinder(x,y,in_team,in_map);
+		this.pathFinder = new PathFinder(x,y,in_team, in_map);
+		this.wallLayer = in_map.getLayerIndex("walls");
+		this.roadLayer = in_map.getLayerIndex("road");
 		if (in_team == TEAM.BLUE)
 		{
 			this.unitNumber = Creep.blueUnitNumber;
@@ -184,14 +186,15 @@ public class Creep extends NetworkEntity {
 	}
 	
 	public void update(StateBasedGame game, int delta){
-		this.timer --;
 		EmpireWars ew = (EmpireWars) game;
 		this.networkUpdate(ew);  // network updates
 		
 		// run this code on the server only 
 		if (!ew.getSessionType().equals("SERVER")) {
 			return;
-		}		
+		}
+		
+		this.freeze_time++;
 		
 		//if the creep belongs to opponent and if a path has not already been constructed, find a path to opponent player
 		if (this.team != ew.player.team && !this.currentlyCreeping && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
@@ -327,8 +330,7 @@ public class Creep extends NetworkEntity {
 				}
 			}		
 		}
-		
-		int wallIndex = ew.map.getLayerIndex("walls");
+
 		int minX, minY, maxX, maxY;
 		
 		minX = (int)(this.getCoarseGrainedMinX()/32);
@@ -367,39 +369,77 @@ public class Creep extends NetworkEntity {
 			changeDirection(new_direction, ew);
 		}
 		
-		if (ew.map.getTileId(minX, minY, wallIndex) != 0 ||	ew.map.getTileId(minX, maxY, wallIndex) != 0 ||	ew.map.getTileId(maxX, minY, wallIndex) != 0 || ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+		try
 		{
-			if (this.timer <= 0)
+			Vector newPosition = new Vector(getX() + velocity.getX() * delta, getY() + velocity.getY() * delta);
+			if(!EmpireWars.collidesWithWalls(newPosition, ew.map, wallLayer))
 			{
-				this.timer = this.timer_max;
-				if (ew.map.getTileId(minX, minY, wallIndex) != 0 && ew.map.getTileId(maxX, minY, wallIndex) != 0)
+				translate(velocity.scale(delta));
+				freeze_time = 0;
+			}
+			else
+			{	translate(velocity.scale(0.5f*delta));
+				minX = (int)(newPosition.getX() - 16) / 32;
+				minY = (int)(newPosition.getY() - 16) / 32;
+				maxX = (int)(newPosition.getX() + 16) / 32;
+				maxY = (int)(newPosition.getY() + 16) / 32;
+
+				if (ew.map.getTileId(minX, minY, wallLayer) != 0 && ew.map.getTileId(maxX, minY, wallLayer) != 0)
 				{
 					new_direction = Direction.DOWN;
 				}
-				else if (ew.map.getTileId(minX, maxY, wallIndex) != 0 && ew.map.getTileId(minX, minY, wallIndex) != 0)
+				else if (ew.map.getTileId(minX, maxY, wallLayer) != 0 && ew.map.getTileId(minX, minY, wallLayer) != 0)
 				{
 					new_direction = Direction.RIGHT;
 				}
-				else if (ew.map.getTileId(minX, maxY, wallIndex) != 0 && ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+				else if (ew.map.getTileId(minX, maxY, wallLayer) != 0 && ew.map.getTileId(maxX, maxY, wallLayer) != 0)
 				{
 					new_direction = Direction.UP;
 				}
-				else if (ew.map.getTileId(maxX, minY, wallIndex) != 0 && ew.map.getTileId(maxX, maxY, wallIndex) != 0)
+				else if (ew.map.getTileId(maxX, minY, wallLayer) != 0 && ew.map.getTileId(maxX, maxY, wallLayer) != 0)
 				{
 					new_direction = Direction.LEFT;
+				}
+				else if (ew.map.getTileId(minX, minY, wallLayer) != 0) // top left corner stuck
+				{
+					if (ew.map.getTileId(minX, maxY+1, wallLayer) == 0)
+						new_direction = Direction.DOWN;
+					else
+						new_direction = Direction.RIGHT;
+				}
+				else if (ew.map.getTileId(maxX, minY, wallLayer) != 0)
+				{
+					if (ew.map.getTileId(minX-1, minY, wallLayer) == 0)
+						new_direction = Direction.LEFT;
+					else
+						new_direction = Direction.DOWN;
+				}
+				else if (ew.map.getTileId(minX, maxY, wallLayer) != 0)
+				{
+					if (ew.map.getTileId(minX, minY-1, wallLayer) == 0)
+						new_direction = Direction.UP;
+					else
+						new_direction = Direction.RIGHT;
+				}
+				else if (ew.map.getTileId(maxX, maxY, wallLayer) != 0)
+				{
+					if (ew.map.getTileId(minX-1, maxY, wallLayer) == 0)
+						new_direction = Direction.LEFT;
+					else
+						new_direction = Direction.UP;
 				}
 				else
 				{
 					new_direction = Direction.values()[(this.direction.ordinal() + 2)%4]; //always reverse when hitting a wall
 				}
-				changeDirection(new_direction, ew);				
+				if (new_direction != this.direction)
+					changeDirection(new_direction, ew);
 			}
-			else
-				translate(velocity.scale(delta));
 		}
-		else
-			translate(velocity.scale(delta));
-
+		catch(Exception e)
+		{
+			this.explode();
+		}
 		this.setHealthBarPos();
 	}
 	
@@ -430,3 +470,95 @@ public class Creep extends NetworkEntity {
 		this.health.render(g);
 	}
 }
+
+
+/* TODO - remove if not necessary by the end
+if (this.freeze_time > 50 && this.currentlyCreeping != true) 
+{
+	int minX = (int)(getX() - 16) / 32;
+	int minY = (int)(getY() - 16) / 32;
+	int maxX = (int)(getX() + 16) / 32;
+	int maxY = (int)(getY() + 16) / 32;
+	Direction new_direction;
+	
+	if (ew.map.getTileId(minX, minY, wallLayer) != 0 && ew.map.getTileId(maxX, minY, wallLayer) != 0)
+	{
+		new_direction = Direction.DOWN;
+		this.setY(this.getY() + 10);
+	}
+	else if (ew.map.getTileId(minX, maxY, wallLayer) != 0 && ew.map.getTileId(minX, minY, wallLayer) != 0)
+	{
+		new_direction = Direction.RIGHT;
+		this.setX(this.getX() + 10);
+	}
+	else if (ew.map.getTileId(minX, maxY, wallLayer) != 0 && ew.map.getTileId(maxX, maxY, wallLayer) != 0)
+	{
+		new_direction = Direction.UP;
+		this.setY(this.getY() - 10);
+	}
+	else if (ew.map.getTileId(maxX, minY, wallLayer) != 0 && ew.map.getTileId(maxX, maxY, wallLayer) != 0)
+	{
+		new_direction = Direction.LEFT;
+		this.setX(this.getX() - 10);
+	}
+	else if (ew.map.getTileId(minX, minY, wallLayer) != 0) // top left corner stuck
+	{
+		this.setX(this.getX() + 10);
+		this.setY(this.getY() + 10);
+		if (ew.map.getTileId(minX, maxY+1, wallLayer) == 0)
+			new_direction = Direction.DOWN;
+		else
+			new_direction = Direction.RIGHT;
+	}
+	else if (ew.map.getTileId(maxX, minY, wallLayer) != 0)
+	{
+		this.setX(this.getX() - 10);
+		this.setY(this.getY() + 10);
+		if (ew.map.getTileId(minX-1, minY, wallLayer) == 0)
+			new_direction = Direction.LEFT;
+		else
+			new_direction = Direction.DOWN;
+	}
+	else if (ew.map.getTileId(minX, maxY, wallLayer) != 0)
+	{
+		this.setX(this.getX() + 10);
+		this.setY(this.getY() - 10);
+		if (ew.map.getTileId(minX, minY-1, wallLayer) == 0)
+			new_direction = Direction.UP;
+		else
+			new_direction = Direction.RIGHT;
+	}
+	else if (ew.map.getTileId(maxX, maxY, wallLayer) != 0)
+	{
+		this.setX(this.getX() - 10);
+		this.setY(this.getY() - 10);
+		if (ew.map.getTileId(minX-1, maxY, wallLayer) == 0)
+			new_direction = Direction.LEFT;
+		else
+			new_direction = Direction.UP;
+	}
+	else
+	{
+		new_direction = Direction.values()[this.rand.nextInt(4)];
+		switch(new_direction)
+		{
+		case UP:
+			this.setY(this.getY() - 10);
+			break;
+		case DOWN:
+			this.setY(this.getY() + 10);
+			break;
+		case RIGHT:
+			this.setX(this.getX() + 10);
+			break;
+		case LEFT:
+			this.setX(this.getX() - 10);
+			break;
+		}
+	}
+	if (new_direction != this.direction)
+		changeDirection(new_direction, ew);
+	
+	this.freeze_time = 0;
+	this.changeDirection(new_direction, ew);
+}*/

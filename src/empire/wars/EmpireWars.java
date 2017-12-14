@@ -268,7 +268,7 @@ public class EmpireWars extends StateBasedGame {
     		tilePos = this.randomizeEntityPos();
         	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
         	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
-        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
+        	creeps.put(tempCreep.getObjectUUID(), tempCreep);
         }
         
         // flags
@@ -534,6 +534,26 @@ public class EmpireWars extends StateBasedGame {
 	//return the center of that tile in terms of coordinates
 	public static Vector tile2pos(Vector v){
 		return new Vector(v.getX()*32+16, v.getY()*32+16);
+	}
+	
+	public static Boolean collidesWithWalls(Vector v, TiledMap map, int collisionLayer)
+	{
+		int []xy_vals = {-14,+14};
+		for (int i=0; i<2;i++)
+		{
+			for (int j=0; j<2;j++)
+			{
+				Vector cornerTile = EmpireWars.getTileIdx(new Vector(v.getX()+xy_vals[i], v.getY()+xy_vals[j]));
+				if ((int)cornerTile.getX() < 0 || (int)cornerTile.getY() < 0 || (int)cornerTile.getX() > 200 || (int)cornerTile.getY() > 50)
+					return true;
+					
+				if (map.getTileId((int)cornerTile.getX(), (int)cornerTile.getY(), collisionLayer) != 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/*
