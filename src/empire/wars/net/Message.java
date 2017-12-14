@@ -137,6 +137,10 @@ public class Message implements Serializable {
 			new StartGameHandler(msgPacket, ew);
 		}
 		
+		if (msgType != null && msgType.equals("END")) {
+			new EndGameHandler(msgPacket, ew);
+		}
+		
 		if (msgType != null && (msgType.equals("REDSCORE") || msgType.equals("BLUESCORE"))) {
 			new ScoreMessageHandler(msgPacket, ew);
 		}

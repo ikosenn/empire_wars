@@ -54,10 +54,12 @@ public class EmpireWars extends StateBasedGame {
 	public final static int SERVER_LOBBY_STATE_ID = 3;
 	public final static int CLIENT_LOBBY_STATE_ID = 4;
 	public final static int PLAY_STATE_ID = 5;
-	public final static  int GAMEOVERSTATE_ID = 6;
+	public final static int GAMEOVERSTATE_ID = 6;
 	
 	public final static int KILL_POINTS = 2;
 	public final static int CHANGE_FLAG_POINTS = 30;
+	public final static int GAME_DURATION = 150000;
+	public final static int MAX_LIVES = 1;
 	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
@@ -96,6 +98,7 @@ public class EmpireWars extends StateBasedGame {
 	public static final String HEART_POWERUP_RSC = "images/heartpowerup.png";
 	public static final String BANANA_POWERUP_RSC = "images/bananapowerup.png";
 	public static final String CLOAK_POWERUP_RSC = "images/cloakpowerup.png";
+	public static final String GAMEOVER_IMG_RSC = "images/gameover.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -150,11 +153,11 @@ public class EmpireWars extends StateBasedGame {
 		// add game states
 		addState(new SplashScreenState());
 		addState(new PlayState());
-		addState(new GameOverState());
 		addState(new SessionState());
 		addState(new MenuState());
 		addState(new ServerLobbyState());
 		addState(new ClientLobbyState());
+		addState(new GameOverState());
 		
 		ResourceManager.loadImage(PLAYER_IMG_RSC);
 		ResourceManager.loadImage(PLAYER_MOVINGIMG_RSC);
@@ -163,6 +166,7 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(HEART_POWERUP_RSC);
 		ResourceManager.loadImage(BANANA_POWERUP_RSC);
 		ResourceManager.loadImage(CLOAK_POWERUP_RSC);
+		ResourceManager.loadImage(GAMEOVER_IMG_RSC);
 
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
@@ -189,7 +193,7 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(FLAG_REDIMG_RSC);
 		ResourceManager.loadImage(CREEP_MOVING_IMG_RSC);
 
-		map = new TiledMap("src/tilemaps/maze.tmx");
+		map = new TiledMap("src/tilemaps/maze1.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
 		mapHeight = map.getHeight() * map.getTileHeight();
 		
@@ -199,7 +203,7 @@ public class EmpireWars extends StateBasedGame {
 	}
 	
 	public void createOnClients() {
-		player = new Player(tileWidth*5, tileHeight*6, 0, 0, this.myTeam);
+		player = new Player(tileWidth * 5, tileHeight * 6, 0, 0, this.myTeam);
 	}
 	
 	private int[] randomizeEntityPos() {
@@ -264,7 +268,7 @@ public class EmpireWars extends StateBasedGame {
     		tilePos = this.randomizeEntityPos();
         	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
         	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
-        	creeps.put(tempCreep.getObjectUUID(), tempCreep);	
+        	creeps.put(tempCreep.getObjectUUID(), tempCreep);
         }
         
         // flags
@@ -451,6 +455,32 @@ public class EmpireWars extends StateBasedGame {
 		socketServer.start();
 	};
 	
+	/*
+	 * Stops the servers and clean up
+	 */
+	public void killServers() {
+		if (this.socketClient != null) {
+			this.socketClient.killClient();
+			socketClient = null;
+		}
+		if (this.socketServer != null) {
+			this.socketServer.killServer();
+			socketServer = null;
+		}
+		sessionType = "";
+		clientPlayer = new HashMap<>();
+		clientBullets = new HashMap<>();
+		receivedPackets = new ConcurrentLinkedQueue<Message>();
+		sendPackets  = new ConcurrentLinkedQueue<Message>();
+		connectedPlayers = new ArrayList<>();
+		broadcastServer = null;
+		creeps = new HashMap<>();
+		heartPowerup = new HashMap<>();
+		bananaPowerup = new HashMap<>();
+		vanishPowerup = new HashMap<>();
+		flags = new HashMap<>();
+	};
+	
 	/**
 	 * creep getter
 	 */
@@ -504,6 +534,26 @@ public class EmpireWars extends StateBasedGame {
 	//return the center of that tile in terms of coordinates
 	public static Vector tile2pos(Vector v){
 		return new Vector(v.getX()*32+16, v.getY()*32+16);
+	}
+	
+	public static Boolean collidesWithWalls(Vector v, TiledMap map, int collisionLayer)
+	{
+		int []xy_vals = {-14,+14};
+		for (int i=0; i<2;i++)
+		{
+			for (int j=0; j<2;j++)
+			{
+				Vector cornerTile = EmpireWars.getTileIdx(new Vector(v.getX()+xy_vals[i], v.getY()+xy_vals[j]));
+				if ((int)cornerTile.getX() < 0 || (int)cornerTile.getY() < 0 || (int)cornerTile.getX() > 200 || (int)cornerTile.getY() > 50)
+					return true;
+					
+				if (map.getTileId((int)cornerTile.getX(), (int)cornerTile.getY(), collisionLayer) != 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/*

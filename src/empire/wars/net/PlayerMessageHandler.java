@@ -66,8 +66,9 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 		} else if (categoryType.equals("SETHEALTH")) {
 			double x = Double.parseDouble(msg);
 			player.health.setCurrentHealth(x);
+		}  else if (categoryType.equals("SETCOL")) {
+			player.setExploded();
 		}
-		
 	}
 
 

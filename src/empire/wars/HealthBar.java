@@ -11,15 +11,15 @@ import empire.wars.EmpireWars.TEAM;
  *
  */
 public class HealthBar extends NetworkEntity {
-	private double maxHealth = 16;
+	public final static double MAXIMUM_HEALTH = 16;
 	private double currentHealth;
 	private TEAM team;
 	private double _currentHealth;
 	
 	public HealthBar(float x, float y, TEAM team) {
 		super(x, y);
-		this.currentHealth = this.maxHealth;
-		this._currentHealth = this.maxHealth;
+		this.currentHealth = HealthBar.MAXIMUM_HEALTH;
+		this._currentHealth = HealthBar.MAXIMUM_HEALTH;
 		this.team = team;
 	}
 	
@@ -78,9 +78,9 @@ public class HealthBar extends NetworkEntity {
 	public void setHealth(double x) {
 		this.currentHealth += x;
 		
-		if (this.currentHealth > this.maxHealth) {
+		if (this.currentHealth > HealthBar.MAXIMUM_HEALTH) {
 			// dont go beyond max
-			this.currentHealth = this.maxHealth;
+			this.currentHealth = HealthBar.MAXIMUM_HEALTH;
 		} else if (this.currentHealth <= 0.0) {
 			// dont go below min
 			this.currentHealth = 0.0;
@@ -95,7 +95,7 @@ public class HealthBar extends NetworkEntity {
 	public void render(final Graphics g) {
 		float drawXAt = this.getX();
 		float drawYAt = this.getY();
-		for (int i = 0; i <  this.maxHealth; i++) {
+		for (int i = 0; i <  HealthBar.MAXIMUM_HEALTH; i++) {
 			if (i < this.currentHealth) {
 				if (this.team == TEAM.RED)
 					g.setColor(Color.red);
