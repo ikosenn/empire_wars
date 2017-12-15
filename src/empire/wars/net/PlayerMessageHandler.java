@@ -3,6 +3,7 @@ package empire.wars.net;
 import java.util.HashMap;
 import java.util.UUID;
 
+import empire.wars.Creep;
 import empire.wars.EmpireWars;
 import empire.wars.EmpireWars.Direction;
 import empire.wars.EmpireWars.TEAM;
@@ -41,12 +42,28 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 	 */
 	private void setColor(Player player, String msg) {
 		TEAM team;
+		TEAM creepTeam;
+		int[] tilePos = new int[2];
 		if (msg.equals("BLUE")) {
 			team = TEAM.BLUE;
+			creepTeam = TEAM.RED;
 		} else {
 			team = TEAM.RED;
+			creepTeam = TEAM.BLUE;
 		}
 		player.changeColor(team);
+		
+		// create creeps for this player.
+		if (this.ew.getSessionType().equals("SERVER")) {
+			for (int i = 0; i < EmpireWars.PLAYER_CREEPS; i++) {
+				tilePos = this.ew.randomizeEntityPos();
+		        	Creep tempCreep = new Creep(
+		        		this.ew.getTileWidth() * tilePos[0], this.ew.getTileHeight() * tilePos[1], 
+		        		creepTeam, this.ew.map);
+		        	tempCreep.setPlayerUUID(player.getObjectUUID());
+		        	this.ew.getCreeps().put(tempCreep.getObjectUUID(), tempCreep);
+		    }
+		}
 	}
 	
 	/**
@@ -68,6 +85,9 @@ public class PlayerMessageHandler extends EntityMessageHandler {
 			player.health.setCurrentHealth(x);
 		}  else if (categoryType.equals("SETCOL")) {
 			player.setExploded();
+		} else if (categoryType.equals("SETJAIL")) {
+			boolean jailed = msg.equals("1") ? true : false; 
+			player.inJail = jailed;
 		}
 	}
 

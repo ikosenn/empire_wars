@@ -62,6 +62,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static int GAME_DURATION = 300000;
 	public final static int MAX_LIVES = 3;
 	public final static int POWERUP_COUNT = 3;
+	public final static int PLAYER_CREEPS = 4;
 	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
@@ -206,7 +207,7 @@ public class EmpireWars extends StateBasedGame {
 		player = new Player(tileWidth * 5, tileHeight * 6, 0, 0, this.myTeam);
 	}
 	
-	private int[] randomizeEntityPos() {
+	public int[] randomizeEntityPos() {
 		int[] pos = new int[2];
 		Random rand = new Random();
         int roadIndex = map.getLayerIndex("road");
@@ -287,11 +288,10 @@ public class EmpireWars extends StateBasedGame {
 		}		
 		
         // creeps
-        for (int i = 0; i < 16; i++) {
-    		tilePos = this.randomizeEntityPos();
-        	TEAM team = i % 2 == 0 ? TEAM.BLUE : TEAM.RED;
-        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], team, this.map);
-        	creeps.put(tempCreep.getObjectUUID(), tempCreep);
+        for (int i = 0; i < EmpireWars.PLAYER_CREEPS; i++) {
+	    		tilePos = this.randomizeEntityPos();
+	        	Creep tempCreep = new Creep(tileWidth * tilePos[0], tileHeight * tilePos[1], TEAM.BLUE, this.map);
+	        	creeps.put(tempCreep.getObjectUUID(), tempCreep);
         }
         
         // flags
