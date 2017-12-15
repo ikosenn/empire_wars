@@ -1,7 +1,10 @@
 package empire.wars;
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.UUID;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
@@ -30,9 +33,9 @@ public class Player extends NetworkEntity {
 	private Vector redStart = new Vector(120, 118);
 	private Vector redJail = new Vector(128, 1408);
 	private Vector blueJail = new Vector(6240, 160);
-	private boolean inJail = false;
-	private int FREEZETIME = 5000;
-	private int freezeTime = FREEZETIME;
+	public boolean inJail = false;
+	private int JAILTIME = 15000;
+	private int jailTime = JAILTIME;
 	
 	private int freeze_stay_timer = 0;
 	
@@ -74,6 +77,7 @@ public class Player extends NetworkEntity {
 		} else if (this.team == TEAM.BLUE) {
 			this.setPosition(blueStart);
 		}
+		this.setHealthBarPos();
 	}
 	
 	private void sentToJail(){
@@ -291,13 +295,13 @@ public class Player extends NetworkEntity {
 		this.killPlayer(ew);
 		
 		if(inJail == true){
-			if(freezeTime > 0){
+			if(jailTime > 0){
 				setVelocity(new Vector(0.f, 0.f));
-				freezeTime -= delta;
+				jailTime -= delta;
 				return;
 			}
-			if(freezeTime <= 0){
-				freezeTime = FREEZETIME;
+			if(jailTime <= 0){
+				jailTime = JAILTIME;
 				inJail = false;
 				setPlayerStartPosition();
 			}
@@ -366,6 +370,20 @@ public class Player extends NetworkEntity {
 			this.setPosition(previousPoition);
 			this.setHealthBarPos();
 		}
+		
+		/*for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+			Bullet bullet = i.next().getValue();
+			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
+				if (bullet.team != this.team) {
+					ew.getScore().addScore(EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					this.health.setHealth(-4);
+					bullet.explode();
+				}
+				if (!bullet.getObjectType().equals("ORIGINAL")) {
+					bullet.serverSendCollisionUpdates(ew);
+				}
+			}
+		}*/
 	}
 	
 	/**
