@@ -11,7 +11,9 @@ import jig.ResourceManager;
 public class Bullet extends NetworkEntity {
 	private Vector velocity;
 	private String bullet_image;
-	public int bullet;
+	private int bullet = 0;
+	private int _bullet = 0;
+	
 	
 	public enum BULLET_TYPE
 	{
@@ -84,10 +86,25 @@ public class Bullet extends NetworkEntity {
 		this.team = team;
 	}
 	
+	/*
+	 * Update clients on my strength color I belong to
+	 */
+	public void sendTypeUpdate(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this._bullet != this.bullet) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = Integer.toString(this.bullet);
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETTYPE", msg, className);
+			game.sendPackets.add(posUpdate);
+			this._bullet = this.bullet; 
+		}
+	}
+	
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
 		this.sendColorUpdate(game);
+		this.sendTypeUpdate(game);
 	}
 	
 	public void update(GameContainer container, StateBasedGame game, int delta,
@@ -104,5 +121,13 @@ public class Bullet extends NetworkEntity {
 
 	public Vector getVelocity() {
 		return velocity;
+	}
+
+	public int getBullet() {
+		return bullet;
+	}
+
+	public void setBullet(int bullet) {
+		this.bullet = bullet;
 	}
 }
