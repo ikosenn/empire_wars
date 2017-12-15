@@ -45,11 +45,8 @@ public class FreezePowerUpHandler extends EntityMessageHandler {
 			} else {
 				team = TEAM.RED;
 			}
-			for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
-				Player tempPlayer = i.next().getValue();
-				if (tempPlayer.getTeam() == team && ew.getPlayer().getTeam() != team) {
-					tempPlayer.setFreezeTime(FreezePowerUp.FREEZE_DURATION);
-				}
+			if (ew.getPlayer().getTeam() != team) {
+				ew.getPlayer().setFreezeTime(FreezePowerUp.FREEZE_DURATION);
 			}
 		} 	
 		

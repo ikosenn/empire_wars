@@ -304,6 +304,7 @@ public class Player extends NetworkEntity {
 		}
 		
 		if(freeze_stay_timer > 0) {
+			setVelocity(new Vector(0.f, 0.f));
 			freeze_stay_timer -= delta;
 			return;
 		}
@@ -383,9 +384,7 @@ public class Player extends NetworkEntity {
 	@Override
 	public void render(final Graphics g) {
 		this.health.render(g);
-		if(freeze_stay_timer <= 0) {
-			super.render(g);
-		}
+		super.render(g);
 	}
 	
 	public Vector getTileIdx(Vector v){

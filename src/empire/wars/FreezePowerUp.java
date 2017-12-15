@@ -27,12 +27,8 @@ public class FreezePowerUp extends PowerUp {
 	};
 	
 	public void _handleServer(Player player) {
-		for (Iterator<HashMap.Entry<UUID, Player>> i = this.game.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
-			Player tempPlayer = i.next().getValue();
-			System.out.println(tempPlayer);
-			if (tempPlayer.team == player.team && this.game.player.getTeam() != player.getTeam()) {
-				tempPlayer.setFreezeTime(FREEZE_DURATION);
-			}
+		if (this.game.player.getTeam() != player.getTeam()) {
+			this.game.player.setFreezeTime(FREEZE_DURATION);
 		}
 	}
 

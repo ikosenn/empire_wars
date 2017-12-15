@@ -108,6 +108,10 @@ public class Message implements Serializable {
 			new BananaPowerUpHandler(msgPacket, ew);
 		}
 		
+		if (className != null && className.equals("FREEZEPOWERUP")) {
+			new FreezePowerUpHandler(msgPacket, ew);
+		}
+		
 		if (className != null && className.equals("FLAG")) {
 			new FlagMessageHandler(msgPacket, ew);
 		}
