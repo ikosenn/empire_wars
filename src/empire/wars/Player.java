@@ -86,6 +86,7 @@ public class Player extends NetworkEntity {
 		}else if(this.team == TEAM.RED){
 			this.setPosition(redJail);
 		}
+		this.setHealthBarPos();
 	}
 	
 	/**

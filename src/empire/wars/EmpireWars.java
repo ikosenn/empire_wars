@@ -109,24 +109,9 @@ public class EmpireWars extends StateBasedGame {
 
 	
 	//sound resources
-	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
-	
-	public static final String CREEP_UP_IMG_RSC = "images/creep_up.png";
-	public static final String CREEP_DOWN_IMG_RSC = "images/creep_down.png";
-	public static final String CREEP_LEFT_IMG_RSC = "images/creep_left.png";
-	public static final String CREEP_RIGHT_IMG_RSC = "images/creep_right.png";
-	
-	public static final String BLUE_PLAYER_MOVING_IMG_RSC = "images/blue_players.png";
-	public static final String BLUE_PLAYER_UP_IMG_RSC = "images/blue_up.png";
-	public static final String BLUE_PLAYER_DOWN_IMG_RSC = "images/blue_down.png";
-	public static final String BLUE_PLAYER_LEFT_IMG_RSC = "images/blue_left.png";
-	public static final String BLUE_PLAYER_RIGHT_IMG_RSC = "images/blue_right.png";
-	
+	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";	
+	public static final String BLUE_PLAYER_MOVING_IMG_RSC = "images/blue_players.png";	
 	public static final String RED_PLAYER_MOVING_IMG_RSC = "images/red_players.png";
-	public static final String RED_PLAYER_UP_IMG_RSC = "images/red_up.png";
-	public static final String RED_PLAYER_DOWN_IMG_RSC = "images/red_down.png";
-	public static final String RED_PLAYER_LEFT_IMG_RSC = "images/red_left.png";
-	public static final String RED_PLAYER_RIGHT_IMG_RSC = "images/red_right.png";
 	
 	TEAM myTeam;
 	
@@ -185,23 +170,8 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(PLAYER_BULLETIMG_RSC);
 		ResourceManager.loadSound(PLAYER_SHOOTSND_RSC);
 		ResourceManager.loadImage(MENU_BUTTONS_RSC);
-
-		ResourceManager.loadImage(CREEP_UP_IMG_RSC);
-		ResourceManager.loadImage(CREEP_DOWN_IMG_RSC);
-		ResourceManager.loadImage(CREEP_LEFT_IMG_RSC);
-		ResourceManager.loadImage(CREEP_RIGHT_IMG_RSC);
-		
 		ResourceManager.loadImage(BLUE_PLAYER_MOVING_IMG_RSC);
-		ResourceManager.loadImage(BLUE_PLAYER_UP_IMG_RSC);
-		ResourceManager.loadImage(BLUE_PLAYER_DOWN_IMG_RSC);
-		ResourceManager.loadImage(BLUE_PLAYER_LEFT_IMG_RSC);
-		ResourceManager.loadImage(BLUE_PLAYER_RIGHT_IMG_RSC);
-		
 		ResourceManager.loadImage(RED_PLAYER_MOVING_IMG_RSC);
-		ResourceManager.loadImage(RED_PLAYER_UP_IMG_RSC);
-		ResourceManager.loadImage(RED_PLAYER_DOWN_IMG_RSC);
-		ResourceManager.loadImage(RED_PLAYER_LEFT_IMG_RSC);
-		ResourceManager.loadImage(RED_PLAYER_RIGHT_IMG_RSC);
 		ResourceManager.loadImage(FLAG_GREYIMG_RSC);
 		ResourceManager.loadImage(FLAG_BLUEIMG_RSC);
 		ResourceManager.loadImage(FLAG_REDIMG_RSC);
