@@ -31,8 +31,8 @@ public class Player extends NetworkEntity {
 	private Vector redJail = new Vector(128, 1408);
 	private Vector blueJail = new Vector(6240, 160);
 	public boolean inJail = false;
-	private int FREEZETIME = 5000;
-	private int freezeTime = FREEZETIME;
+	private int JAILTIME = 15000;
+	private int jailTime = JAILTIME;
 	
 	private int freeze_stay_timer = 0;
 	
@@ -292,13 +292,13 @@ public class Player extends NetworkEntity {
 		this.killPlayer(ew);
 		
 		if(inJail == true){
-			if(freezeTime > 0){
+			if(jailTime > 0){
 				setVelocity(new Vector(0.f, 0.f));
-				freezeTime -= delta;
+				jailTime -= delta;
 				return;
 			}
-			if(freezeTime <= 0){
-				freezeTime = FREEZETIME;
+			if(jailTime <= 0){
+				jailTime = JAILTIME;
 				inJail = false;
 				setPlayerStartPosition();
 			}

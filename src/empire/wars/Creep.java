@@ -277,7 +277,7 @@ public class Creep extends NetworkEntity {
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
 				if (bullet.team != this.team) {
 					ew.getScore().addScore(EmpireWars.KILL_POINTS, bullet.team);
-					this.health.setHealth(-4);
+					this.health.setHealth(-2);
 				}
 				if (!bullet.getObjectType().equals("ORIGINAL")) {
 					bullet.serverSendCollisionUpdates(ew);
@@ -322,7 +322,7 @@ public class Creep extends NetworkEntity {
 				if (this.team != itr.getValue().team)
 				{
 					this.health.setHealth(-0.1);
-					itr.getValue().health.setHealth(-0.08);
+					itr.getValue().health.setHealth(-0.1);
 					this.setVelocity(new Vector(0,0)); //in case of creeps colliding with enemy creeps, they fight until one of them loses all its health
 				}
 				else
