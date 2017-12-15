@@ -20,7 +20,6 @@ public class Bullet extends NetworkEntity {
 	}
 	
 	private BULLET_TYPE bullet_type;
-	public TEAM team;
 	
 	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type, final TEAM in_team){
 		super(x,y);

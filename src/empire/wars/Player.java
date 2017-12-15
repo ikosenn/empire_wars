@@ -300,7 +300,7 @@ public class Player extends NetworkEntity {
 				jailTime -= delta;
 				return;
 			}
-			if((jailTime <= 0) || (ew.getFreeCards() > 0 && input.isKeyDown(Input.KEY_F))){
+			if ((jailTime <= 0) || (ew.getFreeCards() > 0 && input.isKeyDown(Input.KEY_F))){
 				jailTime = JAILTIME;
 				inJail = false;
 				setPlayerStartPosition();
@@ -372,11 +372,15 @@ public class Player extends NetworkEntity {
 			this.setHealthBarPos();
 		}
 		
-		/*for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			Bullet bullet = i.next().getValue();
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
 				if (bullet.team != this.team) {
-					ew.getScore().addScore(EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					if (ew.getSessionType().equals("SERVER")) {
+						ew.getScore().addScore(EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					} else {
+						ew.getScore().serverSendScoreUpdate(ew, EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					}
 					this.health.setHealth(-4);
 					bullet.explode();
 				}
@@ -384,7 +388,7 @@ public class Player extends NetworkEntity {
 					bullet.serverSendCollisionUpdates(ew);
 				}
 			}
-		}*/
+		}
 	}
 	
 	/**
