@@ -78,6 +78,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().render(g);
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, FreezePowerUp>> i = ew.getFreezePowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
+		
 		// bullets
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
@@ -137,6 +141,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().update();
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, FreezePowerUp>> i = ew.getFreezePowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update();
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		}
@@ -161,14 +169,16 @@ public class PlayState extends BasicGameState {
 		// remove heart power-up
 		HashMap<UUID, VanishingAct> vanishPowerup = ew.getVanishPowerup();
 		vanishPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
-		
 		//remove shield power-up
 		HashMap<UUID, ShieldFlags> shieldFlagPowerup = ew.getShieldPowerup();
 		shieldFlagPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
-		
-		// remove heart power-up
+		// remove banana power-up
 		HashMap<UUID, BananaPowerUp> bananaPowerup = ew.getBananaPowerup();
 		bananaPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
+		
+		// remove freeze power-up
+		HashMap<UUID, FreezePowerUp> freezePowerup = ew.getFreezePowerup();
+		freezePowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 		
 		// remove creep 
 		HashMap<UUID, Creep> creepMap = ew.getCreeps();
