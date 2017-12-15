@@ -27,6 +27,9 @@ public class BulletMessageHandler extends EntityMessageHandler {
 			bullet.setExploded();
 		} else if (categoryType.equals("SETCOLOR")) {
 			this.setColor(bullet, msg);
+		} else if (categoryType.equals("SETTYPE")) {
+			int strength = Integer.parseInt(msgPacket.getMsg());
+			bullet.setBullet(strength);
 		} else if (categoryType.equals("SETSERVERCOL") && bullet.getObjectType().equals("ORIGINAL")) {
 			bullet.explode();
 		}
@@ -51,7 +54,7 @@ public class BulletMessageHandler extends EntityMessageHandler {
 	public NetworkEntity createEntity(UUID objectUUID) {
 		Bullet bulletTemp;
 		bulletTemp = new Bullet(
-			0f, 0f, 0f, 0f, EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, TEAM.BLUE);
+			0f, 0f, 0f, 0f, EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, TEAM.BLUE, 0);
 		bulletTemp.setObjectUUID(objectUUID);
 		bulletTemp.setObjectType("NETWORK");
 		ew.getClientBullets().put(bulletTemp.getObjectUUID(), bulletTemp);

@@ -110,28 +110,28 @@ public class Player extends NetworkEntity {
 	}
 	
 	
-	public void shoot(EmpireWars game){
+	public void shoot(EmpireWars game, int bulletNature){
 		Bullet bullet;
 		ResourceManager.getSound(EmpireWars.PLAYER_SHOOTSND_RSC).play();
 		switch(direction){
 		case UP:
 			bullet = new Bullet(getX(), getY(), 0.f, -EmpireWars.PLAYER_BULLETSPEED, 
-				EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+				EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team, bulletNature);
 			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		case DOWN:
 			bullet = new Bullet(getX(), getY(), 0.f, EmpireWars.PLAYER_BULLETSPEED, 
-				EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+				EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team, bulletNature);
 			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		case LEFT:
 			bullet = new Bullet(getX(), getY(), -EmpireWars.PLAYER_BULLETSPEED, 0.f, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team, bulletNature);
 			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		case RIGHT:
 			bullet =  new Bullet(getX(), getY(), EmpireWars.PLAYER_BULLETSPEED, 0.f, 
-					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team);
+					EmpireWars.PLAYER_BULLETIMG_RSC, BULLET_TYPE.PLAYER, this.team, bulletNature);
 			game.clientBullets.put(bullet.getObjectUUID(), bullet);
 			break;
 		default:
@@ -352,9 +352,14 @@ public class Player extends NetworkEntity {
 			direction = Direction.RIGHT;
 		}
 		
+		// player shooting star bullets
+		if(input.isKeyPressed(Input.KEY_B) && freeze_stay_timer <= 0 && ew.getStarBullets() > 0){
+			shoot(ew,1);
+			ew.setStarBullets(ew.getStarBullets() - 1);
+		}
 		// player shooting bullets
 		if(input.isKeyPressed(Input.KEY_J) && freeze_stay_timer <= 0){
-			shoot(ew);
+			shoot(ew,0);
 		}
 
 		// update health bar pos

@@ -277,8 +277,13 @@ public class Creep extends NetworkEntity {
 			Bullet bullet = i.next().getValue();
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
 				if (bullet.team != this.team) {
-					ew.getScore().addScore(EmpireWars.KILL_POINTS, bullet.team);
-					this.health.setHealth(-2);
+					if(bullet.getBullet() == 1) {
+						ew.getScore().addScore(EmpireWars.KILL_POINTS, bullet.team);
+						this.health.setHealth(-16);
+					} else {
+						ew.getScore().addScore(EmpireWars.KILL_POINTS, bullet.team);
+						this.health.setHealth(-2);
+					}
 				}
 				if (!bullet.getObjectType().equals("ORIGINAL")) {
 					bullet.serverSendCollisionUpdates(ew);

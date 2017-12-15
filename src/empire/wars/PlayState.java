@@ -37,6 +37,7 @@ public class PlayState extends BasicGameState {
 		ew.createOnClients();
 		ew.setLives(EmpireWars.MAX_LIVES);
 		ew.setFreeCards(0);
+		ew.setStarBullets(0);
 		ew.getScore().setBlueTeam(0);
 		ew.getScore().setRedTeam(0);
 	}
@@ -86,6 +87,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().render(g);
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, StarPowerUp>> i = ew.getStarPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, BananaPowerUp>> i = ew.getBananaPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
@@ -113,6 +118,8 @@ public class PlayState extends BasicGameState {
 		g.drawString("Lives: "  + ew.getLives(), (-1 * ew.camera.getXIndicator() + 20),(-1 * ew.camera.getYIndicator()) + 10);
 		g.setColor(Color.yellow);
 		g.drawString("Free Cards: "  + ew.getFreeCards(), (-1 * ew.camera.getXIndicator() + 120),(-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.magenta);
+		g.drawString("BAZUKA: "  + ew.getStarBullets(), (-1 * ew.camera.getXIndicator() + 700),(-1 * ew.camera.getYIndicator()) + 10);
 		g.setColor(Color.red);
 		g.drawString(
 			"Red: "  + ew.getScore().getRedTeam(), (-1 * ew.camera.getXIndicator() + 830),(-1 * ew.camera.getYIndicator()) + 10);
@@ -157,6 +164,10 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().update();
 		}
 		
+		for (Iterator<HashMap.Entry<UUID, StarPowerUp>> i = ew.getStarPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update();
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, VanishingAct>> i = ew.getVanishPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update();
 		}
@@ -196,7 +207,9 @@ public class PlayState extends BasicGameState {
 		// remove heart power-up
 		HashMap<UUID, HeartPowerUp> heartPowerup = ew.getHeartPowerup();
 		heartPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
-		
+		// remove star power-up
+		HashMap<UUID, StarPowerUp> starPowerup = ew.getStarPowerup();
+		starPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
 		// remove heart power-up
 		HashMap<UUID, VanishingAct> vanishPowerup = ew.getVanishPowerup();
 		vanishPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
