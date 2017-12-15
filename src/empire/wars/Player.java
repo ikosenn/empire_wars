@@ -296,38 +296,40 @@ public class Player extends NetworkEntity {
 		this.killPlayer(ew);
 		
 		if(inJail == true){
-			if(jailTime > 0){
+			if(input.isKeyDown(Input.KEY_F) && ew.getFreeCards() > 0){
+				inJail = false;
+				setPlayerStartPosition();
+				jailTime = 0;
+				ew.setFreeCards(ew.getFreeCards() - 1);
+			} else if(jailTime > 0){
 				setVelocity(new Vector(0.f, 0.f));
 				jailTime -= delta;
 				return;
-			}
-			if((jailTime <= 0) || (ew.getFreeCards() > 0 && input.isKeyDown(Input.KEY_F))){
+			} else if (jailTime <= 0) {
 				jailTime = JAILTIME;
 				inJail = false;
 				setPlayerStartPosition();
-				ew.setFreeCards(ew.getFreeCards() - 1);
 			}
 		}
 		
 		if(freeze_stay_timer > 0) {
 			setVelocity(new Vector(0.f, 0.f));
 			freeze_stay_timer -= delta;
-			return;
 		}
 		
-		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
+		if((input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)) && freeze_stay_timer <= 0){
 			setVelocity(new Vector(0.f, -EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.UP, ew);
 		}
-		if(input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)){
+		if((input.isKeyDown(Input.KEY_S) || input.isKeyDown(Input.KEY_DOWN)) && freeze_stay_timer <= 0){
 			setVelocity(new Vector(0.f, EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.DOWN, ew);
 		}
-		if(input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)){
+		if((input.isKeyDown(Input.KEY_A) || input.isKeyDown(Input.KEY_LEFT)) && freeze_stay_timer <= 0){
 			setVelocity(new Vector(-EmpireWars.PLAYER_SPEED, 0.f));
 			changeDirection(Direction.LEFT, ew);
 		}
-		if(input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)){
+		if((input.isKeyDown(Input.KEY_D) || input.isKeyDown(Input.KEY_RIGHT)) && freeze_stay_timer <= 0){
 			setVelocity(new Vector(EmpireWars.PLAYER_SPEED, 0.f));
 			changeDirection(Direction.RIGHT, ew);
 		}
@@ -351,7 +353,7 @@ public class Player extends NetworkEntity {
 		}
 		
 		// player shooting bullets
-		if(input.isKeyPressed(Input.KEY_J)){
+		if(input.isKeyPressed(Input.KEY_J) && freeze_stay_timer <= 0){
 			shoot(ew);
 		}
 
@@ -373,11 +375,15 @@ public class Player extends NetworkEntity {
 			this.setHealthBarPos();
 		}
 		
-		/*for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			Bullet bullet = i.next().getValue();
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
 				if (bullet.team != this.team) {
-					ew.getScore().addScore(EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					if (ew.getSessionType().equals("SERVER")) {
+						ew.getScore().addScore(EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					} else {
+						ew.getScore().serverSendScoreUpdate(ew, EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					}
 					this.health.setHealth(-4);
 					bullet.explode();
 				}
@@ -385,7 +391,7 @@ public class Player extends NetworkEntity {
 					bullet.serverSendCollisionUpdates(ew);
 				}
 			}
-		}*/
+		}
 	}
 	
 	/**

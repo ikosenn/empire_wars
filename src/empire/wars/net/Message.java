@@ -152,7 +152,9 @@ public class Message implements Serializable {
 			new EndGameHandler(msgPacket, ew);
 		}
 		
-		if (msgType != null && (msgType.equals("REDSCORE") || msgType.equals("BLUESCORE"))) {
+		if (msgType != null && (
+				msgType.equals("REDSCORE") || msgType.equals("BLUESCORE") || 
+				msgType.equals("SERVERREDSCORE") || msgType.equals("SERVERBLUESCORE"))) {
 			new ScoreMessageHandler(msgPacket, ew);
 		}
 		

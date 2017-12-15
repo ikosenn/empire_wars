@@ -60,7 +60,8 @@ public class EmpireWars extends StateBasedGame {
 	public final static int PLAYER_KILL_POINTS = 5;
 	public final static int CHANGE_FLAG_POINTS = 30;
 	public final static int GAME_DURATION = 300000;
-	public final static int MAX_LIVES = 1;
+	public final static int MAX_LIVES = 3;
+	public final static int POWERUP_COUNT = 3;
 	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
@@ -73,7 +74,7 @@ public class EmpireWars extends StateBasedGame {
 	private GameServer socketServer;
 	
 	private String username;
-	private int lives = 3;
+	private int lives = EmpireWars.MAX_LIVES;
 	private int freeCards = 0;
 	private Score score = new Score();
 	
@@ -237,39 +238,39 @@ public class EmpireWars extends StateBasedGame {
 		this.myTeam = TEAM.RED;
 		
 		// heart power-up
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		HeartPowerUp heartTemp = new HeartPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.heartPowerup.put(heartTemp.getObjectUUID(), heartTemp);
 		}
 		// shield power-up
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		ShieldFlags shieldemp = new ShieldFlags(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.shieldFlagPowerup.put(shieldemp.getObjectUUID(), shieldemp);
 		}
 		// vanish power-up
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		VanishingAct vanishemp = new VanishingAct(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.vanishPowerup.put(vanishemp.getObjectUUID(), vanishemp);
 		}
 		
 		// banana power-up
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 	    		tilePos = this.randomizeEntityPos();
 	    		BananaPowerUp bananaTemp = new BananaPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.bananaPowerup.put(bananaTemp.getObjectUUID(), bananaTemp);
 	    }
 		// freeze power-up
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 			tilePos = this.randomizeEntityPos();
 			FreezePowerUp freezeTemp = new FreezePowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 			this.freezePowerup.put(freezeTemp.getObjectUUID(), freezeTemp);
 	    }		
 		
 		// key power-up
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 			 tilePos = this.randomizeEntityPos();
 			 KeyPowerUp keyTemp = new KeyPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 			 this.keyPowerup.put(keyTemp.getObjectUUID(), keyTemp);
@@ -284,7 +285,7 @@ public class EmpireWars extends StateBasedGame {
         }
         
         // flags
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
         		tilePos = this.randomizeEntityPos();
 	        	Flag flag = new Flag(tileWidth * tilePos[0], tileHeight * tilePos[1]);
 	        	flags.put(flag.getObjectUUID(), flag);	
