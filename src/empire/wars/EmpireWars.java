@@ -542,9 +542,12 @@ public class EmpireWars extends StateBasedGame {
 		heartPowerup = new HashMap<>();
 		keyPowerup = new HashMap<>();
 		bananaPowerup = new HashMap<>();
-		//freezePowerup = new HashMap<>();
+		freezePowerup = new HashMap<>();
 		vanishPowerup = new HashMap<>();
 		flags = new HashMap<>();
+		shieldFlagPowerup = new HashMap<>();
+		starPowerup = new HashMap<>();
+		castles = new HashMap<>();
 	};
 	
 	/**

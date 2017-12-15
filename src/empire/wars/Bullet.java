@@ -11,6 +11,7 @@ import jig.ResourceManager;
 public class Bullet extends NetworkEntity {
 	private Vector velocity;
 	private String bullet_image;
+	private String _bullet_image = EmpireWars.PLAYER_BULLETIMG_RSC;
 	private int bullet = 0;
 	private int _bullet = 0;
 	
@@ -78,6 +79,14 @@ public class Bullet extends NetworkEntity {
 		}
 	}
 	
+	/*
+	 * Used by the network to change the bullet image.
+	 */
+	public void setCastleFireImage() {
+		removeImage(ResourceManager.getImage(EmpireWars.PLAYER_BULLETIMG_RSC));
+		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.FIRE_IMAGE_RSC));
+	}
+	
 	/**
 	 * Used by the network to set the players color to the right color.
 	 * @param team
@@ -100,11 +109,23 @@ public class Bullet extends NetworkEntity {
 		}
 	}
 	
+	private void sendImageUpdate(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this._bullet_image != this.bullet_image) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = "";
+			Message posUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETCASTLE", msg, className);
+			game.sendPackets.add(posUpdate);
+			this._bullet_image = this.bullet_image; 
+		}
+	}
+	
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
 		this.sendColorUpdate(game);
 		this.sendTypeUpdate(game);
+		this.sendImageUpdate(game);
 	}
 	
 	public void update(GameContainer container, StateBasedGame game, int delta,
