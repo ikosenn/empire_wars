@@ -236,7 +236,7 @@ public class Player extends NetworkEntity {
 	 * Allows the receiver to know what to do with it.
 	 */
 	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
-		if (this.objectType == "ORIGINAL" && this.direction != this._direction) {
+		if (this.objectType.equals("ORIGINAL") && this.direction != this._direction) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = this.direction.toString();
 			Message posUpdate = new Message(
@@ -250,7 +250,7 @@ public class Player extends NetworkEntity {
 	 * @param game. The current game state
 	 */
 	public void sendHealthBarUpdates(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" && this.health.hasChanged()) {
+		if (this.objectType.equals("ORIGINAL") && this.health.hasChanged()) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = Double.toString(this.health.getCurrentHealth());
 			Message healthUpdate = new Message(
@@ -264,7 +264,7 @@ public class Player extends NetworkEntity {
 	 * @param game. The current game state
 	 */
 	public void sendInjailUpdates(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" && this._inJail != this.inJail) {
+		if (this.objectType.equals("ORIGINAL") && this._inJail != this.inJail) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = this.inJail ? "1" : "0";
 			Message jailUpdate = new Message(

@@ -85,7 +85,7 @@ public class NetworkEntity extends Entity {
 	 * Update clients on the team color I belong to
 	 */
 	public void sendColorUpdate(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" && this.team != this._team) {
+		if (this.objectType.equals("ORIGINAL") && this.team != this._team) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = this.team.toString();
 			Message posUpdate = new Message(
@@ -100,7 +100,7 @@ public class NetworkEntity extends Entity {
 	 * of the Entity. This are sent through the network.
 	 */
 	public void sendPosUpdates(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" ) {
+		if (this.objectType.equals("ORIGINAL")) {
 			if (this._currentX != this.getX() || this._currentY != this.getY()) {
 				String className = this.getClass().getSimpleName().toUpperCase();
 				String msg = this.getX() + ":" + this.getY();
@@ -114,7 +114,7 @@ public class NetworkEntity extends Entity {
 	}
 	
 	public void sendCollisionUpdates(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" ) {
+		if (this.objectType.equals("ORIGINAL")) {
 			if (this._exploded != this.exploded) {
 				String className = this.getClass().getSimpleName().toUpperCase();
 				Message posUpdate = new Message(
