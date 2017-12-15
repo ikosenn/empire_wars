@@ -36,6 +36,7 @@ public class PlayState extends BasicGameState {
 		}
 		ew.createOnClients();
 		ew.setLives(EmpireWars.MAX_LIVES);
+		ew.setFreeCards(0);
 		ew.getScore().setBlueTeam(0);
 		ew.getScore().setRedTeam(0);
 	}
@@ -81,6 +82,9 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, FreezePowerUp>> i = ew.getFreezePowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
+		for (Iterator<HashMap.Entry<UUID, KeyPowerUp>> i = ew.getKeyPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}
 		
 		// bullets
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
@@ -93,7 +97,10 @@ public class PlayState extends BasicGameState {
 		g.drawString(
 				"Time Left: "+ (game_timer) / 60000 + ":" + ((game_timer) % 60000 / 1000) ,
 				(-1 * ew.camera.getXIndicator() + 440), (-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.green);
 		g.drawString("Lives: "  + ew.getLives(), (-1 * ew.camera.getXIndicator() + 20),(-1 * ew.camera.getYIndicator()) + 10);
+		g.setColor(Color.yellow);
+		g.drawString("Free Cards: "  + ew.getFreeCards(), (-1 * ew.camera.getXIndicator() + 120),(-1 * ew.camera.getYIndicator()) + 10);
 		g.setColor(Color.red);
 		g.drawString(
 			"Red: "  + ew.getScore().getRedTeam(), (-1 * ew.camera.getXIndicator() + 830),(-1 * ew.camera.getYIndicator()) + 10);
@@ -144,6 +151,9 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, FreezePowerUp>> i = ew.getFreezePowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update();
 		}
+		for (Iterator<HashMap.Entry<UUID, KeyPowerUp>> i = ew.getKeyPowerup().entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update();
+		}
 		
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
@@ -179,7 +189,9 @@ public class PlayState extends BasicGameState {
 		// remove freeze power-up
 		HashMap<UUID, FreezePowerUp> freezePowerup = ew.getFreezePowerup();
 		freezePowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);
-		
+		// remove heart power-up
+		HashMap<UUID, KeyPowerUp> keyPowerup = ew.getKeyPowerup();
+		keyPowerup.entrySet().removeIf(entry->entry.getValue().isExploded() == true);		
 		// remove creep 
 		HashMap<UUID, Creep> creepMap = ew.getCreeps();
 		creepMap.entrySet().removeIf(entry->entry.getValue().isExploded() == true);

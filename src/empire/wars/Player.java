@@ -300,10 +300,11 @@ public class Player extends NetworkEntity {
 				jailTime -= delta;
 				return;
 			}
-			if(jailTime <= 0){
+			if((jailTime <= 0) || (ew.getFreeCards() > 0 && input.isKeyDown(Input.KEY_F))){
 				jailTime = JAILTIME;
 				inJail = false;
 				setPlayerStartPosition();
+				ew.setFreeCards(ew.getFreeCards() - 1);
 			}
 		}
 		

@@ -74,6 +74,7 @@ public class EmpireWars extends StateBasedGame {
 	
 	private String username;
 	private int lives = 3;
+	private int freeCards = 0;
 	private Score score = new Score();
 	
 	public final static float PLAYER_SPEED = 0.40f;
@@ -104,6 +105,8 @@ public class EmpireWars extends StateBasedGame {
 	public static final String SHIELD_BLUE_FLAG = "images/blueShield.png";
 	public static final String SHOWCASE_SHIELD = "images/showcaseShield.png";
 	public static final String FREEZE_RSC = "images/freeze.png";
+	public static final String KEY_RSC = "images/key.png";
+
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";
@@ -146,6 +149,7 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, FreezePowerUp> freezePowerup = new HashMap<>();
 	HashMap<UUID, VanishingAct> vanishPowerup = new HashMap<>();
 	HashMap<UUID, ShieldFlags> shieldFlagPowerup = new HashMap<>();
+	HashMap<UUID, KeyPowerUp> keyPowerup = new HashMap<>();
 	HashMap<UUID, Flag> flags = new HashMap<>();
 	
 	public EmpireWars(String title) {
@@ -202,7 +206,9 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(FLAG_BLUEIMG_RSC);
 		ResourceManager.loadImage(FLAG_REDIMG_RSC);
 		ResourceManager.loadImage(CREEP_MOVING_IMG_RSC);
+
 		ResourceManager.loadImage(FREEZE_RSC);
+		ResourceManager.loadImage(KEY_RSC);
 
 		map = new TiledMap("src/tilemaps/maze1.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
@@ -285,6 +291,13 @@ public class EmpireWars extends StateBasedGame {
 			this.freezePowerup.put(freezeTemp.getObjectUUID(), freezeTemp);
 	    }		
 		
+		// key power-up
+		for (int i = 0; i < 20; i++) {
+			 tilePos = this.randomizeEntityPos();
+			 KeyPowerUp keyTemp = new KeyPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
+			 this.keyPowerup.put(keyTemp.getObjectUUID(), keyTemp);
+		}		
+		
         // creeps
         for (int i = 0; i < 16; i++) {
     		tilePos = this.randomizeEntityPos();
@@ -342,7 +355,14 @@ public class EmpireWars extends StateBasedGame {
 		return freezePowerup;
 	}
 	
-	
+	/**
+	 * KeyPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, KeyPowerUp> getKeyPowerup() {
+		return keyPowerup;
+	}
+
 	/**
 	 * vanishPowerup getter
 	 * 
@@ -515,6 +535,8 @@ public class EmpireWars extends StateBasedGame {
 		broadcastServer = null;
 		creeps = new HashMap<>();
 		heartPowerup = new HashMap<>();
+		keyPowerup = new HashMap<>();
+
 		bananaPowerup = new HashMap<>();
 		//freezePowerup = new HashMap<>();
 		vanishPowerup = new HashMap<>();
@@ -557,6 +579,25 @@ public class EmpireWars extends StateBasedGame {
 	public void setLives(int lives) {
 		this.lives = lives;
 	}
+	
+	/**
+	 * free card setter
+	 * 
+	 */
+	public void setFreeCards(int freeCards) {
+		this.freeCards = freeCards;
+	}
+	
+	/**
+	 * free card getter
+	 *  
+	 */
+	public int getFreeCards() {
+		return freeCards;
+	}
+	
+	
+	
 
 	/**
 	 * player getter
