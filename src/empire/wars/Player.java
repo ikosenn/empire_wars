@@ -371,7 +371,7 @@ public class Player extends NetworkEntity {
 			this.setHealthBarPos();
 		}
 		
-		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+		/*for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			Bullet bullet = i.next().getValue();
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
 				if (bullet.team != this.team) {
@@ -383,7 +383,7 @@ public class Player extends NetworkEntity {
 					bullet.serverSendCollisionUpdates(ew);
 				}
 			}
-		}
+		}*/
 	}
 	
 	/**
