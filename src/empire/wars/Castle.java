@@ -8,11 +8,9 @@ import org.newdawn.slick.state.StateBasedGame;
 import empire.wars.Bullet.BULLET_TYPE;
 import empire.wars.EmpireWars.TEAM;
 import jig.ResourceManager;
-import jig.Vector;
 
 
 public class Castle extends NetworkEntity {
-	TEAM team;
 	int timer;
 	Random rand;
 	
@@ -27,13 +25,32 @@ public class Castle extends NetworkEntity {
 			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.CASTLE_RED_RSC));
 	}
 	
+	public void changeColor(TEAM team) {
+		removeImage(ResourceManager.getImage(EmpireWars.CASTLE_RED_RSC));
+		removeImage(ResourceManager.getImage(EmpireWars.CASTLE_BLUE_RSC));
+		this.team = team;
+		if (team == TEAM.BLUE)
+			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.CASTLE_BLUE_RSC));
+		else
+			addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.CASTLE_RED_RSC));
+	}
+	
+	@Override
+	public void networkUpdate(EmpireWars game) {
+		super.networkUpdate(game);
+		this.sendColorUpdate(game);
+	}
+	
+	
 	public void update(GameContainer container, StateBasedGame game, int delta, int mapWidth, int mapHeight, int tileWidth, int tileHeight)
 	{
-		EmpireWars ew = (EmpireWars)game;
+		EmpireWars ew = (EmpireWars) game;
+		this.networkUpdate(ew);  // network updates
+		if (!ew.getSessionType().equals("SERVER")) {
+			return;
+		}
 		timer += delta;
-		if (timer > 4000)
-		{
-			//CastleFire tempCastleFire = new CastleFire(getX(), getY()-130, 0f, 0f, this.team);
+		if (timer > 4000) {
 			float vx = this.rand.nextFloat() * (0.2f);
 			if (rand.nextInt() % 2 == 0)
 				vx = -vx;
@@ -42,9 +59,6 @@ public class Castle extends NetworkEntity {
 			
 			Bullet bullet = new Bullet(getX(), getY(), vx, vy, EmpireWars.FIRE_IMAGE_RSC, BULLET_TYPE.CASTLE, this.team, 2);
 			ew.clientBullets.put(bullet.getObjectUUID(), bullet);
-			
-			//tempCastleFire.setVelocity(new Vector(vx, vy));
-			//ew.clientCastleFires.put(tempCastleFire.getObjectUUID(), tempCastleFire);
 			this.timer = 0;
 		}
 	}

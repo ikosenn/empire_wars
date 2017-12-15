@@ -32,6 +32,8 @@ public class BulletMessageHandler extends EntityMessageHandler {
 			bullet.setBullet(strength);
 		} else if (categoryType.equals("SETSERVERCOL") && bullet.getObjectType().equals("ORIGINAL")) {
 			bullet.explode();
+		} else if (categoryType.equals("SETCASTLE")) {
+			bullet.setCastleFireImage();
 		}
 	}
 	
