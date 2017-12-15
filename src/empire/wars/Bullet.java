@@ -20,9 +20,12 @@ public class Bullet extends NetworkEntity {
 	}
 	
 	private BULLET_TYPE bullet_type;
+	private int start_x, start_y;
 	
 	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type, final TEAM in_team){
 		super(x,y);
+		this.start_x = (int)x/32;
+		this.start_y = (int)y/32;
 		this.velocity = new Vector(vx, vy);
 		this.bullet_image = in_bullet_image;
 		this.bullet_type = in_bullet_type;
@@ -50,11 +53,24 @@ public class Bullet extends NetworkEntity {
 		if (!this.objectType.equals("ORIGINAL")) {
 			return;
 		}
-		int bx = (int) this.getX() / 32;
-		int by = (int) this.getY() / 32;
-		int wallIndex = ew.map.getLayerIndex("walls");
-		if (ew.map.getTileId(bx, by, wallIndex) != 0 ) {
-			this.explode();
+		
+		if (this.bullet_type == BULLET_TYPE.CASTLE)
+		{
+			int x_distance = Math.abs(this.start_x - (int)this.getX()/32);
+			int y_distance = Math.abs(this.start_y - (int)this.getY()/32);
+			if (x_distance + y_distance > 25)
+			{
+				this.explode();
+			}
+		}
+		else
+		{
+			int bx = (int) this.getX() / 32;
+			int by = (int) this.getY() / 32;
+			int wallIndex = ew.map.getLayerIndex("walls");
+			if (ew.map.getTileId(bx, by, wallIndex) != 0 ) {
+				this.explode();
+			}
 		}
 	}
 	
@@ -75,8 +91,8 @@ public class Bullet extends NetworkEntity {
 	public void update(GameContainer container, StateBasedGame game, int delta,
 			int mapWidth, int mapHeight, int tileWidth, int tileHeight){
 		EmpireWars ew = (EmpireWars) game;
-		translate(velocity.scale(delta));
 		this.checkCollision(ew);
+		translate(velocity.scale(delta));
 		this.networkUpdate(ew);  // network updates
 	}
 	

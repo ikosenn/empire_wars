@@ -51,15 +51,20 @@ public class PlayState extends BasicGameState {
 			ew.player.render(g);
 		}
 		
-		ew.castle.render(g);
-		if (ew.castle.fireBullet != null)
-		{
-			ew.castle.fireBullet.render(g);
+		
+		for (Iterator<HashMap.Entry<UUID, Castle>> i = ew.castles.entrySet().iterator(); i.hasNext(); ) {
+			HashMap.Entry<UUID, Castle> itr = i.next();
+			itr.getValue().render(g);
 		}
+
+		/*for (Iterator<HashMap.Entry<UUID, CastleFire>> i = ew.clientCastleFires.entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}*/
 		
 		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
+
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			HashMap.Entry<UUID, Creep> itr = i.next();
 			itr.getValue().render(g);
@@ -133,11 +138,14 @@ public class PlayState extends BasicGameState {
 			ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		}
 		
-		ew.castle.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
-		if (ew.castle.fireBullet != null && !ew.castle.fireBullet.isExploded())
-		{
-			ew.castle.fireBullet.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		for (Iterator<HashMap.Entry<UUID, Castle>> i = ew.castles.entrySet().iterator(); i.hasNext(); ) {
+			Castle castle = i.next().getValue();
+			castle.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		}
+		
+		/*for (Iterator<HashMap.Entry<UUID, CastleFire>> i = ew.clientCastleFires.entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		}*/
 
 		ew.getScore().update(game);
 		

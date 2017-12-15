@@ -84,7 +84,6 @@ public class EmpireWars extends StateBasedGame {
 	public TiledMap map;
 	Player player;
 	Camera camera;
-	Castle castle;
 	int mapHeight, mapWidth;
 	int tileHeight, tileWidth;
 	
@@ -132,6 +131,7 @@ public class EmpireWars extends StateBasedGame {
 	// stupid way works best sometimes
 	HashMap<UUID, Player> clientPlayer = new HashMap<>();
 	HashMap<UUID, Bullet> clientBullets = new HashMap<>();
+	//HashMap<UUID, CastleFire> clientCastleFires = new HashMap<>();
 	HashMap<UUID, Creep> creeps = new HashMap<>();
 	HashMap<UUID, HeartPowerUp> heartPowerup = new HashMap<>();
 	HashMap<UUID, BananaPowerUp> bananaPowerup = new HashMap<>();
@@ -140,6 +140,7 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, ShieldFlags> shieldFlagPowerup = new HashMap<>();
 	HashMap<UUID, KeyPowerUp> keyPowerup = new HashMap<>();
 	HashMap<UUID, Flag> flags = new HashMap<>();
+	HashMap<UUID, Castle> castles = new HashMap<>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -291,10 +292,10 @@ public class EmpireWars extends StateBasedGame {
 	        	flags.put(flag.getObjectUUID(), flag);	
         }
         
-        if (this.myTeam == TEAM.RED)
-        	this.castle = new Castle(tileWidth*27, tileHeight*9, this.myTeam);
-        else
-        	this.castle = new Castle(mapWidth-26*tileWidth, mapHeight-15*tileHeight, this.myTeam);
+    	Castle tempCastle = new Castle(tileWidth*27, tileHeight*9, TEAM.RED);
+    	castles.put(tempCastle.getObjectUUID(), tempCastle);
+    	tempCastle = new Castle(mapWidth-26*tileWidth, mapHeight-15*tileHeight, TEAM.BLUE);
+    	castles.put(tempCastle.getObjectUUID(), tempCastle);
 	}
 	
 	/**
@@ -313,6 +314,10 @@ public class EmpireWars extends StateBasedGame {
 	public HashMap<UUID, Bullet> getClientBullets() {
 		return clientBullets;
 	}
+	
+	/*public HashMap<UUID, CastleFire> getClientCastleFires() {
+		return clientCastleFires;
+	}*/
 	
 	/**
 	 * HeartPowerup getter
@@ -533,6 +538,13 @@ public class EmpireWars extends StateBasedGame {
 		return this.creeps;
 	}
 
+	/**
+	 * castle getter
+	 */
+	public HashMap<UUID, Castle> getCastle() {
+		return this.castles;
+	}
+	
 	/**
 	 * Socket client getter
 	 * 

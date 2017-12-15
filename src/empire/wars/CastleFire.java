@@ -1,4 +1,4 @@
-package empire.wars;
+/*package empire.wars;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.state.StateBasedGame;
@@ -22,9 +22,7 @@ public class CastleFire extends NetworkEntity {
 		
 		addImageWithBoundingBox(ResourceManager.getImage(EmpireWars.FIRE_IMAGE_RSC));
 	}
-	
-	
-	/*
+
 	public void serverSendCollisionUpdates(EmpireWars game) {
 		String className = this.getClass().getSimpleName().toUpperCase();
 		Message posUpdate = new Message(
@@ -55,7 +53,7 @@ public class CastleFire extends NetworkEntity {
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
 		this.sendColorUpdate(game);
-	}*/
+	}
 
 
 	public void update(GameContainer container, StateBasedGame game, int delta, int mapWidth, int mapHeight, int tileWidth, int tileHeight)
@@ -64,9 +62,21 @@ public class CastleFire extends NetworkEntity {
 		{
 			this.explode();
 		}
-		else
+		else if (!this.isExploded())
 		{
-			translate(velocity.scale(delta));
+			EmpireWars ew = (EmpireWars)game;
+			if (this.team != ew.player.team && this.collides(ew.player) != null)
+			{
+				this.explode();
+				System.out.println("calling");
+				ew.player.health.setHealth(-4);
+				removeImage(ResourceManager.getImage(EmpireWars.FIRE_IMAGE_RSC));
+				return;
+			}
+			else
+			{
+				translate(velocity.scale(delta));
+			}
 		}
 //		this.checkCollision(ew);
 //		this.networkUpdate(ew);  // network updates
@@ -80,3 +90,4 @@ public class CastleFire extends NetworkEntity {
 		return velocity;
 	}
 }
+*/
