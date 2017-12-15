@@ -11,18 +11,20 @@ import jig.ResourceManager;
 public class Bullet extends NetworkEntity {
 	private Vector velocity;
 	private String bullet_image;
+	public int bullet;
 	
 	public enum BULLET_TYPE
 	{
 		PLAYER,
 		CREPES,
-		CASTLE
+		CASTLE,
+		
 	}
 	
 	private BULLET_TYPE bullet_type;
 	private int start_x, start_y;
 	
-	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type, final TEAM in_team){
+	public Bullet(final float x, final float y, final float vx, final float vy, final String in_bullet_image, final BULLET_TYPE in_bullet_type, final TEAM in_team, final int bullet){
 		super(x,y);
 		this.start_x = (int)x/32;
 		this.start_y = (int)y/32;
@@ -30,10 +32,10 @@ public class Bullet extends NetworkEntity {
 		this.bullet_image = in_bullet_image;
 		this.bullet_type = in_bullet_type;
 		this.team = in_team;
-		
+		this.bullet = bullet;
 		addImageWithBoundingBox(ResourceManager.getImage(this.bullet_image));
 	}
-	
+
 	/**
 	 * The server decides on creep collision detection. This is here so the 
 	 * server can alert the client that created this bullet that they should delete it.

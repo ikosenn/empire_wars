@@ -76,6 +76,7 @@ public class EmpireWars extends StateBasedGame {
 	private String username;
 	private int lives = EmpireWars.MAX_LIVES;
 	private int freeCards = 0;
+	private int bullets = 0;
 	private Score score = new Score();
 	
 	public final static float PLAYER_SPEED = 0.40f;
@@ -110,6 +111,7 @@ public class EmpireWars extends StateBasedGame {
 	public static final String CASTLE_BLUE_RSC = "images/castle_blue.png";
 	public static final String CASTLE_RED_RSC = "images/castle_red.png";
 	public static final String FIRE_IMAGE_RSC = "images/fire_image.png";
+	public static final String STAR_RSC = "images/star.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";	
@@ -139,6 +141,7 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, VanishingAct> vanishPowerup = new HashMap<>();
 	HashMap<UUID, ShieldFlags> shieldFlagPowerup = new HashMap<>();
 	HashMap<UUID, KeyPowerUp> keyPowerup = new HashMap<>();
+	HashMap<UUID, StarPowerUp> starPowerup = new HashMap<>();
 	HashMap<UUID, Flag> flags = new HashMap<>();
 	HashMap<UUID, Castle> castles = new HashMap<>();
 	
@@ -188,6 +191,7 @@ public class EmpireWars extends StateBasedGame {
 		ResourceManager.loadImage(CASTLE_BLUE_RSC);
 		ResourceManager.loadImage(CASTLE_RED_RSC);
 		ResourceManager.loadImage(FIRE_IMAGE_RSC);
+		ResourceManager.loadImage(STAR_RSC);
 
 		map = new TiledMap("src/tilemaps/maze1.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
@@ -256,7 +260,12 @@ public class EmpireWars extends StateBasedGame {
 	    		VanishingAct vanishemp = new VanishingAct(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
 	    		this.vanishPowerup.put(vanishemp.getObjectUUID(), vanishemp);
 		}
-		
+		// star bullet power-up
+		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
+	    		tilePos = this.randomizeEntityPos();
+	    		StarPowerUp starTemp = new StarPowerUp(tileWidth * tilePos[0], tileHeight * tilePos[1], this);
+	    		this.starPowerup.put(starTemp.getObjectUUID(), starTemp);
+		}
 		// banana power-up
 		for (int i = 0; i < EmpireWars.POWERUP_COUNT; i++) {
 	    		tilePos = this.randomizeEntityPos();
@@ -333,6 +342,14 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public HashMap<UUID, BananaPowerUp> getBananaPowerup() {
 		return bananaPowerup;
+	}
+	
+	/**
+	 * StarPowerup getter
+	 * 
+	 */
+	public HashMap<UUID, StarPowerUp> getStarPowerup() {
+		return starPowerup;
 	}
 	
 	/**
@@ -524,7 +541,6 @@ public class EmpireWars extends StateBasedGame {
 		creeps = new HashMap<>();
 		heartPowerup = new HashMap<>();
 		keyPowerup = new HashMap<>();
-
 		bananaPowerup = new HashMap<>();
 		//freezePowerup = new HashMap<>();
 		vanishPowerup = new HashMap<>();
@@ -589,6 +605,22 @@ public class EmpireWars extends StateBasedGame {
 	 */
 	public int getFreeCards() {
 		return freeCards;
+	}
+	
+	/**
+	 * star bullet setter
+	 * 
+	 */
+	public void setStarBullets(int bullets) {
+		this.bullets = bullets;
+	}
+	
+	/**
+	 * star bullet getter
+	 *  
+	 */
+	public int getStarBullets() {
+		return bullets;
 	}
 	
 	

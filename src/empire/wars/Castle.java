@@ -40,7 +40,7 @@ public class Castle extends NetworkEntity {
 			
 			float vy = (this.team == TEAM.BLUE) ? -0.1f : 0.1f;
 			
-			Bullet bullet = new Bullet(getX(), getY(), vx, vy, EmpireWars.FIRE_IMAGE_RSC, BULLET_TYPE.CASTLE, this.team);
+			Bullet bullet = new Bullet(getX(), getY(), vx, vy, EmpireWars.FIRE_IMAGE_RSC, BULLET_TYPE.CASTLE, this.team, 2);
 			ew.clientBullets.put(bullet.getObjectUUID(), bullet);
 			
 			//tempCastleFire.setVelocity(new Vector(vx, vy));
