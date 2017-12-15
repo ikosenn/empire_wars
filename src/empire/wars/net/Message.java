@@ -136,8 +136,8 @@ public class Message implements Serializable {
 			new BulletMessageHandler(msgPacket, ew);
 		}
 		
-		if (className != null && className.equals("STARBULLET")) {
-			new BulletMessageHandler(msgPacket, ew);
+		if (className != null && className.equals("STARPOWERUP")) {
+			new StarPowerUpHandler(msgPacket, ew);
 		}
 		
 		if (className != null && className.equals("CREEP")) {

@@ -3,7 +3,6 @@ package empire.wars;
 import java.awt.Font;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.newdawn.slick.Color;
@@ -88,7 +87,7 @@ public class PlayState extends BasicGameState {
 			i.next().getValue().render(g);
 		}
 		
-		for (Iterator<Entry<UUID, StarPowerUp>> i = ew.getStarPowerup().entrySet().iterator(); i.hasNext(); ) {
+		for (Iterator<HashMap.Entry<UUID, StarPowerUp>> i = ew.getStarPowerup().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
 		
