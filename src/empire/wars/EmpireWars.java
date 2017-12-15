@@ -83,6 +83,7 @@ public class EmpireWars extends StateBasedGame {
 	public TiledMap map;
 	Player player;
 	Camera camera;
+	Castle castle;
 	int mapHeight, mapWidth;
 	int tileHeight, tileWidth;
 	
@@ -106,7 +107,9 @@ public class EmpireWars extends StateBasedGame {
 	public static final String SHOWCASE_SHIELD = "images/showcaseShield.png";
 	public static final String FREEZE_RSC = "images/freeze.png";
 	public static final String KEY_RSC = "images/key.png";
-
+	public static final String CASTLE_BLUE_RSC = "images/castle_blue.png";
+	public static final String CASTLE_RED_RSC = "images/castle_red.png";
+	public static final String FIRE_IMAGE_RSC = "images/fire_image.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";	
@@ -179,6 +182,10 @@ public class EmpireWars extends StateBasedGame {
 
 		ResourceManager.loadImage(FREEZE_RSC);
 		ResourceManager.loadImage(KEY_RSC);
+		
+		ResourceManager.loadImage(CASTLE_BLUE_RSC);
+		ResourceManager.loadImage(CASTLE_RED_RSC);
+		ResourceManager.loadImage(FIRE_IMAGE_RSC);
 
 		map = new TiledMap("src/tilemaps/maze1.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
@@ -282,6 +289,11 @@ public class EmpireWars extends StateBasedGame {
 	        	Flag flag = new Flag(tileWidth * tilePos[0], tileHeight * tilePos[1]);
 	        	flags.put(flag.getObjectUUID(), flag);	
         }
+        
+        if (this.myTeam == TEAM.RED)
+        	this.castle = new Castle(tileWidth*27, tileHeight*9, this.myTeam);
+        else
+        	this.castle = new Castle(mapWidth-26*tileWidth, mapHeight-15*tileHeight, this.myTeam);
 	}
 	
 	/**

@@ -51,6 +51,12 @@ public class PlayState extends BasicGameState {
 			ew.player.render(g);
 		}
 		
+		ew.castle.render(g);
+		if (ew.castle.fireBullet != null)
+		{
+			ew.castle.fireBullet.render(g);
+		}
+		
 		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
@@ -90,6 +96,7 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
+
 		g.setFont(ttf);
 		g.setColor(Color.black);
 		g.fillRect((-1 * ew.camera.getXIndicator()),(-1 * ew.camera.getYIndicator()),EmpireWars.SCREEN_WIDTH,35);
@@ -124,6 +131,12 @@ public class PlayState extends BasicGameState {
 		
 		if (ew.player != null) {
 			ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		}
+		
+		ew.castle.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		if (ew.castle.fireBullet != null && !ew.castle.fireBullet.isExploded())
+		{
+			ew.castle.fireBullet.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		}
 
 		ew.getScore().update(game);
