@@ -51,9 +51,20 @@ public class PlayState extends BasicGameState {
 			ew.player.render(g);
 		}
 		
+		
+		for (Iterator<HashMap.Entry<UUID, Castle>> i = ew.castles.entrySet().iterator(); i.hasNext(); ) {
+			HashMap.Entry<UUID, Castle> itr = i.next();
+			itr.getValue().render(g);
+		}
+
+		/*for (Iterator<HashMap.Entry<UUID, CastleFire>> i = ew.clientCastleFires.entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().render(g);
+		}*/
+		
 		for (Iterator<HashMap.Entry<UUID, Flag>> i = ew.getFlags().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
+
 		for (Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext(); ) {
 			HashMap.Entry<UUID, Creep> itr = i.next();
 			itr.getValue().render(g);
@@ -90,6 +101,7 @@ public class PlayState extends BasicGameState {
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			i.next().getValue().render(g);
 		}
+
 		g.setFont(ttf);
 		g.setColor(Color.black);
 		g.fillRect((-1 * ew.camera.getXIndicator()),(-1 * ew.camera.getYIndicator()),EmpireWars.SCREEN_WIDTH,35);
@@ -125,6 +137,15 @@ public class PlayState extends BasicGameState {
 		if (ew.player != null) {
 			ew.player.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
 		}
+		
+		for (Iterator<HashMap.Entry<UUID, Castle>> i = ew.castles.entrySet().iterator(); i.hasNext(); ) {
+			Castle castle = i.next().getValue();
+			castle.update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		}
+		
+		/*for (Iterator<HashMap.Entry<UUID, CastleFire>> i = ew.clientCastleFires.entrySet().iterator(); i.hasNext(); ) {
+			i.next().getValue().update(container, game, delta, ew.mapWidth, ew.mapHeight, ew.tileWidth, ew.tileHeight);
+		}*/
 
 		ew.getScore().update(game);
 		

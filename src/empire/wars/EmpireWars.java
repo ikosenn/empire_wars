@@ -107,7 +107,9 @@ public class EmpireWars extends StateBasedGame {
 	public static final String SHOWCASE_SHIELD = "images/showcaseShield.png";
 	public static final String FREEZE_RSC = "images/freeze.png";
 	public static final String KEY_RSC = "images/key.png";
-
+	public static final String CASTLE_BLUE_RSC = "images/castle_blue.png";
+	public static final String CASTLE_RED_RSC = "images/castle_red.png";
+	public static final String FIRE_IMAGE_RSC = "images/fire_image.png";
 	
 	//sound resources
 	public static final String PLAYER_SHOOTSND_RSC = "sounds/gun_shot.wav";	
@@ -129,6 +131,7 @@ public class EmpireWars extends StateBasedGame {
 	// stupid way works best sometimes
 	HashMap<UUID, Player> clientPlayer = new HashMap<>();
 	HashMap<UUID, Bullet> clientBullets = new HashMap<>();
+	//HashMap<UUID, CastleFire> clientCastleFires = new HashMap<>();
 	HashMap<UUID, Creep> creeps = new HashMap<>();
 	HashMap<UUID, HeartPowerUp> heartPowerup = new HashMap<>();
 	HashMap<UUID, BananaPowerUp> bananaPowerup = new HashMap<>();
@@ -137,6 +140,7 @@ public class EmpireWars extends StateBasedGame {
 	HashMap<UUID, ShieldFlags> shieldFlagPowerup = new HashMap<>();
 	HashMap<UUID, KeyPowerUp> keyPowerup = new HashMap<>();
 	HashMap<UUID, Flag> flags = new HashMap<>();
+	HashMap<UUID, Castle> castles = new HashMap<>();
 	
 	public EmpireWars(String title) {
 		super(title);
@@ -180,6 +184,10 @@ public class EmpireWars extends StateBasedGame {
 
 		ResourceManager.loadImage(FREEZE_RSC);
 		ResourceManager.loadImage(KEY_RSC);
+		
+		ResourceManager.loadImage(CASTLE_BLUE_RSC);
+		ResourceManager.loadImage(CASTLE_RED_RSC);
+		ResourceManager.loadImage(FIRE_IMAGE_RSC);
 
 		map = new TiledMap("src/tilemaps/maze1.tmx");
 		mapWidth = map.getWidth() * map.getTileWidth();
@@ -283,6 +291,11 @@ public class EmpireWars extends StateBasedGame {
 	        	Flag flag = new Flag(tileWidth * tilePos[0], tileHeight * tilePos[1]);
 	        	flags.put(flag.getObjectUUID(), flag);	
         }
+        
+    	Castle tempCastle = new Castle(tileWidth*27, tileHeight*9, TEAM.RED);
+    	castles.put(tempCastle.getObjectUUID(), tempCastle);
+    	tempCastle = new Castle(mapWidth-26*tileWidth, mapHeight-15*tileHeight, TEAM.BLUE);
+    	castles.put(tempCastle.getObjectUUID(), tempCastle);
 	}
 	
 	/**
@@ -301,6 +314,10 @@ public class EmpireWars extends StateBasedGame {
 	public HashMap<UUID, Bullet> getClientBullets() {
 		return clientBullets;
 	}
+	
+	/*public HashMap<UUID, CastleFire> getClientCastleFires() {
+		return clientCastleFires;
+	}*/
 	
 	/**
 	 * HeartPowerup getter
@@ -521,6 +538,13 @@ public class EmpireWars extends StateBasedGame {
 		return this.creeps;
 	}
 
+	/**
+	 * castle getter
+	 */
+	public HashMap<UUID, Castle> getCastle() {
+		return this.castles;
+	}
+	
 	/**
 	 * Socket client getter
 	 * 
