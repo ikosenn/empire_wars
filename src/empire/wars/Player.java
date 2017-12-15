@@ -34,6 +34,8 @@ public class Player extends NetworkEntity {
 	private int FREEZETIME = 5000;
 	private int freezeTime = FREEZETIME;
 	
+	private int freeze_stay_timer = 0;
+	
 	private Animation blue_movement_up = new Animation(ResourceManager.getSpriteSheet(
 			EmpireWars.BLUE_PLAYER_MOVING_IMG_RSC, 48, 48), 0, 3, 2, 3, true, 150, true);
 	private Animation blue_movement_down = new Animation(ResourceManager.getSpriteSheet(
@@ -203,6 +205,11 @@ public class Player extends NetworkEntity {
 		this.port = port;
 	}
 	
+	public void setFreezeTime(int freeze_stay_timer) {
+		this.freeze_stay_timer = freeze_stay_timer;
+		System.out.println(this.freeze_stay_timer);
+	}
+	
 	public void changeDirection(Direction new_direction, EmpireWars game)
 	{
 		removeAnimation(getAnimation(Direction.UP));
@@ -296,6 +303,11 @@ public class Player extends NetworkEntity {
 			}
 		}
 		
+		if(freeze_stay_timer > 0) {
+			freeze_stay_timer -= delta;
+			return;
+		}
+		
 		if(input.isKeyDown(Input.KEY_W) || input.isKeyDown(Input.KEY_UP)){
 			setVelocity(new Vector(0.f, -EmpireWars.PLAYER_SPEED));
 			changeDirection(Direction.UP, ew);
@@ -370,8 +382,10 @@ public class Player extends NetworkEntity {
 	 */
 	@Override
 	public void render(final Graphics g) {
-		super.render(g);
 		this.health.render(g);
+		if(freeze_stay_timer <= 0) {
+			super.render(g);
+		}
 	}
 	
 	public Vector getTileIdx(Vector v){

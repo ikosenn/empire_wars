@@ -75,4 +75,5 @@ public class ConnectedPlayers {
 	public void setTeam(TEAM team) {
 		this.team = team;
 	}
+
 }
