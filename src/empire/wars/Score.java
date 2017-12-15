@@ -66,6 +66,13 @@ public class Score {
 		}
 	}
 	
+	public void serverSendScoreUpdate(EmpireWars game, int score, TEAM team) {
+		String msg = Integer.toString(score);
+		String type = "SERVER" + team.toString() + "SCORE";
+		Message posUpdate = new Message(msg, type);
+		game.sendPackets.add(posUpdate);
+	}
+	
 	/**
 	 * This red team propagates the scores to other clients
 	 */

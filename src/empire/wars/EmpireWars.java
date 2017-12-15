@@ -60,7 +60,7 @@ public class EmpireWars extends StateBasedGame {
 	public final static int PLAYER_KILL_POINTS = 5;
 	public final static int CHANGE_FLAG_POINTS = 30;
 	public final static int GAME_DURATION = 300000;
-	public final static int MAX_LIVES = 1;
+	public final static int MAX_LIVES = 3;
 	
 	public final static int SCREEN_WIDTH = 1024;
 	public final static int SCREEN_HEIGHT = 768;
@@ -73,7 +73,7 @@ public class EmpireWars extends StateBasedGame {
 	private GameServer socketServer;
 	
 	private String username;
-	private int lives = 3;
+	private int lives = EmpireWars.MAX_LIVES;
 	private int freeCards = 0;
 	private Score score = new Score();
 	
