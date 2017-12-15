@@ -99,7 +99,7 @@ public class Creep extends NetworkEntity {
 	}
 	
 	public void sendHealthBarUpdates(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" && this.health.hasChanged()) {
+		if (this.objectType.equals("ORIGINAL") && this.health.hasChanged()) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = Double.toString(this.health.getCurrentHealth());
 			Message healthUpdate = new Message(
@@ -163,7 +163,7 @@ public class Creep extends NetworkEntity {
 	}
 	
 	private void sendDirectionUpdates(EmpireWars game, String categoryType) {
-		if (this.objectType == "ORIGINAL" && this.direction != this._direction) {
+		if (this.objectType.equals("ORIGINAL") && this.direction != this._direction) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = this.direction.toString();
 			Message posUpdate = new Message(

@@ -90,7 +90,7 @@ public class Bullet extends NetworkEntity {
 	 * Update clients on my strength color I belong to
 	 */
 	public void sendTypeUpdate(EmpireWars game) {
-		if (this.objectType == "ORIGINAL" && this._bullet != this.bullet) {
+		if (this.objectType.equals("ORIGINAL") && this._bullet != this.bullet) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			String msg = Integer.toString(this.bullet);
 			Message posUpdate = new Message(

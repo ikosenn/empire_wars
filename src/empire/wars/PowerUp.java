@@ -32,7 +32,7 @@ public abstract class PowerUp extends NetworkEntity {
 	 * @param player. A client player that just collided with the power-up
 	 */
 	public void handleClient(Player player) {
-		if (this.objectType == "ORIGINAL" ) {
+		if (this.objectType.equals("ORIGINAL")) {
 			String className = this.getClass().getSimpleName().toUpperCase();
 			// only this player should process it
 			String msg = "";

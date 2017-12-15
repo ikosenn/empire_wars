@@ -31,7 +31,7 @@ public class PlayState extends BasicGameState {
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		EmpireWars ew = (EmpireWars)game;
 		game_timer = EmpireWars.GAME_DURATION;
-		if (ew.getSessionType() == "SERVER") {
+		if (ew.getSessionType().equals("SERVER")) {
 			ew.createOnServer();
 		}
 		ew.createOnClients();
