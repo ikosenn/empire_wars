@@ -30,7 +30,7 @@ public class Player extends NetworkEntity {
 	private Vector redStart = new Vector(120, 118);
 	private Vector redJail = new Vector(128, 1408);
 	private Vector blueJail = new Vector(6240, 160);
-	private boolean inJail = false;
+	public boolean inJail = false;
 	private int FREEZETIME = 5000;
 	private int freezeTime = FREEZETIME;
 	
@@ -74,6 +74,7 @@ public class Player extends NetworkEntity {
 		} else if (this.team == TEAM.BLUE) {
 			this.setPosition(blueStart);
 		}
+		this.setHealthBarPos();
 	}
 	
 	private void sentToJail(){

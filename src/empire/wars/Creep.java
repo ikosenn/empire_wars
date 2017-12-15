@@ -197,11 +197,16 @@ public class Creep extends NetworkEntity {
 		this.freeze_time++;
 		
 		//if the creep belongs to opponent and if a path has not already been constructed, find a path to opponent player
-		if (this.team != ew.player.team && !this.currentlyCreeping && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
+		if (this.team != ew.player.team && !ew.player.inJail && !this.currentlyCreeping && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
 		{
 			Vector playerPos = ew.player.getPosition();
 			Vector targetPos = new Vector(playerPos.getX() + Creep.targetLocations[this.unitNumber%8].getX(), playerPos.getY() + Creep.targetLocations[this.unitNumber%8].getY());
 			this.pathFinder.findPath(getPosition(), targetPos);
+		}
+		
+		if (this.team != ew.player.team && ew.player.inJail)
+		{
+			this.pathFinder.pathStack.clear();
 		}
 		
 		float vx = 0, vy = 0;
