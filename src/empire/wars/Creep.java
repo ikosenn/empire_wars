@@ -272,6 +272,7 @@ public class Creep extends NetworkEntity {
 			// the entity is dead. No need to go on
 			return;
 		}
+
 		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
 			Bullet bullet = i.next().getValue();
 			if (bullet.collides(this) != null && !bullet.isDestroyed()) {

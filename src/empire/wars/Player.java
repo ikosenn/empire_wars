@@ -1,7 +1,10 @@
 package empire.wars;
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.UUID;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.GameContainer;
@@ -366,6 +369,20 @@ public class Player extends NetworkEntity {
 		{
 			this.setPosition(previousPoition);
 			this.setHealthBarPos();
+		}
+		
+		for (Iterator<HashMap.Entry<UUID, Bullet>> i = ew.getClientBullets().entrySet().iterator(); i.hasNext(); ) {
+			Bullet bullet = i.next().getValue();
+			if (bullet.collides(this) != null && !bullet.isDestroyed()) {
+				if (bullet.team != this.team) {
+					ew.getScore().addScore(EmpireWars.PLAYER_KILL_POINTS, bullet.team);
+					this.health.setHealth(-4);
+					bullet.explode();
+				}
+				if (!bullet.getObjectType().equals("ORIGINAL")) {
+					bullet.serverSendCollisionUpdates(ew);
+				}
+			}
 		}
 	}
 	
