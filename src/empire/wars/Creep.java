@@ -20,6 +20,7 @@ import jig.Vector;
 
 public class Creep extends NetworkEntity {
 	private Vector velocity;
+	private UUID playerUUID = null; 
 	private Direction direction;
 	private Direction _direction;
 	public HealthBar health;
@@ -107,6 +108,16 @@ public class Creep extends NetworkEntity {
 		}
 	}
 	
+	/**
+	 * player uuid setter.
+	 * 
+	 * @param uuid. A uuid that belongs to a client player.
+	 * 
+	 */
+	public void setPlayerUUID(UUID uuid) {
+		this.playerUUID = uuid;
+	}
+	
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
@@ -185,6 +196,16 @@ public class Creep extends NetworkEntity {
 		velocity = velocity.bounce(surfaceTangent);
 	}
 	
+	/*
+	 * return the player to plan a path to.
+	 */
+	private Player getAttackPlayer(EmpireWars ew) {
+		if (this.playerUUID != null) {
+			return ew.getClientPlayer().get(this.playerUUID);
+		}		
+		return ew.player;
+	}
+	
 	public void update(StateBasedGame game, int delta){
 		EmpireWars ew = (EmpireWars) game;
 		this.networkUpdate(ew);  // network updates
@@ -197,14 +218,15 @@ public class Creep extends NetworkEntity {
 		this.freeze_time++;
 		
 		//if the creep belongs to opponent and if a path has not already been constructed, find a path to opponent player
-		if (this.team != ew.player.team && !ew.player.inJail && !this.currentlyCreeping && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
+		Player attackPlayer = this.getAttackPlayer(ew); 
+		if (this.team != attackPlayer.team && !attackPlayer.inJail && !this.currentlyCreeping && (this.pathFinder.pathStack == null || this.pathFinder.pathStack.isEmpty()))
 		{
-			Vector playerPos = ew.player.getPosition();
+			Vector playerPos = attackPlayer.getPosition();
 			Vector targetPos = new Vector(playerPos.getX() + Creep.targetLocations[this.unitNumber%8].getX(), playerPos.getY() + Creep.targetLocations[this.unitNumber%8].getY());
 			this.pathFinder.findPath(getPosition(), targetPos);
 		}
 		
-		if (this.team != ew.player.team && ew.player.inJail)
+		if (this.team != attackPlayer.team && attackPlayer.inJail)
 		{
 			this.pathFinder.pathStack.clear();
 		}
@@ -253,13 +275,13 @@ public class Creep extends NetworkEntity {
 			else
 			{
 				this.pathFinder.pathStack.pop();
-				Vector playerTile = EmpireWars.getTileIdx(ew.player.getPosition());
+				Vector playerTile = EmpireWars.getTileIdx(attackPlayer.getPosition());
 				// recompute path if player has moved
-				if(playerTile.getX() != ew.player.tilePosition.getX() || playerTile.getY() != ew.player.tilePosition.getY())
+				if(playerTile.getX() != attackPlayer.tilePosition.getX() || playerTile.getY() != attackPlayer.tilePosition.getY())
 				{
-					ew.player.setTilePosition(playerTile);
+					attackPlayer.setTilePosition(playerTile);
 					
-					Vector playerPos = ew.player.getPosition();
+					Vector playerPos = attackPlayer.getPosition();
 					Vector targetPos = new Vector(playerPos.getX() + Creep.targetLocations[this.unitNumber%8].getX(), playerPos.getY() + Creep.targetLocations[this.unitNumber%8].getY());
 					this.pathFinder.findPath(getPosition(), targetPos);
 				}
@@ -293,6 +315,7 @@ public class Creep extends NetworkEntity {
 		}
 
 		// server player
+		boolean collideServerPlayer = false;
 		if (this.collides(ew.player) != null) {
 			if (this.team != ew.player.team)
 			{
@@ -300,6 +323,7 @@ public class Creep extends NetworkEntity {
 				this.setVelocity(new Vector(0f,0f));
 				this.pathFinder.pathStack.clear();
 				this.currentlyCreeping = true;
+				collideServerPlayer = true;
 			}
 		}
 		else
@@ -309,15 +333,30 @@ public class Creep extends NetworkEntity {
 				setVelocity(speedVectors.get(this.direction.ordinal()));
 		}
 		
-		for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
-			Player tempPlayer = i.next().getValue();
-			Collision isPen = this.collides(tempPlayer);
-			if (isPen != null && this.team != tempPlayer.team) {
-				this.sendPlayerHealth(ew, -0.02, tempPlayer);
+		// network players
+		if (!collideServerPlayer) {
+			for (Iterator<HashMap.Entry<UUID, Player>> i = ew.getClientPlayer().entrySet().iterator(); i.hasNext(); ) {
+				Player tempPlayer = i.next().getValue();
+				Collision isPen = this.collides(tempPlayer);
+	
+				if (isPen != null) {
+					if (this.team != tempPlayer.team)
+					{
+						this.sendPlayerHealth(ew, -0.02, tempPlayer);
+						this.setVelocity(new Vector(0f,0f));
+						this.pathFinder.pathStack.clear();
+						this.currentlyCreeping = true;
+					}
+				} else {
+					this.currentlyCreeping = false;
+					if (this.getVelocity().getX() == 0f && this.getVelocity().getY() == 0f) {
+						setVelocity(speedVectors.get(this.direction.ordinal()));
+					}
+				}
 			}
 		}
 		
-		// network players
+
 		for(Iterator<HashMap.Entry<UUID, Creep>> i = ew.creeps.entrySet().iterator(); i.hasNext();){
 			HashMap.Entry<UUID, Creep> itr = i.next();
 			if (this.getObjectUUID() == itr.getValue().getObjectUUID())

@@ -34,6 +34,7 @@ public class Player extends NetworkEntity {
 	private Vector redJail = new Vector(128, 1408);
 	private Vector blueJail = new Vector(6240, 160);
 	public boolean inJail = false;
+	private boolean _inJail = false;
 	private int JAILTIME = 15000;
 	private int jailTime = JAILTIME;
 	
@@ -258,11 +259,27 @@ public class Player extends NetworkEntity {
 		}
 	}
 	
+	/**
+	 * Sends in jail updates
+	 * @param game. The current game state
+	 */
+	public void sendInjailUpdates(EmpireWars game) {
+		if (this.objectType == "ORIGINAL" && this._inJail != this.inJail) {
+			String className = this.getClass().getSimpleName().toUpperCase();
+			String msg = this.inJail ? "1" : "0";
+			Message jailUpdate = new Message(
+				this.getObjectUUID(), "UPDATE", "SETJAIL", msg, className);
+			game.sendPackets.add(jailUpdate);
+			this._inJail = this.inJail;
+		}
+	}
+	
 	@Override
 	public void networkUpdate(EmpireWars game) {
 		super.networkUpdate(game);
 		this.sendColorUpdate(game);
 		this.sendHealthBarUpdates(game);
+		this.sendInjailUpdates(game);
 	}
 	
 	/**
